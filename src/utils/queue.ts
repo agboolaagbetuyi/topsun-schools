@@ -2,12 +2,12 @@ import { Job, Queue, Worker } from "bullmq";
 import { Redis, RedisOptions } from "ioredis";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
 import {
-  sendChildLinkageMail,
-  sendEmailVerification,
-  sendParentSessionNotification,
-  sendPasswordReset,
-  sendStudentSessionNotification,
-} from "./nodemailer";
+  resendSendChildLinkageMail,
+  resendSendEmailVerification,
+  resendSendParentSessionNotification,
+  resendSendPasswordReset,
+  resendSendStudentSessionNotification,
+} from "./resend";
 import {
   EmailJobData,
   CbtAssessmentJobData,
@@ -27,10 +27,13 @@ import {
   processStudentSubjectPositionUpdate,
   processSubjectCumScoreUpdate,
 } from "../repository/result.repository";
+import { sendEmailVerification } from "./nodemailer";
 
 const isDocker = process.env.DOCKER_ENV === "true";
 
 const redisUrl = process.env.REDIS_URL;
+
+console.log("redisUrl:", redisUrl);
 
 if (!redisUrl) {
   throw new Error("REDIS_URL is not defined...");
@@ -71,7 +74,7 @@ const emailWorker = new Worker<EmailJobData>(
         throw new Error("Token is required for email verification");
       }
 
-      const sendEmail = await sendEmailVerification({
+      const sendEmail = await resendSendEmailVerification({
         email,
         first_name,
         token,
@@ -83,7 +86,7 @@ const emailWorker = new Worker<EmailJobData>(
         throw new Error("Token is required for forgot password");
       }
 
-      const sendEmail = await sendPasswordReset({
+      const sendEmail = await resendSendPasswordReset({
         email,
         first_name,
         token,
@@ -91,7 +94,7 @@ const emailWorker = new Worker<EmailJobData>(
 
       return sendEmail;
     } else if (type === "child-linkage") {
-      const sendEmail = await sendChildLinkageMail({
+      const sendEmail = await resendSendChildLinkageMail({
         email,
         first_name,
         title,
@@ -102,13 +105,13 @@ const emailWorker = new Worker<EmailJobData>(
     } else if (type === "session-subscription") {
       let sendEmail;
       if (option === "student") {
-        sendEmail = await sendStudentSessionNotification({
+        sendEmail = await resendSendStudentSessionNotification({
           email,
           first_name,
           academic_session,
         });
       } else if (option === "parent") {
-        sendEmail = await sendParentSessionNotification({
+        sendEmail = await resendSendParentSessionNotification({
           first_name,
           child_name,
           child_email,
@@ -120,7 +123,14 @@ const emailWorker = new Worker<EmailJobData>(
       return sendEmail;
     }
   },
-  { connection }
+  // { connection }
+  {
+    connection,
+    concurrency: 20,
+    maxStalledCount: 2,
+    lockDuration: 120000,
+    lockRenewTime: 30000,
+  }
 );
 
 const studentResultQueue = new Queue("studentResultQueue", { connection });
@@ -165,7 +175,13 @@ const resultWorker = new Worker<
         throw new Error(`Unknown job type: ${job.name}`);
     }
   },
-  { connection, concurrency: 100, maxStalledCount: 2, lockDuration: 30000 }
+  {
+    connection,
+    concurrency: 100,
+    maxStalledCount: 2,
+    lockDuration: 120000,
+    lockRenewTime: 30000,
+  }
 );
 
 emailWorker.on("completed", (job) => {
@@ -229,4 +245,10 @@ createBullBoard({
 
 serverAdapter.setBasePath("/bull-board");
 
-export { emailQueue, studentResultQueue, emailWorker, serverAdapter };
+export {
+  emailQueue,
+  studentResultQueue,
+  emailWorker,
+  serverAdapter,
+  connection,
+};

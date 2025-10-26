@@ -30,6 +30,7 @@ import teacherRoute from "./routes/teacher.route";
 import { registerCbtHandlers } from "./sockets/cbtSocketHandlers";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { resendSendEmailVerification } from "./utils/resend";
 // import ngrok from '@ngrok/ngrok';
 
 connectDB;
@@ -44,10 +45,7 @@ const httpServer = createServer(app);
 
 const allowedOrigins: string[] = [
   process.env.FRONTEND_URL || "",
-  "http://localhost:3000",
-  "http://localhost:5173",
-  // 'https://topsun.vercel.app',
-  "https://topsun-dev.vercel.app",
+  "https://topsun.vercel.app",
 ];
 
 const corsOptions: CorsOptions = {
@@ -90,7 +88,13 @@ app.use("/api/v1/cbt", cbtRoute);
 app.use("/api/v1/super-admin", superAdminRoute);
 app.use("/api/v1/school", schoolRoute);
 
-app.use("/admin/queues", serverAdapter.getRouter());
+app.use(
+  "/admin/queues",
+  () => {
+    console.log("connecting redis");
+  },
+  serverAdapter.getRouter()
+);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -125,8 +129,13 @@ io.on("connection", (socket) => {
   registerCbtHandlers(io, socket);
 });
 
-httpServer.listen(port, () => {
+httpServer.listen(port, async () => {
   console.log(`Listening on port ${port}`);
+  await resendSendEmailVerification({
+    email: "ayodejiadebolu@gmail.com",
+    first_name: "Ayodeji",
+    token: "495867",
+  });
 });
 
 // app.listen(port, () => {
