@@ -30,7 +30,6 @@ import teacherRoute from "./routes/teacher.route";
 import { registerCbtHandlers } from "./sockets/cbtSocketHandlers";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { resendSendEmailVerification } from "./utils/resend";
 // import ngrok from '@ngrok/ngrok';
 
 connectDB;
@@ -131,11 +130,6 @@ io.on("connection", (socket) => {
 
 httpServer.listen(port, async () => {
   console.log(`Listening on port ${port}`);
-  await resendSendEmailVerification({
-    email: "ayodejiadebolu@gmail.com",
-    first_name: "Ayodeji",
-    token: "495867",
-  });
 });
 
 // app.listen(port, () => {
