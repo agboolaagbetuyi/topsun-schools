@@ -1,10 +1,10 @@
-import multer, { FileFilterCallback } from 'multer';
-import fs from 'fs';
-import { Request } from 'express';
+import multer, { FileFilterCallback } from "multer";
+import fs from "fs";
+import { Request } from "express";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = './uploads';
+    const uploadPath = "./uploads";
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath);
     }
@@ -12,8 +12,8 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.originalname + '-' + uniqueSuffix);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.originalname + "-" + uniqueSuffix);
   },
 });
 
@@ -25,16 +25,16 @@ const fileFilter = (
   cb: FileFilterCallback
 ) => {
   if (
-    file.mimetype === 'image/jpeg' ||
-    file.mimetype === 'image/png' ||
-    file.mimetype === 'image/jpg'
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg"
   ) {
     cb(null, true);
   } else if (file.size > maxLimit) {
-    console.error('Max limit exceeded');
-    cb(new Error('File size exceeded.'));
+    console.error("Max limit exceeded");
+    cb(new Error("File size exceeded."));
   } else {
-    cb(new Error('File format not supported.'));
+    cb(new Error("File format not supported."));
   }
 };
 

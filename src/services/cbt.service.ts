@@ -1,9 +1,9 @@
-import mongoose, { Types } from 'mongoose';
+import mongoose, { Types } from "mongoose";
 import {
   examKeyEnum,
   examStatusEnum,
   triggerTypeEnum,
-} from '../constants/enum';
+} from "../constants/enum";
 import {
   CbtAssessmentDocumentCreationType,
   CbtAssessmentDocumentPayload,
@@ -21,30 +21,30 @@ import {
   CbtAssessmentDocumentArrayType,
   ChangeSubjectStartTimeType,
   EndSubjectInATimetableType,
-} from '../constants/types';
-import CbtCutoff from '../models/cbt_cutoffs.model';
-import CbtExam from '../models/cbt_exam.model';
-import CbtQuestion from '../models/cbt_question.model';
-import CbtResult from '../models/cbt_result.model';
-import Class from '../models/class.model';
-import ClassExamTimetable from '../models/class_exam_timetable.model';
-import ClassEnrolment from '../models/classes_enrolment.model';
-import Result from '../models/result.model';
-import ResultSetting from '../models/result_setting.model';
-import Session from '../models/session.model';
-import Student from '../models/students.model';
-import Subject from '../models/subject.model';
-import Teacher from '../models/teachers.model';
-import { AppError } from '../utils/app.error';
+} from "../constants/types";
+import CbtCutoff from "../models/cbt_cutoffs.model";
+import CbtExam from "../models/cbt_exam.model";
+import CbtQuestion from "../models/cbt_question.model";
+import CbtResult from "../models/cbt_result.model";
+import Class from "../models/class.model";
+import ClassExamTimetable from "../models/class_exam_timetable.model";
+import ClassEnrolment from "../models/classes_enrolment.model";
+import Result from "../models/result.model";
+import ResultSetting from "../models/result_setting.model";
+import Session from "../models/session.model";
+import Student from "../models/students.model";
+import Subject from "../models/subject.model";
+import Teacher from "../models/teachers.model";
+import { AppError } from "../utils/app.error";
 import {
   capitalizeFirstLetter,
   formatDate,
   normalizeQuestions,
-} from '../utils/functions';
-import SuperAdmin from '../models/super_admin.model';
-import Admin from '../models/admin.model';
-import { SubjectResult } from '../models/subject_result.model';
-import { studentResultQueue } from '../utils/queue';
+} from "../utils/functions";
+import SuperAdmin from "../models/super_admin.model";
+import Admin from "../models/admin.model";
+import { SubjectResult } from "../models/subject_result.model";
+import { studentResultQueue } from "../utils/queue";
 
 const termCbtAssessmentDocumentCreation = async (
   payload: CbtAssessmentDocumentArrayType
@@ -88,7 +88,7 @@ const termCbtAssessmentDocumentCreation = async (
 
       const allowedComponent =
         levelResultSetting.exam_components.component.find(
-          (a) => a.key === 'obj'
+          (a) => a.key === "obj"
         );
 
       if (
@@ -152,7 +152,7 @@ const termCbtAssessmentDocumentCreation = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -204,7 +204,7 @@ const fetchTermCbtAssessmentDocument = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -229,7 +229,7 @@ const termCbtAssessmentDocumentEnding = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -244,7 +244,7 @@ const allActiveTermCbtAssessmentDocumentsInATermEnding = async (
     });
 
     if (!activeSession) {
-      throw new AppError('Session not found.', 404);
+      throw new AppError("Session not found.", 404);
     }
 
     const actualTerm = activeSession.terms.find(
@@ -252,7 +252,7 @@ const allActiveTermCbtAssessmentDocumentsInATermEnding = async (
     );
 
     if (!actualTerm) {
-      throw new AppError('Term does not exist.', 404);
+      throw new AppError("Term does not exist.", 404);
     }
 
     const examDocuments = await CbtExam.updateMany(
@@ -271,7 +271,7 @@ const allActiveTermCbtAssessmentDocumentsInATermEnding = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -290,7 +290,7 @@ const fetchCbtAssessmentDocumentById = async (cbt_document_id: string) => {
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -299,7 +299,7 @@ const fetchAllClassCbtAssessmentTimetables = async (
   class_id: string,
   page?: number,
   limit?: number,
-  searchParams = ''
+  searchParams = ""
 ) => {
   try {
     const classId = Object(class_id);
@@ -307,13 +307,13 @@ const fetchAllClassCbtAssessmentTimetables = async (
     const classExist = await Class.findById(classId);
 
     if (!classExist) {
-      throw new AppError('Class does not exist.', 404);
+      throw new AppError("Class does not exist.", 404);
     }
 
     let query = ClassExamTimetable.find({}).sort({ createdAt: -1 });
 
     if (searchParams?.trim()) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -332,13 +332,13 @@ const fetchAllClassCbtAssessmentTimetables = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Pages can not be found.', 404);
+        throw new AppError("Pages can not be found.", 404);
       }
     }
 
     const timetableExist = await query
       .sort({ createdAt: -1 })
-      .populate('scheduled_subjects.subject_id');
+      .populate("scheduled_subjects.subject_id");
 
     if (!timetableExist || timetableExist.length === 0) {
       throw new AppError(
@@ -357,7 +357,7 @@ const fetchAllClassCbtAssessmentTimetables = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -397,7 +397,7 @@ const fetchTermClassCbtAssessmentTimetable = async (
     const classExist = await Class.findById(classId);
 
     if (!classExist) {
-      throw new AppError('Class does not exist.', 404);
+      throw new AppError("Class does not exist.", 404);
     }
 
     const timetableExists = await ClassExamTimetable.findOne({
@@ -406,7 +406,7 @@ const fetchTermClassCbtAssessmentTimetable = async (
       term: term,
       is_active: true,
     })
-      .populate('scheduled_subjects.subject_id')
+      .populate("scheduled_subjects.subject_id")
       .lean();
 
     if (!timetableExists) {
@@ -425,7 +425,7 @@ const fetchTermClassCbtAssessmentTimetable = async (
 
     timetableExists.scheduled_subjects = formattedTimeTable;
 
-    console.log('timetableExists:', timetableExists);
+    console.log("timetableExists:", timetableExists);
 
     return timetableExists;
   } catch (error) {
@@ -433,7 +433,7 @@ const fetchTermClassCbtAssessmentTimetable = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -474,7 +474,7 @@ const termClassCbtAssessmentTimetableCreation = async (
     if (duplicateSubjectId.size > 0) {
       throw new AppError(
         `Duplicate subject found for: ${Array.from(duplicateSubjectId).join(
-          ', '
+          ", "
         )} IDs.`,
         400
       );
@@ -494,20 +494,20 @@ const termClassCbtAssessmentTimetableCreation = async (
 
     let userExist: UserDocument | null = null;
 
-    if (userRole === 'super_admin') {
+    if (userRole === "super_admin") {
       userExist = await SuperAdmin.findById({
         _id: userId,
       });
-    } else if (userRole === 'admin') {
+    } else if (userRole === "admin") {
       userExist = await Admin.findById({
         _id: userId,
       });
     } else {
-      throw new AppError('Invalid user role.', 400);
+      throw new AppError("Invalid user role.", 400);
     }
 
     if (!userExist || userExist === null) {
-      throw new AppError('User not found.', 400);
+      throw new AppError("User not found.", 400);
     }
 
     const academicSessionExist = await Session.findById(academicSessionId);
@@ -535,11 +535,11 @@ const termClassCbtAssessmentTimetableCreation = async (
     const classExist = await Class.findById(classId);
 
     if (!classExist) {
-      throw new AppError('Class does not exist.', 404);
+      throw new AppError("Class does not exist.", 404);
     }
 
     if (classExist.level.trim().toLowerCase() !== level.trim().toLowerCase()) {
-      throw new AppError('Invalid level.', 400);
+      throw new AppError("Invalid level.", 400);
     }
 
     const classEnrolmentExist = await ClassEnrolment.findOne({
@@ -549,7 +549,7 @@ const termClassCbtAssessmentTimetableCreation = async (
 
     if (!classEnrolmentExist) {
       throw new AppError(
-        'There is no enrollment into this class in this session.',
+        "There is no enrollment into this class in this session.",
         404
       );
     }
@@ -560,7 +560,7 @@ const termClassCbtAssessmentTimetableCreation = async (
 
     if (!classResultSetting) {
       throw new AppError(
-        'This class does not have result settings. Please create one to proceed.',
+        "This class does not have result settings. Please create one to proceed.",
         404
       );
     }
@@ -578,12 +578,12 @@ const termClassCbtAssessmentTimetableCreation = async (
     // }
 
     const exam_component_key =
-      classResultSetting.exam_components.component.find((b) => b.key === 'obj');
+      classResultSetting.exam_components.component.find((b) => b.key === "obj");
 
     if (
       exam_component_key?.name.toLowerCase() !== assessment_type.toLowerCase()
     ) {
-      throw new AppError('Invalid assessment type.', 400);
+      throw new AppError("Invalid assessment type.", 400);
     }
 
     const cbtExamExist = await CbtExam.findOne({
@@ -603,7 +603,7 @@ const termClassCbtAssessmentTimetableCreation = async (
 
     if (cbtExamExist.is_active !== true) {
       throw new AppError(
-        'Exam has been finalized by the school authority.',
+        "Exam has been finalized by the school authority.",
         400
       );
     }
@@ -637,7 +637,7 @@ const termClassCbtAssessmentTimetableCreation = async (
     );
 
     if (!activeTimetableExist) {
-      console.log('Unable to invalidate previous timetable.');
+      console.log("Unable to invalidate previous timetable.");
     }
 
     // const schoolCutoffTimeExist = await CbtCutoff.findOne();
@@ -707,7 +707,7 @@ const termClassCbtAssessmentTimetableCreation = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -732,7 +732,7 @@ const termClassCbtAssessmentTimetableToChangeSubjectDateUpdating = async (
 
     if (!cbtExamDoc || cbtExamDoc.is_active === false) {
       throw new AppError(
-        'Exam document does not exist or the exam period for the school is already over.',
+        "Exam document does not exist or the exam period for the school is already over.",
         400
       );
     }
@@ -748,8 +748,8 @@ const termClassCbtAssessmentTimetableToChangeSubjectDateUpdating = async (
       );
     }
 
-    if (subject.exam_subject_status === 'ended') {
-      throw new AppError('This exam has already ended.', 400);
+    if (subject.exam_subject_status === "ended") {
+      throw new AppError("This exam has already ended.", 400);
     }
     subject.start_time = selected_time;
 
@@ -766,7 +766,7 @@ const termClassCbtAssessmentTimetableToChangeSubjectDateUpdating = async (
       { new: true }
     );
 
-    timetableExist.markModified('scheduled_subjects');
+    timetableExist.markModified("scheduled_subjects");
     await timetableExist.save();
 
     const formattedTimeTable = timetableExist.scheduled_subjects.map(
@@ -782,7 +782,7 @@ const termClassCbtAssessmentTimetableToChangeSubjectDateUpdating = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -805,7 +805,7 @@ const endSubjectInATimetable = async (payload: EndSubjectInATimetableType) => {
 
     if (!cbtExamDoc || cbtExamDoc.is_active === false) {
       throw new AppError(
-        'Exam document does not exist or the exam period for the school is already over.',
+        "Exam document does not exist or the exam period for the school is already over.",
         400
       );
     }
@@ -821,10 +821,10 @@ const endSubjectInATimetable = async (payload: EndSubjectInATimetableType) => {
       );
     }
 
-    if (subject.exam_subject_status === 'ended') {
-      throw new AppError('This exam has already ended.', 400);
+    if (subject.exam_subject_status === "ended") {
+      throw new AppError("This exam has already ended.", 400);
     }
-    subject.exam_subject_status = 'ended';
+    subject.exam_subject_status = "ended";
 
     const questionExist = await CbtQuestion.findOneAndUpdate(
       {
@@ -834,12 +834,12 @@ const endSubjectInATimetable = async (payload: EndSubjectInATimetableType) => {
         subject_id: subject.subject_id,
       },
       {
-        exam_subject_status: 'ended',
+        exam_subject_status: "ended",
       },
       { new: true }
     );
 
-    timetableExist.markModified('scheduled_subjects');
+    timetableExist.markModified("scheduled_subjects");
     await timetableExist.save();
 
     const formattedTimeTable = timetableExist.scheduled_subjects.map(
@@ -855,7 +855,7 @@ const endSubjectInATimetable = async (payload: EndSubjectInATimetableType) => {
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -863,13 +863,13 @@ const endSubjectInATimetable = async (payload: EndSubjectInATimetableType) => {
 const fetchAllCbtAssessmentDocument = async (
   page?: number,
   limit?: number,
-  searchParams = ''
+  searchParams = ""
 ) => {
   try {
     let query = CbtExam.find({}).sort({ createdAt: -1 });
 
     if (searchParams?.trim()) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -889,14 +889,14 @@ const fetchAllCbtAssessmentDocument = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
 
     const findExams = await query.sort({ createdAt: -1 });
 
     if (!findExams || findExams.length === 0) {
-      throw new AppError('Exam documents not found.', 404);
+      throw new AppError("Exam documents not found.", 404);
     }
     return {
       examObj: findExams,
@@ -907,7 +907,7 @@ const fetchAllCbtAssessmentDocument = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     }
-    throw new Error('Something went wrong.');
+    throw new Error("Something went wrong.");
   }
 };
 
@@ -954,13 +954,13 @@ const objQestionSetting = async (
     const classExist = await Class.findById(classId);
 
     if (!classExist) {
-      throw new AppError('Class does not exist.', 404);
+      throw new AppError("Class does not exist.", 404);
     }
 
     const subjectExist = await Subject.findById(subjectId);
 
     if (!subjectExist) {
-      throw new AppError('Subject not found', 404);
+      throw new AppError("Subject not found", 404);
     }
 
     const subjectInClass = classExist.compulsory_subjects.find(
@@ -981,7 +981,7 @@ const objQestionSetting = async (
     const teacherExist = await Teacher.findById(teacher_id);
 
     if (!teacherExist) {
-      throw new AppError('Teacher not found.', 404);
+      throw new AppError("Teacher not found.", 404);
     }
 
     if (
@@ -1011,7 +1011,7 @@ const objQestionSetting = async (
 
     if (examDocExist.is_active !== true) {
       throw new AppError(
-        'Exam has been finalized by the school authority.',
+        "Exam has been finalized by the school authority.",
         400
       );
     }
@@ -1091,7 +1091,7 @@ const objQestionSetting = async (
     if (duplicateQuestions.size > 0) {
       throw new AppError(
         `Duplicate question found for: ${Array.from(duplicateQuestions).join(
-          ', '
+          ", "
         )}.`,
         400
       );
@@ -1187,7 +1187,7 @@ const objQestionSetting = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1223,7 +1223,7 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (duplicateIds.size > 0) {
       throw new AppError(
         `The following IDs: ${Array.from(duplicateIds).join(
-          ', '
+          ", "
         )} appear more than ones.`,
         400
       );
@@ -1243,13 +1243,13 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     );
 
     if (!activeTermExist) {
-      throw new AppError('There is no active in the session.', 400);
+      throw new AppError("There is no active in the session.", 400);
     }
 
     const classExist = await Class.findById(classId);
 
     if (!classExist) {
-      throw new AppError('This Class does not exist.', 404);
+      throw new AppError("This Class does not exist.", 404);
     }
 
     if (!classExist.class_teacher) {
@@ -1272,12 +1272,12 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     });
 
     if (!classEnrolmentExist) {
-      throw new AppError('There is no enrolment for this class.', 404);
+      throw new AppError("There is no enrolment for this class.", 404);
     }
 
     if (classEnrolmentExist.is_active !== true) {
       throw new AppError(
-        'There is no active class enrolment for this class.',
+        "There is no active class enrolment for this class.",
         404
       );
     }
@@ -1292,7 +1292,7 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (studentNotEnrolled.length > 0) {
       throw new AppError(
         `Students with the following IDs: ${studentNotEnrolled.join(
-          ', '
+          ", "
         )} are not enrolled into ${classExist.name}.`,
         400
       );
@@ -1398,7 +1398,7 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (matchedIds.length > 0 && notMatchedIds.length === 0) {
       throw new AppError(
         `The following IDs: ${matchedIds.join(
-          ', '
+          ", "
         )} are already allowed to take the CBT subject exam.`,
         400
       );
@@ -1412,11 +1412,11 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     const savedTimetable = await ClassExamTimetable.updateOne(
       {
         _id: actualExamTimeTable._id,
-        'scheduled_subjects.subject_id': subjectId,
+        "scheduled_subjects.subject_id": subjectId,
       },
       {
         $addToSet: {
-          'scheduled_subjects.$.authorized_students': { $each: notMatchedIds },
+          "scheduled_subjects.$.authorized_students": { $each: notMatchedIds },
         },
       }
     );
@@ -1429,7 +1429,7 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1475,13 +1475,13 @@ const subjectCbtObjCbtAssessmentStarting = async (
     const studentExist = await Student.findById(studentId).session(session);
 
     if (!studentExist) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     const classExist = await Class.findById(classId).session(session);
 
     if (!classExist) {
-      throw new AppError('Class does not exist in the school.', 404);
+      throw new AppError("Class does not exist in the school.", 404);
     }
 
     const classEnrolmentExist = await ClassEnrolment.findOne({
@@ -1491,7 +1491,7 @@ const subjectCbtObjCbtAssessmentStarting = async (
 
     if (!classEnrolmentExist) {
       throw new AppError(
-        'There is no enrollment into this class in this session.',
+        "There is no enrollment into this class in this session.",
         404
       );
     }
@@ -1520,7 +1520,7 @@ const subjectCbtObjCbtAssessmentStarting = async (
 
     if (examDocExist.is_active !== true) {
       throw new AppError(
-        'Exam has been finalized by the school authority.',
+        "Exam has been finalized by the school authority.",
         400
       );
     }
@@ -1587,7 +1587,7 @@ const subjectCbtObjCbtAssessmentStarting = async (
 
     if (hasSubmitted) {
       throw new AppError(
-        'You have submitted this exam before and you can not take it again.',
+        "You have submitted this exam before and you can not take it again.",
         400
       );
     }
@@ -1624,8 +1624,15 @@ const subjectCbtObjCbtAssessmentStarting = async (
       enrolment: classEnrolmentExist._id,
     }).session(session);
 
-    if (result?.obj_status === 'submitted') {
-      throw new AppError('Exam already submitted.', 400);
+    if (result?.obj_status === "submitted") {
+      throw new AppError("Exam already submitted.", 400);
+    }
+
+    if (result) {
+      const final_cutoff = new Date(result?.obj_final_cutoff_time).getTime();
+      if (current_time > final_cutoff) {
+        throw new AppError("Your exam time has ended.", 400);
+      }
     }
 
     if (!result) {
@@ -1673,8 +1680,8 @@ const subjectCbtObjCbtAssessmentStarting = async (
       subject_id: { name: string };
       subject_teacher: { first_name: string; last_name: string };
     }>([
-      { path: 'subject_id', select: 'name' },
-      { path: 'subject_teacher', select: 'first_name last_name' },
+      { path: "subject_id", select: "name" },
+      { path: "subject_teacher", select: "first_name last_name" },
     ]);
     const { shuffled_obj_questions, ...others } = populatedValues.toJSON();
 
@@ -1698,11 +1705,11 @@ const subjectCbtObjCbtAssessmentStarting = async (
         term: term,
         exam_id: exam.exam_id,
         assessment_type: examDocExist.assessment_type,
-        'scheduled_subjects.subject_id': subject_id,
+        "scheduled_subjects.subject_id": subject_id,
       },
       {
         $addToSet: {
-          'scheduled_subjects.$.students_that_have_started': result.student_id,
+          "scheduled_subjects.$.students_that_have_started": result.student_id,
         },
       },
       { session }
@@ -1729,7 +1736,7 @@ const subjectCbtObjCbtAssessmentStarting = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1749,7 +1756,7 @@ const subjectCbtObjCbtAssessmentUpdate = async (
     const studentExist = await Student.findById(studentId);
 
     if (!studentExist) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     const examDocExist = await CbtExam.findById(examId);
@@ -1760,7 +1767,7 @@ const subjectCbtObjCbtAssessmentUpdate = async (
 
     if (examDocExist.is_active !== true) {
       throw new AppError(
-        'Exam has been finalized by the school authority.',
+        "Exam has been finalized by the school authority.",
         400
       );
     }
@@ -1777,7 +1784,7 @@ const subjectCbtObjCbtAssessmentUpdate = async (
 
     if (result.obj_status !== examStatusEnum[1]) {
       throw new AppError(
-        'This subject exam is not in-progress. It is either completed or ended.',
+        "This subject exam is not in-progress. It is either completed or ended.",
         400
       );
     }
@@ -1836,7 +1843,7 @@ const subjectCbtObjCbtAssessmentUpdate = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1856,7 +1863,7 @@ const subjectCbtObjCbtAssessmentRemainingTimeUpdate = async (
     const studentExist = await Student.findById(studentId);
 
     if (!studentExist) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     const examDocExist = await CbtExam.findById(examId);
@@ -1867,7 +1874,7 @@ const subjectCbtObjCbtAssessmentRemainingTimeUpdate = async (
 
     if (examDocExist.is_active !== true) {
       throw new AppError(
-        'Exam has been finalized by the school authority.',
+        "Exam has been finalized by the school authority.",
         400
       );
     }
@@ -1884,7 +1891,7 @@ const subjectCbtObjCbtAssessmentRemainingTimeUpdate = async (
 
     if (result.obj_status !== examStatusEnum[1]) {
       throw new AppError(
-        'This subject exam is not in-progress. It is either completed or ended.',
+        "This subject exam is not in-progress. It is either completed or ended.",
         400
       );
     }
@@ -1922,7 +1929,7 @@ const subjectCbtObjCbtAssessmentRemainingTimeUpdate = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -2261,7 +2268,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
     const studentExist = await Student.findById(studentId).session(session);
 
     if (!studentExist) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     const examDocExist = await CbtExam.findById({
@@ -2274,7 +2281,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
 
     if (examDocExist.is_active !== true) {
       throw new AppError(
-        'Exam has been finalized by the school authority.',
+        "Exam has been finalized by the school authority.",
         400
       );
     }
@@ -2294,7 +2301,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
     // I WILL UNCOMMENT LATER
     if (notStarted || isSubmitted) {
       throw new AppError(
-        'This subject exam is not in-progress. It is either completed or ended.',
+        "This subject exam is not in-progress. It is either completed or ended.",
         400
       );
     }
@@ -2373,13 +2380,20 @@ const subjectCbtObjCbtAssessmentSubmission = async (
     }
 
     const exam_component_name = resultSettings?.exam_components.exam_name;
+    const cbtObj = resultSettings?.exam_components.component.find(
+      (a) => a.key === "obj"
+    );
 
     let objKeyName;
     let testName: string;
+
     if (
       examDocExist.assessment_type.trim().toLowerCase() !==
-      exam_component_name.trim().toLowerCase()
+        exam_component_name.trim().toLowerCase() &&
+      examDocExist.assessment_type.trim().toLowerCase() !==
+        cbtObj?.name.trim().toLowerCase()
     ) {
+      console.log("i want to do for test...");
       // do for test
       objKeyName = resultSettings.components?.find(
         (k) =>
@@ -2388,7 +2402,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
 
       if (!objKeyName?.percentage || !objKeyName?.name) {
         throw new AppError(
-          'Objective scoring setup not found in result settings.',
+          "Objective scoring setup not found in result settings.",
           400
         );
       }
@@ -2403,7 +2417,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
 
       if (!objKeyName?.percentage || !objKeyName?.name) {
         throw new AppError(
-          'Objective scoring setup not found in result settings.',
+          "Objective scoring setup not found in result settings.",
           400
         );
       }
@@ -2421,7 +2435,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
     result.percent_score = convertedScore;
     result.obj_trigger_type = trigger_type;
 
-    result.markModified('shuffled_obj_questions');
+    result.markModified("shuffled_obj_questions");
     await result.save({ session });
 
     await session.commitTransaction();
@@ -2441,13 +2455,13 @@ const subjectCbtObjCbtAssessmentSubmission = async (
       session: result.academic_session_id,
     };
 
-    const name = 'cbt-result-submission';
+    const name = "cbt-result-submission";
     const data = queuePayload;
     const opts = {
       attempts: 5,
       removeOnComplete: true,
       backoff: {
-        type: 'exponential',
+        type: "exponential",
         delay: 3000,
       },
     };
@@ -2463,7 +2477,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
       // throw error;
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -2514,7 +2528,7 @@ const theoryQestionSetting = async (
     });
 
     if (!classExist) {
-      throw new AppError('Class does not exist.', 404);
+      throw new AppError("Class does not exist.", 404);
     }
 
     const subjectExist = await Subject.findById({
@@ -2522,7 +2536,7 @@ const theoryQestionSetting = async (
     });
 
     if (!subjectExist) {
-      throw new AppError('Subject not found', 404);
+      throw new AppError("Subject not found", 404);
     }
 
     const examDocExist = await CbtExam.findOne({
@@ -2539,7 +2553,7 @@ const theoryQestionSetting = async (
 
     if (examDocExist.is_active !== true) {
       throw new AppError(
-        'Exam has been finalized by the school authority.',
+        "Exam has been finalized by the school authority.",
         400
       );
     }
@@ -2610,7 +2624,7 @@ const theoryQestionSetting = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };

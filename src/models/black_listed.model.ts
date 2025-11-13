@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const blackListedTokenSchema = new mongoose.Schema({
   token: { type: String, required: true },
@@ -8,7 +8,7 @@ const blackListedTokenSchema = new mongoose.Schema({
 blackListedTokenSchema.index({ expires_at: 1 }, { expireAfterSeconds: 0 });
 
 const BlackListedToken = mongoose.model(
-  'BlackListedToken',
+  "BlackListedToken",
   blackListedTokenSchema
 );
 

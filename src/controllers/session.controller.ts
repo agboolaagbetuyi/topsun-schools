@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   createSession,
   creatingNewTerm,
@@ -9,10 +9,10 @@ import {
   sessionEndingBySessionId,
   termDeletionInSessionUsingTermId,
   termEndingInSessionUsingTermId,
-} from '../services/session.service';
-import { AppError, JoiError } from '../utils/app.error';
-import catchErrors from '../utils/tryCatch';
-import { sessionValidation } from '../utils/validation';
+} from "../services/session.service";
+import { AppError, JoiError } from "../utils/app.error";
+import catchErrors from "../utils/tryCatch";
+import { sessionValidation } from "../utils/validation";
 // import { saveLog } from '../logs/log.service';
 
 const createNewSession = catchErrors(async (req, res) => {
@@ -21,7 +21,7 @@ const createNewSession = catchErrors(async (req, res) => {
   const session = await createSession();
 
   if (!session) {
-    throw new AppError('Unable to create session.', 400);
+    throw new AppError("Unable to create session.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -61,14 +61,14 @@ const createNewTerm = catchErrors(async (req, res) => {
 
   if (!start_date || !end_date || !name) {
     throw new AppError(
-      'Start date, session name and end date must be provided.',
+      "Start date, session name and end date must be provided.",
       400
     );
   }
 
-  const formattedName = name.toLowerCase().split(' ');
+  const formattedName = name.toLowerCase().split(" ");
 
-  const fName = formattedName[0] + '_' + formattedName[1];
+  const fName = formattedName[0] + "_" + formattedName[1];
 
   const payload = {
     start_date,
@@ -76,11 +76,11 @@ const createNewTerm = catchErrors(async (req, res) => {
     name: fName,
   };
 
-  const response = sessionValidation(payload, 'term');
+  const response = sessionValidation(payload, "term");
   const { success, value } = response;
 
   if (!response || !success) {
-    throw new JoiError('Error validation term');
+    throw new JoiError("Error validation term");
   }
 
   const input = { ...value, session_id };
@@ -122,18 +122,18 @@ const endATermInASessionByTermId = catchErrors(async (req, res) => {
   const { session_id, term_id } = req.params;
 
   if (!session_id || !term_id) {
-    throw new AppError('Session ID and Term ID are required.', 400);
+    throw new AppError("Session ID and Term ID are required.", 400);
   }
 
   const response = await termEndingInSessionUsingTermId(session_id, term_id);
 
   if (!response) {
-    throw new AppError('Unable to end term.', 400);
+    throw new AppError("Unable to end term.", 400);
   }
 
   let msg = `${response.term_name} ended successfully.`;
 
-  if (response.term_name === 'third_term') {
+  if (response.term_name === "third_term") {
     msg = `${response.term_name} ended successfully. Since this is the last term in this session, the session has also automatically ended.`;
   }
 
@@ -172,13 +172,13 @@ const getASessionBySessionId = catchErrors(async (req, res) => {
   const { session_id } = req.params;
 
   if (!session_id) {
-    throw new AppError('Session ID is required.', 400);
+    throw new AppError("Session ID is required.", 400);
   }
 
   const response = await fetchSessionBySessionId(session_id);
 
   if (!response) {
-    throw new AppError('Unable to fetch session', 400);
+    throw new AppError("Unable to fetch session", 400);
   }
 
   // const duration = Date.now() - start;
@@ -216,7 +216,7 @@ const getActiveSession = catchErrors(async (req, res) => {
   const result = await fetchActiveSession();
 
   if (!result) {
-    throw new AppError('Unable to fetch active session.', 400);
+    throw new AppError("Unable to fetch active session.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -241,7 +241,7 @@ const getActiveSession = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Active session fetched successfully.',
+    message: "Active session fetched successfully.",
     status: 200,
     success: true,
     session: result,
@@ -255,12 +255,12 @@ const getAllSessions = catchErrors(async (req, res) => {
   const limit = req.query.limit ? Number(req.query.limit) : undefined;
 
   const searchParams =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   const response = await fetchAllSessions(page, limit, searchParams);
 
   if (!response) {
-    throw new AppError('Unable to fetch session', 400);
+    throw new AppError("Unable to fetch session", 400);
   }
 
   // const duration = Date.now() - start;
@@ -298,13 +298,13 @@ const endASessionBySessionId = catchErrors(async (req, res) => {
   const { session_id } = req.params;
 
   if (!session_id) {
-    throw new AppError('Session ID is required.', 400);
+    throw new AppError("Session ID is required.", 400);
   }
 
   const response = await sessionEndingBySessionId(session_id);
 
   if (!response) {
-    throw new AppError('Unable to end session.', 400);
+    throw new AppError("Unable to end session.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -342,13 +342,13 @@ const deleteSessionById = catchErrors(async (req, res) => {
   const { session_id } = req.params;
 
   if (!session_id) {
-    throw new AppError('Session ID is required.', 400);
+    throw new AppError("Session ID is required.", 400);
   }
 
   const response = await sessionDeletionUsingSessionId(session_id);
 
   if (!response) {
-    throw new AppError('Unable to delete session.', 400);
+    throw new AppError("Unable to delete session.", 400);
   }
 
   let msg = `Session deleted successfully.`;
@@ -388,13 +388,13 @@ const deleteTermById = catchErrors(async (req, res) => {
   const { session_id, term_id } = req.params;
 
   if (!session_id || !term_id) {
-    throw new AppError('Session ID and Term ID are required.', 400);
+    throw new AppError("Session ID and Term ID are required.", 400);
   }
 
   const response = await termDeletionInSessionUsingTermId(session_id, term_id);
 
   if (!response) {
-    throw new AppError('Unable to delete term.', 400);
+    throw new AppError("Unable to delete term.", 400);
   }
 
   let msg = `${response.term_name} deleted successfully.`;

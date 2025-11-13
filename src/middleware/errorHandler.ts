@@ -1,5 +1,5 @@
-import { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
-import { AppError, JoiError, JwtError } from '../utils/app.error';
+import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
+import { AppError, JoiError, JwtError } from "../utils/app.error";
 
 export const errorHandler: ErrorRequestHandler = (
   error,
@@ -22,9 +22,9 @@ export const errorHandler: ErrorRequestHandler = (
   res.status(500).json({
     success: false,
     status: 500,
-    errMsg: 'Internal Server Error...',
-    error: process.env.NODE_ENV === 'development' ? error : undefined,
-    message: error.message || 'Something went wrong',
+    errMsg: "Internal Server Error...",
+    error: process.env.NODE_ENV === "development" ? error : undefined,
+    message: error.message || "Something went wrong",
   });
   return;
 };
@@ -44,8 +44,8 @@ const jwtErrorHandler = (res: Response, error: JwtError): void => {
     success: false,
     status: statusCode,
     message:
-      error.message === 'jwt expired'
-        ? 'Login has expired. Please login again.'
+      error.message === "jwt expired"
+        ? "Login has expired. Please login again."
         : error.message,
     name: error.name,
   });

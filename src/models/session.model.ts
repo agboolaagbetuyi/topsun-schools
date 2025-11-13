@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { SessionDocument, TermDocument } from '../constants/types';
-import { sessionData } from '../utils/seedingData';
+import mongoose from "mongoose";
+import { SessionDocument, TermDocument } from "../constants/types";
+import { sessionData } from "../utils/seedingData";
 
 const termSchema = new mongoose.Schema<TermDocument>({
   name: { type: String, required: true },
@@ -25,11 +25,11 @@ const sessionSchema = new mongoose.Schema<SessionDocument>(
   }
 );
 
-const Session = mongoose.model<SessionDocument>('Session', sessionSchema);
+const Session = mongoose.model<SessionDocument>("Session", sessionSchema);
 async function seedDatabase() {
   try {
     await Session.insertMany(sessionData);
-    console.log('Data seeded successfully');
+    console.log("Data seeded successfully");
     mongoose.connection.close();
   } catch (error) {
     console.error(error);

@@ -1,7 +1,7 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
 class RSA {
-  static KEY_ALGORITHM = 'RSA';
+  static KEY_ALGORITHM = "RSA";
   static SECURE_PADDING = crypto.constants.RSA_PKCS1_PADDING;
 
   // Encrypt with the public key
@@ -10,17 +10,17 @@ class RSA {
     publicKeyContent: string
   ): string {
     try {
-      const publicKey = Buffer.from(publicKeyContent, 'base64');
+      const publicKey = Buffer.from(publicKeyContent, "base64");
       const encrypted = crypto.publicEncrypt(
         {
           key: publicKey,
           padding: RSA.SECURE_PADDING,
         },
-        Buffer.from(plainText, 'utf8')
+        Buffer.from(plainText, "utf8")
       );
-      return encrypted.toString('base64');
+      return encrypted.toString("base64");
     } catch (error: any) {
-      console.error('Encryption error: ', error.message);
+      console.error("Encryption error: ", error.message);
       return plainText; // return original plainText if error occurs
     }
   }
@@ -31,17 +31,17 @@ class RSA {
     privateKeyContent: string
   ): string {
     try {
-      const privateKey = Buffer.from(privateKeyContent, 'base64');
+      const privateKey = Buffer.from(privateKeyContent, "base64");
       const decrypted = crypto.privateDecrypt(
         {
           key: privateKey,
           padding: RSA.SECURE_PADDING,
         },
-        Buffer.from(encodedText, 'base64')
+        Buffer.from(encodedText, "base64")
       );
-      return decrypted.toString('utf8');
+      return decrypted.toString("utf8");
     } catch (error: any) {
-      console.error('Decryption error: ', error.message);
+      console.error("Decryption error: ", error.message);
       return encodedText; // return original encodedText if error occurs
     }
   }
@@ -52,18 +52,18 @@ class RSA {
     privateKeyContent: string
   ): string | null {
     try {
-      const privateKey = Buffer.from(privateKeyContent, 'base64');
-      const sign = crypto.createSign('SHA256');
-      sign.update(plainText, 'utf8');
+      const privateKey = Buffer.from(privateKeyContent, "base64");
+      const sign = crypto.createSign("SHA256");
+      sign.update(plainText, "utf8");
       sign.end();
 
       const signature = sign.sign({
         key: privateKey,
         padding: RSA.SECURE_PADDING,
       });
-      return signature.toString('base64');
+      return signature.toString("base64");
     } catch (error: any) {
-      console.error('Signing error: ', error.message);
+      console.error("Signing error: ", error.message);
       return null;
     }
   }
@@ -75,18 +75,18 @@ class RSA {
     publicKeyContent: string
   ): boolean {
     try {
-      const publicKey = Buffer.from(publicKeyContent, 'base64');
-      const verify = crypto.createVerify('SHA256');
-      verify.update(plainText, 'utf8');
+      const publicKey = Buffer.from(publicKeyContent, "base64");
+      const verify = crypto.createVerify("SHA256");
+      verify.update(plainText, "utf8");
       verify.end();
 
-      const signature = Buffer.from(encodedSignature, 'base64');
+      const signature = Buffer.from(encodedSignature, "base64");
       return verify.verify(
         { key: publicKey, padding: RSA.SECURE_PADDING },
         signature
       );
     } catch (error: any) {
-      console.error('Signature verification failed: ', error.message);
+      console.error("Signature verification failed: ", error.message);
       return false;
     }
   }

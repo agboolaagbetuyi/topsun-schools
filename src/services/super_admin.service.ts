@@ -3,10 +3,10 @@ import {
   AccountType,
   AddingNegotiatedChargesType,
   CutoffMinutesCreationPayload,
-} from '../constants/types';
-import CbtCutoff from '../models/cbt_cutoffs.model';
+} from "../constants/types";
+import CbtCutoff from "../models/cbt_cutoffs.model";
 
-import { AppError } from '../utils/app.error';
+import { AppError } from "../utils/app.error";
 
 const cutoffMinutesCreation = async (payload: CutoffMinutesCreationPayload) => {
   try {
@@ -30,7 +30,7 @@ const cutoffMinutesCreation = async (payload: CutoffMinutesCreationPayload) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };

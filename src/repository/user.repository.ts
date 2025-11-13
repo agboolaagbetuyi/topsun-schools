@@ -1,11 +1,11 @@
-import mongoose, { Model } from 'mongoose';
-import { UserDocument, VerifyUserType } from '../constants/types';
-import Admin from '../models/admin.model';
-import Parent from '../models/parents.model';
-import Student from '../models/students.model';
-import SuperAdmin from '../models/super_admin.model';
-import Teacher from '../models/teachers.model';
-import bcrypt from 'bcryptjs';
+import mongoose, { Model } from "mongoose";
+import { UserDocument, VerifyUserType } from "../constants/types";
+import Admin from "../models/admin.model";
+import Parent from "../models/parents.model";
+import Student from "../models/students.model";
+import SuperAdmin from "../models/super_admin.model";
+import Teacher from "../models/teachers.model";
+import bcrypt from "bcryptjs";
 // import { generateAdmissionNumber } from '../utils/functions';
 // import Subject from '../models/subject.model';
 
@@ -17,23 +17,23 @@ const findUserByEmail = async (email: string): Promise<UserDocument | null> => {
     }[] = [
       {
         model: SuperAdmin as unknown as Model<UserDocument>,
-        field: 'email',
+        field: "email",
       },
       {
         model: Admin as unknown as Model<UserDocument>,
-        field: 'email',
+        field: "email",
       },
       {
         model: Parent as unknown as Model<UserDocument>,
-        field: 'email',
+        field: "email",
       },
       {
         model: Student as unknown as Model<UserDocument>,
-        field: 'email',
+        field: "email",
       },
       {
         model: Teacher as unknown as Model<UserDocument>,
-        field: 'email',
+        field: "email",
       },
     ];
 
@@ -53,7 +53,7 @@ const findUserByEmail = async (email: string): Promise<UserDocument | null> => {
     if (error instanceof Error) {
       throw new Error(`Error occurred while finding user: ${error.message}`);
     }
-    throw new Error('Error occurred while finding user');
+    throw new Error("Error occurred while finding user");
   }
 };
 
@@ -65,23 +65,23 @@ const findUserById = async (user_id: object): Promise<UserDocument | null> => {
     }[] = [
       {
         model: SuperAdmin as unknown as Model<UserDocument>,
-        field: '_id',
+        field: "_id",
       },
       {
         model: Admin as unknown as Model<UserDocument>,
-        field: '_id',
+        field: "_id",
       },
       {
         model: Parent as unknown as Model<UserDocument>,
-        field: '_id',
+        field: "_id",
       },
       {
         model: Student as unknown as Model<UserDocument>,
-        field: '_id',
+        field: "_id",
       },
       {
         model: Teacher as unknown as Model<UserDocument>,
-        field: '_id',
+        field: "_id",
       },
     ];
 
@@ -97,7 +97,7 @@ const findUserById = async (user_id: object): Promise<UserDocument | null> => {
     if (error instanceof Error) {
       throw new Error(`Error occurred while finding user: ${error.message}`);
     }
-    throw new Error('Error occurred while finding user');
+    throw new Error("Error occurred while finding user");
   }
 };
 
@@ -122,7 +122,7 @@ const createNewUserDoc = async (payload: UserDocument) => {
     const commonFields = {
       first_name: payload.first_name,
       last_name: payload.last_name,
-      middle_name: payload.middle_name || '',
+      middle_name: payload.middle_name || "",
       gender: payload.gender.toLowerCase(),
       email: payload.email,
       password: hashedPassword,
@@ -177,7 +177,7 @@ const createNewUserDoc = async (payload: UserDocument) => {
         employment_date: payload.employment_date,
         admission_number: payload.admission_number,
         // current_class_level: payload.current_class_level,
-        phone: payload.phone || '',
+        phone: payload.phone || "",
         new_session_subscription: true,
       },
       teacher: {
@@ -201,7 +201,7 @@ const createNewUserDoc = async (payload: UserDocument) => {
       throw new Error(`Error creating new user document: ${error.message}`);
     }
     throw new Error(
-      'An unknown error occurred while creating new user document.'
+      "An unknown error occurred while creating new user document."
     );
   }
 };
@@ -218,7 +218,7 @@ const findAndVerifyUser = async (payload: VerifyUserType) => {
 
     const model = roleModels[payload.role];
     if (!model) {
-      throw new Error('Invalid role specified');
+      throw new Error("Invalid role specified");
     }
 
     const idValue = payload.user_id;
@@ -238,7 +238,7 @@ const findAndVerifyUser = async (payload: VerifyUserType) => {
         `An Error occurred while verifying user document: ${error.message}`
       );
     }
-    throw new Error('An unknown error occurred while verifying user document.');
+    throw new Error("An unknown error occurred while verifying user document.");
   }
 };
 
@@ -257,7 +257,7 @@ const findSameAdmissionNumber = async (admission_number: string) => {
     if (error instanceof Error) {
       throw new Error(`Error occurred while finding user: ${error.message}`);
     }
-    throw new Error('Error occurred while finding user');
+    throw new Error("Error occurred while finding user");
   }
 };
 

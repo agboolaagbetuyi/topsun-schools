@@ -65,9 +65,9 @@
 // export default Student;
 
 //////////////////////////////////////////////////////////
-import mongoose, { Schema } from 'mongoose';
-import { UserDocument } from '../constants/types';
-import { rolesEnum, streamEnum, studentStatusEnum } from '../constants/enum';
+import mongoose, { Schema } from "mongoose";
+import { UserDocument } from "../constants/types";
+import { rolesEnum, streamEnum, studentStatusEnum } from "../constants/enum";
 
 const studentSchema = new mongoose.Schema<UserDocument>(
   {
@@ -85,7 +85,7 @@ const studentSchema = new mongoose.Schema<UserDocument>(
     stream: { type: String, enum: streamEnum },
     bus_category_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'BusCategory',
+      ref: "BusCategory",
       default: null,
     },
     // user_created_by:{ type: Schema.Types.ObjectId, ref: 'School', required: true },
@@ -95,7 +95,7 @@ const studentSchema = new mongoose.Schema<UserDocument>(
     current_class: {
       class_id: {
         type: Schema.Types.ObjectId,
-        ref: 'Class',
+        ref: "Class",
       },
     },
 
@@ -126,7 +126,7 @@ const studentSchema = new mongoose.Schema<UserDocument>(
     },
     outstanding_balance: { type: Number, default: 0 },
     new_session_subscription: { type: Boolean, default: null },
-    parent_id: [{ type: Schema.Types.ObjectId, ref: 'Parent' }],
+    parent_id: [{ type: Schema.Types.ObjectId, ref: "Parent" }],
   },
   {
     timestamps: true,
@@ -134,5 +134,5 @@ const studentSchema = new mongoose.Schema<UserDocument>(
 );
 
 studentSchema.index({ email: 1 });
-const Student = mongoose.model<UserDocument>('Student', studentSchema);
+const Student = mongoose.model<UserDocument>("Student", studentSchema);
 export default Student;

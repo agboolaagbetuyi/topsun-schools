@@ -115,7 +115,7 @@
 // export { classCreation, fetchAllClasses, fetchAClassById };
 
 /////////////////////////////////////////////////////////////////////
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   ClassCreationType,
   ClassDocument,
@@ -123,12 +123,12 @@ import {
   SubjectAdditionType,
   SubjectDocument,
   SubjectRemovalType,
-} from '../constants/types';
-import Class from '../models/class.model';
-import ClassLevel from '../models/class_level.model';
-import ClassEnrolment from '../models/classes_enrolment.model';
-import Subject from '../models/subject.model';
-import { AppError } from '../utils/app.error';
+} from "../constants/types";
+import Class from "../models/class.model";
+import ClassLevel from "../models/class_level.model";
+import ClassEnrolment from "../models/classes_enrolment.model";
+import Subject from "../models/subject.model";
+import { AppError } from "../utils/app.error";
 
 const classCreation = async (
   payload: ClassCreationType
@@ -146,12 +146,19 @@ const classCreation = async (
       section,
     } = payload;
 
+    if (!/^[A-Za-z0-9]+$/.test(section)) {
+      throw new AppError(
+        "Section can only contain letters or numbers with no spaces or special characters.",
+        400
+      );
+    }
+
     const existingClass = await Class.findOne({
       name: name,
     });
 
     if (existingClass) {
-      throw new AppError('Class with this name already exists', 400);
+      throw new AppError("Class with this name already exists", 400);
     }
 
     const compulsorySubjectsLower = compulsory_subjects?.map((subject) =>
@@ -177,7 +184,7 @@ const classCreation = async (
 
     if (invalidSubjects?.length > 0) {
       throw new AppError(
-        `The following subjects are not found: ${invalidSubjects.join(', ')}`,
+        `The following subjects are not found: ${invalidSubjects.join(", ")}`,
         404
       );
     }
@@ -230,13 +237,13 @@ const fetchAClassById = async (
       _id: payload.class_id,
     })
       .populate(
-        'compulsory_subjects teacher_subject_assignments.teacher teacher_subject_assignments.subject'
+        "compulsory_subjects teacher_subject_assignments.teacher teacher_subject_assignments.subject"
       )
-      .populate('teacher_subject_assignments.teacher', '-password')
-      .populate('class_teacher', '-password');
+      .populate("teacher_subject_assignments.teacher", "-password")
+      .populate("class_teacher", "-password");
 
     if (!existingClass) {
-      throw new AppError('No Class found', 400);
+      throw new AppError("No Class found", 400);
     }
 
     return existingClass as ClassDocument;
@@ -251,11 +258,11 @@ const fetchAClassById = async (
 const fetchAllClasses = async (): Promise<ClassDocument[]> => {
   try {
     const existingClasses = await Class.find({}).populate(
-      'compulsory_subjects'
+      "compulsory_subjects"
     );
 
     if (!existingClasses) {
-      throw new AppError('No Classes found', 400);
+      throw new AppError("No Classes found", 400);
     }
 
     return existingClasses as ClassDocument[];
@@ -280,7 +287,7 @@ const subjectsAdditionToAClass = async (payload: SubjectAdditionType) => {
 
     if (activeClassEnrollment) {
       throw new AppError(
-        'You can not add new subject to this class because there is an active class enrollment for the class.',
+        "You can not add new subject to this class because there is an active class enrollment for the class.",
         400
       );
     }
@@ -290,7 +297,7 @@ const subjectsAdditionToAClass = async (payload: SubjectAdditionType) => {
     });
 
     if (!classExist) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     const duplicateIds = new Set();
@@ -305,7 +312,7 @@ const subjectsAdditionToAClass = async (payload: SubjectAdditionType) => {
     });
 
     if (duplicateIds.size > 0) {
-      throw new AppError('You can not save a subject twice in a class.', 400);
+      throw new AppError("You can not save a subject twice in a class.", 400);
     }
 
     const subjectObjectIds = subject_ids_array.map(
@@ -328,7 +335,7 @@ const subjectsAdditionToAClass = async (payload: SubjectAdditionType) => {
     if (filteredSubjects.length > 0) {
       throw new AppError(
         `The following subject IDs: ${filteredSubjects.join(
-          ', '
+          ", "
         )} are not found.`,
         400
       );
@@ -336,7 +343,7 @@ const subjectsAdditionToAClass = async (payload: SubjectAdditionType) => {
 
     if (invalidSubjects.length > 0) {
       throw new AppError(
-        'One or more of the subjects is already been offered in this class.',
+        "One or more of the subjects is already been offered in this class.",
         400
       );
     }
@@ -367,7 +374,7 @@ const subjectsRemovalFromClass = async (payload: SubjectRemovalType) => {
 
     if (activeClassEnrollment) {
       throw new AppError(
-        'You can not remove subject from a class when there is an active class enrollment.',
+        "You can not remove subject from a class when there is an active class enrollment.",
         400
       );
     }
@@ -377,7 +384,7 @@ const subjectsRemovalFromClass = async (payload: SubjectRemovalType) => {
     });
 
     if (!classExist) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     subject_ids_array.forEach((s) => {
@@ -411,7 +418,7 @@ const fetchMySchoolClassLevel = async () => {
     const classLevel = await ClassLevel.findOne({});
 
     if (!classLevel) {
-      throw new AppError('Class level not found.', 404);
+      throw new AppError("Class level not found.", 404);
     }
 
     return classLevel;

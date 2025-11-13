@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   fetchingAllJssSubjects,
   fetchingAllOptionalSubjects,
@@ -8,10 +8,10 @@ import {
   // storingOptionalSubjectsOfStudent,
   subjectCreation,
   fetchAllClassSubjectsByClassId,
-} from '../services/subject.service';
-import { AppError, JoiError } from '../utils/app.error';
-import catchErrors from '../utils/tryCatch';
-import { joiValidation } from '../utils/validation';
+} from "../services/subject.service";
+import { AppError, JoiError } from "../utils/app.error";
+import catchErrors from "../utils/tryCatch";
+import { joiValidation } from "../utils/validation";
 // import { saveLog } from '../logs/log.service';
 
 const createASubject = catchErrors(async (req, res) => {
@@ -24,10 +24,10 @@ const createASubject = catchErrors(async (req, res) => {
 
   const payload = { name, description };
 
-  const result = joiValidation(payload, 'create-subject');
+  const result = joiValidation(payload, "create-subject");
 
   if (!result) {
-    throw new JoiError('Error validating subject creation');
+    throw new JoiError("Error validating subject creation");
   }
 
   const { success, value } = result;
@@ -40,7 +40,7 @@ const createASubject = catchErrors(async (req, res) => {
   const info = await subjectCreation(param);
 
   if (!info) {
-    throw new AppError('Error creating subject', 400);
+    throw new AppError("Error creating subject", 400);
   }
 
   // const duration = Date.now() - start;
@@ -65,7 +65,7 @@ const createASubject = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Subject created successfully',
+    message: "Subject created successfully",
     success: true,
     status: 200,
     subject: info,
@@ -85,7 +85,7 @@ const getASubjectById = catchErrors(async (req, res) => {
   const info = await fetchingASubject(payload);
 
   if (!info) {
-    throw new AppError('Error fetching subject', 400);
+    throw new AppError("Error fetching subject", 400);
   }
 
   // const duration = Date.now() - start;
@@ -110,7 +110,7 @@ const getASubjectById = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Subject fetched successfully',
+    message: "Subject fetched successfully",
     success: true,
     status: 200,
     subject: info,
@@ -128,7 +128,7 @@ const getAllClassSubjectsByClassId = catchErrors(async (req, res) => {
   const result = await fetchAllClassSubjectsByClassId(payload);
 
   if (!result) {
-    throw new AppError('Unable to fetch class subjects.', 400);
+    throw new AppError("Unable to fetch class subjects.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -153,7 +153,7 @@ const getAllClassSubjectsByClassId = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Class subjects fetched successfully.',
+    message: "Class subjects fetched successfully.",
     status: 200,
     success: true,
     class_subjects: result,
@@ -167,7 +167,7 @@ const getAllSubjects = catchErrors(async (req, res) => {
   const info = await fetchingAllSubjects();
 
   if (!info) {
-    throw new AppError('Error fetching subjects', 400);
+    throw new AppError("Error fetching subjects", 400);
   }
 
   // const duration = Date.now() - start;
@@ -193,7 +193,7 @@ const getAllSubjects = catchErrors(async (req, res) => {
 
   return res.status(200).json({
     length: info.length,
-    message: 'Subjects fetched successfully',
+    message: "Subjects fetched successfully",
     success: true,
     status: 200,
     subjects: info,
@@ -205,12 +205,12 @@ const getAllJssSubjects = catchErrors(async (req, res) => {
   const info = await fetchingAllJssSubjects();
 
   if (!info) {
-    throw new AppError('Error fetching subjects', 400);
+    throw new AppError("Error fetching subjects", 400);
   }
 
   return res.status(200).json({
     length: info.length,
-    message: 'Subjects fetched successfully',
+    message: "Subjects fetched successfully",
     success: true,
     status: 200,
     subjects: info,
@@ -221,12 +221,12 @@ const getAllSssCompulsorySubjects = catchErrors(async (req, res) => {
   const info = await fetchingAllSssCompulsorySubjects();
 
   if (!info) {
-    throw new AppError('Error fetching subjects', 400);
+    throw new AppError("Error fetching subjects", 400);
   }
 
   return res.status(200).json({
     length: info.length,
-    message: 'Subjects fetched successfully',
+    message: "Subjects fetched successfully",
     success: true,
     status: 200,
     subjects: info,
@@ -237,12 +237,12 @@ const getAllOptionalSubjects = catchErrors(async (req, res) => {
   const info = await fetchingAllOptionalSubjects();
 
   if (!info) {
-    throw new AppError('Error fetching subjects', 400);
+    throw new AppError("Error fetching subjects", 400);
   }
 
   return res.status(200).json({
     length: info.length,
-    message: 'Subjects fetched successfully',
+    message: "Subjects fetched successfully",
     success: true,
     status: 200,
     subjects: info,

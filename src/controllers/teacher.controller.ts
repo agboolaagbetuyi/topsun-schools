@@ -1,5 +1,5 @@
-import mongoose, { Types } from 'mongoose';
-import { TeacherToSubjectType } from '../constants/types';
+import mongoose, { Types } from "mongoose";
+import { TeacherToSubjectType } from "../constants/types";
 import {
   assigningTeacherToSubject,
   changingTeacherToSubject,
@@ -15,9 +15,9 @@ import {
   getTeacherDetailsById,
   onboardTeacher,
   fetchClassTeacherManagesByTeacherId,
-} from '../services/teacher.service';
-import { AppError } from '../utils/app.error';
-import catchErrors from '../utils/tryCatch';
+} from "../services/teacher.service";
+import { AppError } from "../utils/app.error";
+import catchErrors from "../utils/tryCatch";
 // import { saveLog } from '../logs/log.service';
 
 const assignTeacherToClass = catchErrors(async (req, res) => {
@@ -26,7 +26,7 @@ const assignTeacherToClass = catchErrors(async (req, res) => {
   const { teacher_id, class_id } = req.body;
 
   if (!teacher_id || !class_id) {
-    throw new AppError('Teacher ID and class name are needed.', 400);
+    throw new AppError("Teacher ID and class name are needed.", 400);
   }
 
   const payload: TeacherToSubjectType = {
@@ -37,7 +37,7 @@ const assignTeacherToClass = catchErrors(async (req, res) => {
   const result = await classTeacherAssignedEndpoint(payload);
 
   if (!result) {
-    throw new AppError('Unable to assign teacher to a class.', 400);
+    throw new AppError("Unable to assign teacher to a class.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -62,7 +62,7 @@ const assignTeacherToClass = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Teacher assigned successfully',
+    message: "Teacher assigned successfully",
     status: 200,
     success: true,
   });
@@ -74,7 +74,7 @@ const assignTeacherToSubject = catchErrors(async (req, res) => {
   const { subject, class_id, teacher_id } = req.body;
 
   if (!subject || !class_id || !teacher_id) {
-    throw new AppError('Subject, class id and teacher id are required', 400);
+    throw new AppError("Subject, class id and teacher id are required", 400);
   }
 
   const payload = {
@@ -85,7 +85,7 @@ const assignTeacherToSubject = catchErrors(async (req, res) => {
   const info = await assigningTeacherToSubject(payload);
 
   if (!info) {
-    throw new AppError('Unable to assign teacher to the subject', 400);
+    throw new AppError("Unable to assign teacher to the subject", 400);
   }
 
   // const duration = Date.now() - start;
@@ -120,13 +120,13 @@ const getATeacherById = catchErrors(async (req, res) => {
 
   const { teacher_id } = req.params;
   if (!teacher_id) {
-    throw new AppError('Please provide teacher id.', 400);
+    throw new AppError("Please provide teacher id.", 400);
   }
 
   const info = await getTeacherDetailsById(teacher_id);
 
   if (!info) {
-    throw new AppError('Unable to get teacher details', 400);
+    throw new AppError("Unable to get teacher details", 400);
   }
 
   // const duration = Date.now() - start;
@@ -165,10 +165,10 @@ const getTeachersBySubjectId = catchErrors(async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const searchQuery =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   if (!subject_id) {
-    throw new AppError('Please provide subject id.', 400);
+    throw new AppError("Please provide subject id.", 400);
   }
 
   const info = await fetchTeachersBySubjectId(
@@ -179,7 +179,7 @@ const getTeachersBySubjectId = catchErrors(async (req, res) => {
   );
 
   if (!info) {
-    throw new AppError('Unable to get teachers', 400);
+    throw new AppError("Unable to get teachers", 400);
   }
 
   // const duration = Date.now() - start;
@@ -217,12 +217,12 @@ const getAllTeachers = catchErrors(async (req, res) => {
   const page = req.query.page ? Number(req.query.page) : undefined;
   const limit = req.query.limit ? Number(req.query.limit) : undefined;
   const searchQuery =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   const info = await fetchAllTeachers(page, limit, searchQuery);
 
   if (!info) {
-    throw new AppError('Unable to get teachers.', 400);
+    throw new AppError("Unable to get teachers.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -261,12 +261,12 @@ const teacherOnboardingById = catchErrors(async (req, res) => {
   const { subject_ids } = req.body;
 
   if (!teacher_id) {
-    throw new AppError('Teacher ID is required to proceed.', 400);
+    throw new AppError("Teacher ID is required to proceed.", 400);
   }
 
   if (!subject_ids) {
     throw new AppError(
-      'Please provide at least one subject that this teacher will be teaching.',
+      "Please provide at least one subject that this teacher will be teaching.",
       400
     );
   }
@@ -279,7 +279,7 @@ const teacherOnboardingById = catchErrors(async (req, res) => {
   const result = await onboardTeacher(payload);
 
   if (!result) {
-    throw new AppError('Unable to onboard this teacher.', 400);
+    throw new AppError("Unable to onboard this teacher.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -304,7 +304,7 @@ const teacherOnboardingById = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Teacher successfully onboarded.',
+    message: "Teacher successfully onboarded.",
     success: true,
     status: 200,
     teacher: result,
@@ -318,10 +318,10 @@ const changeClassTeacher = catchErrors(async (req, res) => {
   const { new_class_teacher_id } = req.body;
 
   if (!class_id) {
-    throw new AppError('Class ID is required to proceed.', 400);
+    throw new AppError("Class ID is required to proceed.", 400);
   }
   if (!new_class_teacher_id) {
-    throw new AppError('New class teacher ID is required to proceed.', 400);
+    throw new AppError("New class teacher ID is required to proceed.", 400);
   }
 
   const payload = {
@@ -332,7 +332,7 @@ const changeClassTeacher = catchErrors(async (req, res) => {
   const result = await classTeacherChange(payload);
 
   if (!result) {
-    throw new AppError('Unable to change class teacher.', 400);
+    throw new AppError("Unable to change class teacher.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -370,7 +370,7 @@ const changeSubjectTeacherInAClass = catchErrors(async (req, res) => {
   const { subject, class_id, new_teacher_id } = req.body;
 
   if (!subject || !class_id || !new_teacher_id) {
-    throw new AppError('Subject, class id and teacher id are required', 400);
+    throw new AppError("Subject, class id and teacher id are required", 400);
   }
 
   const payload = {
@@ -381,7 +381,7 @@ const changeSubjectTeacherInAClass = catchErrors(async (req, res) => {
   const info = await changingTeacherToSubject(payload);
 
   if (!info) {
-    throw new AppError('Unable to change teacher to the subject', 400);
+    throw new AppError("Unable to change teacher to the subject", 400);
   }
 
   // const duration = Date.now() - start;
@@ -424,7 +424,7 @@ const getStudentsInClassOfferingTeacherSubject = catchErrors(
 
     if (!class_id || !subject_id || !academic_session_id) {
       throw new AppError(
-        'Please provide valid academic session ID, class ID and subject ID to proceed.',
+        "Please provide valid academic session ID, class ID and subject ID to proceed.",
         400
       );
     }
@@ -433,15 +433,15 @@ const getStudentsInClassOfferingTeacherSubject = catchErrors(
       class_id,
       subject_id,
       academic_session_id,
-      userRole: userRole === 'teacher' ? userRole : undefined,
-      userId: userRole === 'teacher' ? userId : undefined,
+      userRole: userRole === "teacher" ? userRole : undefined,
+      userId: userRole === "teacher" ? userId : undefined,
     };
 
     const result = await fetchStudentsInClassOfferingTeacherSubject(payload);
 
     if (!result) {
       throw new AppError(
-        'Unable to fetch students offering this subject in this class.',
+        "Unable to fetch students offering this subject in this class.",
         400
       );
     }
@@ -484,11 +484,11 @@ const getAllClassesTeacherTeachesByTeacherId = catchErrors(async (req, res) => {
   const userRole = req.user?.userRole;
 
   if (!teacher_id) {
-    throw new AppError('Please provide a teacher ID to proceed.', 400);
+    throw new AppError("Please provide a teacher ID to proceed.", 400);
   }
 
   if (!userId || !userRole) {
-    throw new AppError('Please login to proceed.', 400);
+    throw new AppError("Please login to proceed.", 400);
   }
 
   const payload = {
@@ -501,7 +501,7 @@ const getAllClassesTeacherTeachesByTeacherId = catchErrors(async (req, res) => {
 
   if (!result) {
     throw new AppError(
-      'Unable to fetch all the classes that this teacher teaches.',
+      "Unable to fetch all the classes that this teacher teaches.",
       400
     );
   }
@@ -530,7 +530,7 @@ const getAllClassesTeacherTeachesByTeacherId = catchErrors(async (req, res) => {
 
   return res.status(200).json({
     message:
-      'Classes and subject being taught by teacher fetched successfully.',
+      "Classes and subject being taught by teacher fetched successfully.",
     status: 200,
     success: true,
     classes: result,
@@ -546,11 +546,11 @@ const getStudentsOfferingTeacherSubjectUsingClassId = catchErrors(
     const userRole = req.user?.userRole;
 
     if (!class_id) {
-      throw new AppError('Please provide a class ID to proceed', 400);
+      throw new AppError("Please provide a class ID to proceed", 400);
     }
 
     if (!userId || !userRole) {
-      throw new AppError('Please login to proceed', 400);
+      throw new AppError("Please login to proceed", 400);
     }
 
     const payload = {
@@ -565,7 +565,7 @@ const getStudentsOfferingTeacherSubjectUsingClassId = catchErrors(
 
     if (!result) {
       throw new AppError(
-        'Unable to get students offering this subject using the class ID.',
+        "Unable to get students offering this subject using the class ID.",
         400
       );
     }
@@ -592,7 +592,7 @@ const getStudentsOfferingTeacherSubjectUsingClassId = catchErrors(
     // await saveLog(savelogPayload);
 
     return res.status(200).json({
-      message: 'Student offering this subject fetched successfully.',
+      message: "Student offering this subject fetched successfully.",
       success: true,
       status: 200,
       students_in_class: result,
@@ -610,13 +610,13 @@ const getAllStudentsInClassByClassId = catchErrors(async (req, res) => {
 
   if (!class_id || !academic_session_id) {
     throw new AppError(
-      'Please provide a class ID and academic session ID to proceed',
+      "Please provide a class ID and academic session ID to proceed",
       400
     );
   }
 
   if (!userId || !userRole) {
-    throw new AppError('Please login to proceed', 400);
+    throw new AppError("Please login to proceed", 400);
   }
 
   const payload = {
@@ -629,7 +629,7 @@ const getAllStudentsInClassByClassId = catchErrors(async (req, res) => {
   const result = await fetchAllStudentsInClassByClassId(payload);
 
   if (!result) {
-    throw new AppError('Unable to get students in this class.', 400);
+    throw new AppError("Unable to get students in this class.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -654,7 +654,7 @@ const getAllStudentsInClassByClassId = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Students fetched successfully.',
+    message: "Students fetched successfully.",
     success: true,
     status: 200,
     students_in_class: result,
@@ -669,20 +669,20 @@ const getStudentsInClassThatTeacherManages = catchErrors(async (req, res) => {
   const page = req.query.page ? Number(req.query.page) : 1;
   const limit = req.query.limit ? Number(req.query.limit) : 10;
   const searchQuery =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   const userId = req.user?.userId;
   const userRole = req.user?.userRole;
 
   if (!class_id || !teacher_id || !academic_session_id) {
     throw new AppError(
-      'Please provide a class ID and academic session ID to proceed',
+      "Please provide a class ID and academic session ID to proceed",
       400
     );
   }
 
   if (!userId || !userRole) {
-    throw new AppError('Please login to proceed', 400);
+    throw new AppError("Please login to proceed", 400);
   }
 
   const payload = {
@@ -701,7 +701,7 @@ const getStudentsInClassThatTeacherManages = catchErrors(async (req, res) => {
   );
 
   if (!result) {
-    throw new AppError('Unable to get students in this class.', 400);
+    throw new AppError("Unable to get students in this class.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -726,7 +726,7 @@ const getStudentsInClassThatTeacherManages = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Students fetched successfully.',
+    message: "Students fetched successfully.",
     success: true,
     status: 200,
     students_in_class: result,
@@ -739,14 +739,14 @@ const getClassTeacherManagesByTeacherId = catchErrors(async (req, res) => {
   const { teacher_id } = req.params;
 
   if (!teacher_id) {
-    throw new AppError('Teacher ID is required.', 400);
+    throw new AppError("Teacher ID is required.", 400);
   }
 
   const userId = req.user?.userId;
   const userRole = req.user?.userRole;
 
   if (!userId || !userRole) {
-    throw new AppError('Please login to proceed', 400);
+    throw new AppError("Please login to proceed", 400);
   }
 
   const payload = {
@@ -755,7 +755,7 @@ const getClassTeacherManagesByTeacherId = catchErrors(async (req, res) => {
   const result = await fetchClassTeacherManagesByTeacherId(payload);
 
   if (!result) {
-    throw new AppError('Unable to get class that teacher manages.', 400);
+    throw new AppError("Unable to get class that teacher manages.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -780,7 +780,7 @@ const getClassTeacherManagesByTeacherId = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Class fetched successfully.',
+    message: "Class fetched successfully.",
     success: true,
     status: 200,
     class_am_managing: result,

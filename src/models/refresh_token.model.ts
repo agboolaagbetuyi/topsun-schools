@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 
 const refreshTokenSchema = new mongoose.Schema(
   {
@@ -16,6 +16,6 @@ const refreshTokenSchema = new mongoose.Schema(
   }
 );
 
-const RefreshToken = mongoose.model('RefreshToken', refreshTokenSchema);
+const RefreshToken = mongoose.model("RefreshToken", refreshTokenSchema);
 
 export { RefreshToken };

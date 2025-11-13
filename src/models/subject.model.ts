@@ -1,11 +1,11 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 import {
   streamEnum,
   subjectTierEnum,
   subjectTypeEnum,
-} from '../constants/enum';
-import { required } from 'joi';
-import { SubjectDocument } from '../constants/types';
+} from "../constants/enum";
+import { required } from "joi";
+import { SubjectDocument } from "../constants/types";
 
 const subjectSchema = new mongoose.Schema<SubjectDocument>(
   {
@@ -17,13 +17,13 @@ const subjectSchema = new mongoose.Schema<SubjectDocument>(
     class_ids: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Class',
+        ref: "Class",
       },
     ],
     teacher_ids: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Teacher',
+        ref: "Teacher",
       },
     ],
   },
@@ -32,5 +32,5 @@ const subjectSchema = new mongoose.Schema<SubjectDocument>(
   }
 );
 
-const Subject = mongoose.model<SubjectDocument>('Subject', subjectSchema);
+const Subject = mongoose.model<SubjectDocument>("Subject", subjectSchema);
 export default Subject;

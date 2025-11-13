@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
+import { Request, Response } from "express";
+import bcrypt from "bcryptjs";
 
 import {
   CloudinaryType,
@@ -13,17 +13,17 @@ import {
   GradingAndRemarkType,
   ExamComponentType,
   CutoffMinutesCreationPayload,
-} from '../constants/types';
-import { AppError } from '../utils/app.error';
-import { cloudinaryDestroy, handleFileUpload } from '../utils/cloudinary';
-import { rolesEnum } from '../constants/enum';
-import { generateAndStoreVerificationToken } from '../repository/token.repository';
-import { capitalizeFirstLetter, sendingEmailToQueue } from '../utils/functions';
-import { emailQueue } from '../utils/queue';
-import { findUserByEmail } from '../repository/user.repository';
-import ClassLevel from '../models/class_level.model';
-import ResultSetting from '../models/result_setting.model';
-import CbtCutoff from '../models/cbt_cutoffs.model';
+} from "../constants/types";
+import { AppError } from "../utils/app.error";
+import { cloudinaryDestroy, handleFileUpload } from "../utils/cloudinary";
+import { rolesEnum } from "../constants/enum";
+import { generateAndStoreVerificationToken } from "../repository/token.repository";
+import { capitalizeFirstLetter, sendingEmailToQueue } from "../utils/functions";
+import { emailQueue } from "../utils/queue";
+import { findUserByEmail } from "../repository/user.repository";
+import ClassLevel from "../models/class_level.model";
+import ResultSetting from "../models/result_setting.model";
+import CbtCutoff from "../models/cbt_cutoffs.model";
 
 // const addingSchoolLogo = async (
 //   req: Request,
@@ -215,7 +215,7 @@ const classLevelsCreation = async (payload: ClassLevelCreationPayloadType) => {
     const classLevelExist = await ClassLevel.findOne();
 
     if (classLevelExist) {
-      throw new AppError('This school already have class level.', 400);
+      throw new AppError("This school already have class level.", 400);
     }
 
     const newClassLevel = await new ClassLevel({
@@ -223,7 +223,7 @@ const classLevelsCreation = async (payload: ClassLevelCreationPayloadType) => {
     }).save();
 
     if (!newClassLevel) {
-      throw new AppError('Unable to create class level for this school.', 400);
+      throw new AppError("Unable to create class level for this school.", 400);
     }
 
     return newClassLevel;
@@ -232,7 +232,7 @@ const classLevelsCreation = async (payload: ClassLevelCreationPayloadType) => {
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -247,7 +247,7 @@ const resultSettingCreation = async (
     const schoolLevels = await ClassLevel.findOne();
 
     if (!schoolLevels) {
-      throw new AppError('This school does not have class levels at all.', 400);
+      throw new AppError("This school does not have class levels at all.", 400);
     }
 
     const classLevelExist = schoolLevels.class_level_array.find(
@@ -256,7 +256,7 @@ const resultSettingCreation = async (
 
     if (!classLevelExist) {
       throw new AppError(
-        'This class level does not exist for this school',
+        "This class level does not exist for this school",
         404
       );
     }
@@ -267,7 +267,7 @@ const resultSettingCreation = async (
 
     if (resultSettingExist) {
       throw new AppError(
-        'This level already have result component in this school.',
+        "This level already have result component in this school.",
         400
       );
     }
@@ -290,14 +290,16 @@ const resultSettingCreation = async (
 
       if (!itemName || !itemPercentage || !itemColumn) {
         throw new AppError(
-          'Each name must have a corresponding percentage and column number to process.',
+          "Each name must have a corresponding percentage and column number to process.",
           400
         );
       }
 
       if (nameSet.has(itemName.trim().toLowerCase())) {
         throw new AppError(
-          `Duplicate name detected: ${itemName}. Each name must be unique.`,
+          `Duplicate name detected: ${itemName
+            .trim()
+            .toLowerCase()}. Each name must be unique.`,
           400
         );
       }
@@ -327,7 +329,7 @@ const resultSettingCreation = async (
       if (sortedColumns[i] !== i + 1) {
         throw new AppError(
           `Column numbers must be sequential without skipping. Found: ${sortedColumns.join(
-            ', '
+            ", "
           )}`,
           400
         );
@@ -359,12 +361,18 @@ const resultSettingCreation = async (
 
     if (totalPercentage !== 100) {
       throw new AppError(
-        'Total percentage can not be greater than or less than 100%.',
+        "Total percentage can not be greater than or less than 100%.",
         400
       );
     }
 
     const { component, exam_name } = exam_components;
+
+    const examNames = component.map((c) => c.name.trim().toLowerCase());
+    const examNameSet = new Set(examNames);
+    if (examNames.length !== examNameSet.size) {
+      throw new AppError(`Exam component names can not be the same.`, 400);
+    }
     const formattedExamComponents = {
       exam_name: exam_name.trim().toLowerCase(),
       component: component.map((comp) => ({
@@ -398,7 +406,7 @@ const resultSettingCreation = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -425,7 +433,7 @@ const cutoffMinutesCreation = async (payload: CutoffMinutesCreationPayload) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };

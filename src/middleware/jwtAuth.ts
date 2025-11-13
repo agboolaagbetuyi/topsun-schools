@@ -1,8 +1,8 @@
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-import { AppError, JwtError } from '../utils/app.error';
-import { NextFunction, Request, Response } from 'express';
-import { UserInJwt } from '../constants/types';
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { AppError, JwtError } from "../utils/app.error";
+import { NextFunction, Request, Response } from "express";
+import { UserInJwt } from "../constants/types";
 dotenv.config();
 
 const jwt_access_secret = process.env.JWT_ACCESS_SECRET;
@@ -22,13 +22,13 @@ const generateAccessToken = async (
 
     if (!jwt_access_secret) {
       throw new AppError(
-        'JWT_SECRET is not defined in the environment variables',
+        "JWT_SECRET is not defined in the environment variables",
         404
       );
     }
 
     const accessToken = await jwt.sign(payload, jwt_access_secret, {
-      expiresIn: '2days',
+      expiresIn: "2days",
     });
 
     return accessToken;
@@ -51,13 +51,13 @@ const generateRefreshToken = async (
 
     if (!jwt_refresh_secret) {
       throw new AppError(
-        'JWT_SECRET is not defined in the environment variables',
+        "JWT_SECRET is not defined in the environment variables",
         404
       );
     }
 
     const refreshToken = await jwt.sign(payload, jwt_refresh_secret, {
-      expiresIn: '7days',
+      expiresIn: "7days",
     });
 
     return refreshToken;
@@ -72,15 +72,15 @@ const verifyAccessToken = async (
   next: NextFunction
 ): Promise<any> => {
   try {
-    const accessToken = req.headers['authorization']?.split(' ')[1];
+    const accessToken = req.headers["authorization"]?.split(" ")[1];
 
     if (!accessToken) {
-      throw new AppError('Please login to continue.', 401);
+      throw new AppError("Please login to continue.", 401);
     }
 
     if (!jwt_access_secret) {
       throw new AppError(
-        'JWT_SECRET is not defined in the environment variables',
+        "JWT_SECRET is not defined in the environment variables",
         404
       );
     }
@@ -91,7 +91,7 @@ const verifyAccessToken = async (
     )) as UserInJwt;
 
     if (!user) {
-      throw new AppError('Invalid token', 400);
+      throw new AppError("Invalid token", 400);
     }
 
     req.user = user;
@@ -104,12 +104,12 @@ const verifyAccessToken = async (
 const jwtDecodeRefreshToken = async (token: string): Promise<UserInJwt> => {
   try {
     if (!token) {
-      throw new AppError('Please provide a token to continue', 404);
+      throw new AppError("Please provide a token to continue", 404);
     }
 
     if (!jwt_refresh_secret) {
       throw new AppError(
-        'JWT_SECRET is not defined in the environment variables',
+        "JWT_SECRET is not defined in the environment variables",
         404
       );
     }
@@ -118,18 +118,18 @@ const jwtDecodeRefreshToken = async (token: string): Promise<UserInJwt> => {
 
     if (
       !response ||
-      typeof response !== 'object' ||
-      !('userId' in response) ||
-      !('userEmail' in response) ||
-      !('userRole' in response)
+      typeof response !== "object" ||
+      !("userId" in response) ||
+      !("userEmail" in response) ||
+      !("userRole" in response)
     ) {
-      throw new Error('could not verify token');
+      throw new Error("could not verify token");
     }
 
     return response as UserInJwt;
   } catch (error) {
     console.error(error);
-    throw new Error('Invalid or expired token');
+    throw new Error("Invalid or expired token");
   }
 };
 

@@ -7,17 +7,17 @@ import {
   sendingEmailVerificationToken,
   userEmailVerification,
   userLogin,
-} from '../services/auth.service';
-import { AppError, JoiError } from '../utils/app.error';
-import { capitalizeFirstLetter } from '../utils/functions';
-import catchErrors from '../utils/tryCatch';
+} from "../services/auth.service";
+import { AppError, JoiError } from "../utils/app.error";
+import { capitalizeFirstLetter } from "../utils/functions";
+import catchErrors from "../utils/tryCatch";
 import {
   joiValidation,
   parentValidation,
   staffValidation,
   studentValidation,
   superAdminValidation,
-} from '../utils/validation';
+} from "../utils/validation";
 
 const registerUser = catchErrors(async (req, res) => {
   const {
@@ -58,12 +58,12 @@ const registerUser = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to proceed.`,
+      `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
       400
     );
   }
 
-  if (role !== 'student' && role !== 'parent') {
+  if (role !== "student" && role !== "parent") {
     const workerFields = {
       phone,
       employment_date,
@@ -74,16 +74,16 @@ const registerUser = catchErrors(async (req, res) => {
 
     if (workerMissingField) {
       throw new AppError(
-        `Please provide ${workerMissingField[0].replace('_', ' ')} to proceed.`,
+        `Please provide ${workerMissingField[0].replace("_", " ")} to proceed.`,
         400
       );
     }
   }
 
-  if (role === 'student') {
+  if (role === "student") {
     if (!admission_number || !dob) {
       throw new AppError(
-        'Admission number and date of birth are required for student registration.',
+        "Admission number and date of birth are required for student registration.",
         400
       );
     }
@@ -96,14 +96,14 @@ const registerUser = catchErrors(async (req, res) => {
   payload = {
     first_name: first_name.trim().toLowerCase(),
     last_name: last_name.trim().toLowerCase(),
-    gender,
+    gender: gender.trim(),
     email: email.trim(),
-    password,
-    confirm_password,
-    phone,
+    password: password.trim(),
+    confirm_password: confirm_password.trim(),
+    phone: phone.trim(),
   };
 
-  const mainValidation = joiValidation(payload, 'register');
+  const mainValidation = joiValidation(payload, "register");
   let otherValidation:
     | { success: boolean; value?: any; error?: string }
     | undefined;
@@ -150,14 +150,14 @@ const registerUser = catchErrors(async (req, res) => {
   //   otherValidation = studentValidation(payload);
   // }
 
-  if (role === 'parent') {
+  if (role === "parent") {
     payload = {
       middle_name: middle_name ? middle_name.trim().toLowerCase() : undefined,
     };
     otherValidation = parentValidation(payload);
   }
 
-  if (role === 'non_teaching' || role === 'admin') {
+  if (role === "non_teaching" || role === "admin") {
     payload = {
       middle_name: middle_name ? middle_name.trim().toLowerCase() : undefined,
       dob,
@@ -166,7 +166,7 @@ const registerUser = catchErrors(async (req, res) => {
     otherValidation = staffValidation(payload);
   }
 
-  if (role === 'teacher') {
+  if (role === "teacher") {
     payload = {
       middle_name: middle_name ? middle_name.trim().toLowerCase() : undefined,
       dob,
@@ -175,14 +175,14 @@ const registerUser = catchErrors(async (req, res) => {
     otherValidation = staffValidation(payload);
   }
 
-  if (role === 'super_admin') {
+  if (role === "super_admin") {
     payload = {
       middle_name: middle_name ? middle_name.trim().toLowerCase() : undefined,
     };
     otherValidation = superAdminValidation(payload);
   }
 
-  if (role === 'student') {
+  if (role === "student") {
     payload = {
       middle_name: middle_name ? middle_name.trim().toLowerCase() : undefined,
       dob,
@@ -195,7 +195,7 @@ const registerUser = catchErrors(async (req, res) => {
   const { success, value } = mainValidation;
 
   if (!otherValidation) {
-    throw new JoiError('Please make sure all required fields are supplied');
+    throw new JoiError("Please make sure all required fields are supplied");
   }
 
   if (otherValidation.error) {
@@ -216,12 +216,12 @@ const registerUser = catchErrors(async (req, res) => {
   const user = await registerNewUser(valueInput);
 
   if (!user) {
-    throw new AppError('Unable to register user', 400);
+    throw new AppError("Unable to register user", 400);
   }
 
   return res.json({
     message:
-      'Registration successful. Please verify your account using the token sent to your email address.',
+      "Registration successful. Please verify your account using the token sent to your email address.",
     success: true,
   });
 });
@@ -232,7 +232,7 @@ const verifyUserEmail = catchErrors(async (req, res) => {
   const verifyUserEmailResponse = await userEmailVerification(token);
 
   if (!verifyUserEmailResponse) {
-    throw new AppError('Error verifying user email.', 401);
+    throw new AppError("Error verifying user email.", 401);
   }
 
   const first_name = capitalizeFirstLetter(verifyUserEmailResponse?.first_name);
@@ -250,12 +250,12 @@ const loginUser = catchErrors(async (req, res) => {
     email: email.trim(),
     password: password.trim(),
   };
-  const validateResponse = await joiValidation(payload, 'login');
+  const validateResponse = joiValidation(payload, "login");
 
   const loginResponse = await userLogin(validateResponse.value);
 
   if (!loginResponse) {
-    throw new AppError('Unable to login user.', 400);
+    throw new AppError("Unable to login user.", 400);
   }
 
   return res.status(200).json({
@@ -272,20 +272,20 @@ const requestAccessToken = catchErrors(async (req, res) => {
   const refreshToken = req.body.refreshToken;
 
   if (!refreshToken) {
-    throw new AppError('Please provide a refresh token.', 404);
+    throw new AppError("Please provide a refresh token.", 404);
   }
 
   const confirmTokenResponse = await generateAnotherAccessToken(refreshToken);
 
   if (!confirmTokenResponse) {
-    throw new AppError('Unable to generate a new access token', 400);
+    throw new AppError("Unable to generate a new access token", 400);
   }
 
   const { password: hashValue, ...others } =
     confirmTokenResponse.user.toObject();
 
   return res.status(200).json({
-    message: 'Access token generated successfully',
+    message: "Access token generated successfully",
     accessToken: confirmTokenResponse.newAccessToken,
     user: others,
     success: true,
@@ -296,23 +296,23 @@ const requestAccessToken = catchErrors(async (req, res) => {
 const resendEmailVerificationLink = catchErrors(async (req, res) => {
   const { email } = req.body;
 
-  const validateInput = joiValidation(email, 'forgot-password');
+  const validateInput = joiValidation(email.trim(), "forgot-password");
 
   if (!validateInput) {
-    throw new AppError('Unable to validate email.', 400);
+    throw new AppError("Unable to validate email.", 400);
   }
 
   const { success, value } = validateInput;
 
-  const response = await sendingEmailVerificationToken(email);
+  const response = await sendingEmailVerificationToken(email.trim());
 
   if (!response) {
-    throw new AppError('Unable to send verification token.', 400);
+    throw new AppError("Unable to send verification token.", 400);
   }
 
   return res.status(200).json({
     message:
-      'A new Email verification token has been sent successfully. Please check your email address',
+      "A new Email verification token has been sent successfully. Please check your email address",
     success: true,
     status: 200,
   });
@@ -321,23 +321,23 @@ const resendEmailVerificationLink = catchErrors(async (req, res) => {
 const forgotPassword = catchErrors(async (req, res) => {
   const { email } = req.body;
 
-  const validateInput = joiValidation(email, 'forgot-password');
+  const validateInput = joiValidation(email.trim(), "forgot-password");
 
   if (!validateInput) {
-    throw new AppError('Unable to validate email.', 400);
+    throw new AppError("Unable to validate email.", 400);
   }
 
   const { success, value } = validateInput;
 
-  const forgotPasswordResponse = await forgotPass(email);
+  const forgotPasswordResponse = await forgotPass(email.trim());
 
   if (!forgotPasswordResponse) {
-    throw new AppError('Unable to verify account', 400);
+    throw new AppError("Unable to verify account", 400);
   }
 
   return res.status(200).json({
     message:
-      'Please use the token sent to your email address to reset your password.',
+      "Please use the token sent to your email address to reset your password.",
     status: 200,
   });
 });
@@ -350,10 +350,10 @@ const resetPassword = catchErrors(async (req, res) => {
     confirm_password,
   };
 
-  const validatePasswords = joiValidation(payload, 'reset-password');
+  const validatePasswords = joiValidation(payload, "reset-password");
 
   if (!validatePasswords) {
-    throw new AppError('Unable to validate input fields', 400);
+    throw new AppError("Unable to validate input fields", 400);
   }
 
   const { success, value } = validatePasswords;
@@ -365,11 +365,11 @@ const resetPassword = catchErrors(async (req, res) => {
 
   const response = await changeUserPassword(input);
   if (!response) {
-    throw new AppError('Unable to change password', 400);
+    throw new AppError("Unable to change password", 400);
   }
 
   return res.status(200).json({
-    message: 'Password changed successfully',
+    message: "Password changed successfully",
     success: true,
     status: 200,
   });
@@ -377,15 +377,15 @@ const resetPassword = catchErrors(async (req, res) => {
 
 const logoutUser = catchErrors(async (req, res) => {
   const { refresh_token } = req.body;
-  const access_token = req.headers.authorization?.split(' ')[1];
+  const access_token = req.headers.authorization?.split(" ")[1];
   const user_id = req.user?.userId;
 
   if (!refresh_token) {
-    throw new AppError('Refresh Token is required to proceed.', 400);
+    throw new AppError("Refresh Token is required to proceed.", 400);
   }
 
   if (!access_token) {
-    throw new AppError('No token found in the header.', 400);
+    throw new AppError("No token found in the header.", 400);
   }
 
   const payload = {
@@ -397,7 +397,7 @@ const logoutUser = catchErrors(async (req, res) => {
   const result = await loggingUserOut(payload);
 
   res.status(200).json({
-    message: 'User logged out successfully',
+    message: "User logged out successfully",
   });
 });
 

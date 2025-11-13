@@ -1,16 +1,16 @@
-import mongoose from 'mongoose';
-import { enrolmentEnum } from '../constants/enum';
+import mongoose from "mongoose";
+import { enrolmentEnum } from "../constants/enum";
 import {
   ClassEnrolmentDocument,
   GetClassStudentsType,
   StudentEnrolmentType,
-} from '../constants/types';
-import Class from '../models/class.model';
-import ClassEnrolment from '../models/classes_enrolment.model';
-import Session from '../models/session.model';
-import Student from '../models/students.model';
-import { AppError } from '../utils/app.error';
-import { createResult } from '../repository/result.repository';
+} from "../constants/types";
+import Class from "../models/class.model";
+import ClassEnrolment from "../models/classes_enrolment.model";
+import Session from "../models/session.model";
+import Student from "../models/students.model";
+import { AppError } from "../utils/app.error";
+import { createResult } from "../repository/result.repository";
 
 const enrolStudentToClass = async (
   payload: StudentEnrolmentType
@@ -47,15 +47,15 @@ const enrolStudentToClass = async (
     }).session(session);
 
     if (!isSessionActive) {
-      throw new AppError('This session does not exist', 404);
+      throw new AppError("This session does not exist", 404);
     }
 
     if (isSessionActive?.is_active !== true) {
-      throw new AppError('You can only enrol to an active session.', 400);
+      throw new AppError("You can only enrol to an active session.", 400);
     }
 
     const activeEnrolment = await ClassEnrolment.findOne({
-      'students.student': student_id,
+      "students.student": student_id,
       academic_session_id,
       is_active: true,
     }).session(session);
@@ -77,7 +77,7 @@ const enrolStudentToClass = async (
     );
 
     if (!compulsorySubjects?.compulsory_subjects?.length) {
-      throw new AppError('Subjects not found for this class.', 404);
+      throw new AppError("Subjects not found for this class.", 404);
     }
 
     const flattenedSubjects = compulsorySubjects?.compulsory_subjects.map(
@@ -94,7 +94,7 @@ const enrolStudentToClass = async (
     if (hasInvalidSubjects.length > 0) {
       throw new AppError(
         `The subjects with the following IDs: ${hasInvalidSubjects.join(
-          ', '
+          ", "
         )} is not part of the subjects available to be offered in this class.`,
         400
       );
@@ -166,7 +166,7 @@ const enrolStudentToClass = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -199,11 +199,11 @@ const enrolManyStudentsToClass = async (
     }).session(session);
 
     if (!isSessionActive) {
-      throw new AppError('This session does not exist', 404);
+      throw new AppError("This session does not exist", 404);
     }
 
     if (isSessionActive?.is_active !== true) {
-      throw new AppError('You can only enrol to an active session.', 400);
+      throw new AppError("You can only enrol to an active session.", 400);
     }
 
     const alreadyEnrolledStudents = await ClassEnrolment.find({
@@ -232,14 +232,14 @@ const enrolManyStudentsToClass = async (
           if (student) {
             return `${student.first_name} ${student.last_name}`;
           }
-          return 'Unknown student';
+          return "Unknown student";
         })
       );
 
       // I WILL NEED TO CHANGE THE IDS INSIDE THE ERROR TO NAME OF STUDENTS INVOLVED
       throw new AppError(
         `The following students are already enrolled in this class for the session: ${students?.join(
-          ', '
+          ", "
         )}`,
         400
       );
@@ -250,7 +250,7 @@ const enrolManyStudentsToClass = async (
     );
 
     if (!compulsorySubjects?.compulsory_subjects?.length) {
-      throw new AppError('Compulsory subjects not found for this class.', 404);
+      throw new AppError("Compulsory subjects not found for this class.", 404);
     }
 
     const flattenedSubjects = compulsorySubjects?.compulsory_subjects.map(
@@ -264,7 +264,7 @@ const enrolManyStudentsToClass = async (
     }));
 
     if (!studentsToEnrol) {
-      throw new AppError('Error mapping over student IDs', 400);
+      throw new AppError("Error mapping over student IDs", 400);
     }
 
     let result;
@@ -308,7 +308,7 @@ const enrolManyStudentsToClass = async (
     }));
 
     if (!bulkUpdateOps) {
-      throw new AppError('No students found for all the students.', 404);
+      throw new AppError("No students found for all the students.", 404);
     }
 
     if (bulkUpdateOps.length > 0) {
@@ -326,7 +326,7 @@ const enrolManyStudentsToClass = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -336,12 +336,12 @@ const fetchSingleEnrollment = async (
 ): Promise<ClassEnrolmentDocument> => {
   try {
     const enrollment = await ClassEnrolment.findById({ _id: id }).populate(
-      'students.student students.subjects_offered academic_session_id class',
-      '-password'
+      "students.student students.subjects_offered academic_session_id class",
+      "-password"
     );
 
     if (!enrollment) {
-      throw new AppError('Enrollment can not be found.', 404);
+      throw new AppError("Enrollment can not be found.", 404);
     }
 
     return enrollment as ClassEnrolmentDocument;
@@ -349,7 +349,7 @@ const fetchSingleEnrollment = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -360,10 +360,10 @@ const fetchAllEnrollments = async (
   searchParams: string
 ) => {
   try {
-    let query = ClassEnrolment.find().populate('class');
+    let query = ClassEnrolment.find().populate("class");
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -374,7 +374,7 @@ const fetchAllEnrollments = async (
     }
 
     if (!query) {
-      throw new AppError('Enrollment not found.', 404);
+      throw new AppError("Enrollment not found.", 404);
     }
     const count = await query.clone().countDocuments();
     let pages = 0;
@@ -386,19 +386,19 @@ const fetchAllEnrollments = async (
         .skip(offset)
         .limit(limit)
         .sort({ createdAt: -1 })
-        .populate('academic_session_id');
+        .populate("academic_session_id");
 
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
 
     const result = await query;
 
     if (!result || result.length === 0) {
-      throw new AppError('No enrollment found.', 404);
+      throw new AppError("No enrollment found.", 404);
     }
 
     return { result, totalPages: pages, totalCount: count };
@@ -406,7 +406,7 @@ const fetchAllEnrollments = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -420,10 +420,10 @@ const fetchEnrollmentsBySession = async (
   try {
     let query = ClassEnrolment.find({
       academic_session_id: session_id,
-    }).populate('class');
+    }).populate("class");
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [{ academic_session_id: { $regex: regex } }],
@@ -431,7 +431,7 @@ const fetchEnrollmentsBySession = async (
     }
 
     if (!query) {
-      throw new AppError('Enrollment not found.', 404);
+      throw new AppError("Enrollment not found.", 404);
     }
 
     const count = await query.clone().countDocuments();
@@ -445,13 +445,13 @@ const fetchEnrollmentsBySession = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
     const result = await query;
 
     if (!result || result.length === 0) {
-      throw new AppError('No enrollments found for this session.', 404);
+      throw new AppError("No enrollments found for this session.", 404);
     }
 
     return { result, totalPages: pages, totalCount: count };
@@ -459,7 +459,7 @@ const fetchEnrollmentsBySession = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -470,10 +470,10 @@ const fetchAllActiveClassEnrollments = async (): Promise<
   try {
     const response = await ClassEnrolment.find({
       is_active: true,
-    }).populate('class');
+    }).populate("class");
 
     if (!response || response.length === 0) {
-      throw new AppError('Could not find active class enrollments.', 404);
+      throw new AppError("Could not find active class enrollments.", 404);
     }
 
     return response as ClassEnrolmentDocument[];
@@ -481,7 +481,7 @@ const fetchAllActiveClassEnrollments = async (): Promise<
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -500,7 +500,7 @@ const fetchAllStudentsInAClass = async (
       throw new AppError(`Class with ID: ${class_id} does not exist.`, 404);
     }
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       if (classExist.class_teacher !== userId) {
         throw new AppError(
           `You are not the class teacher of ${classExist.name} and as such you are not allowed to view this resource.`,
@@ -539,7 +539,7 @@ const fetchAllStudentsInAClass = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -558,7 +558,7 @@ const fetchAllStudentsInAClassInActiveSession = async (
       throw new AppError(`Class with ID: ${class_id} does not exist.`, 404);
     }
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       if (classExist.class_teacher !== userId) {
         throw new AppError(
           `You are not the class teacher of ${classExist.name} and as such you are not allowed to view this resource.`,
@@ -604,7 +604,7 @@ const fetchAllStudentsInAClassInActiveSession = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };

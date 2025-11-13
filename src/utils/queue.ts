@@ -27,13 +27,10 @@ import {
   processStudentSubjectPositionUpdate,
   processSubjectCumScoreUpdate,
 } from "../repository/result.repository";
-import { sendEmailVerification } from "./nodemailer";
 
 const isDocker = process.env.DOCKER_ENV === "true";
 
 const redisUrl = process.env.REDIS_URL;
-
-console.log("redisUrl:", redisUrl);
 
 if (!redisUrl) {
   throw new Error("REDIS_URL is not defined...");
@@ -123,14 +120,7 @@ const emailWorker = new Worker<EmailJobData>(
       return sendEmail;
     }
   },
-  // { connection }
-  {
-    connection,
-    concurrency: 20,
-    maxStalledCount: 2,
-    lockDuration: 120000,
-    lockRenewTime: 30000,
-  }
+  { connection }
 );
 
 const studentResultQueue = new Queue("studentResultQueue", { connection });
@@ -175,13 +165,7 @@ const resultWorker = new Worker<
         throw new Error(`Unknown job type: ${job.name}`);
     }
   },
-  {
-    connection,
-    concurrency: 100,
-    maxStalledCount: 2,
-    lockDuration: 120000,
-    lockRenewTime: 30000,
-  }
+  { connection, concurrency: 100, maxStalledCount: 2, lockDuration: 30000 }
 );
 
 emailWorker.on("completed", (job) => {
@@ -245,10 +229,4 @@ createBullBoard({
 
 serverAdapter.setBasePath("/bull-board");
 
-export {
-  emailQueue,
-  studentResultQueue,
-  emailWorker,
-  serverAdapter,
-  connection,
-};
+export { emailQueue, studentResultQueue, emailWorker, serverAdapter };

@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { ContactUsDocument } from '../constants/types';
+import mongoose from "mongoose";
+import { ContactUsDocument } from "../constants/types";
 
 const contactUsSchema = new mongoose.Schema<ContactUsDocument>(
   {
@@ -12,7 +12,7 @@ const contactUsSchema = new mongoose.Schema<ContactUsDocument>(
 );
 
 const ContactUs = mongoose.model<ContactUsDocument>(
-  'ContactUs',
+  "ContactUs",
   contactUsSchema
 );
 export default ContactUs;

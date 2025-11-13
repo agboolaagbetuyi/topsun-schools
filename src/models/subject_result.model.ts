@@ -1,21 +1,21 @@
-import { Schema, model, Types, Document } from 'mongoose';
-import { SubjectResultDocument } from '../constants/types';
-import { termEnum } from '../constants/enum';
+import { Schema, model, Types, Document } from "mongoose";
+import { SubjectResultDocument } from "../constants/types";
+import { termEnum } from "../constants/enum";
 
 const subjectResultSchema = new Schema<SubjectResultDocument>(
   {
     enrolment: {
       type: Schema.Types.ObjectId,
-      ref: 'ClassEnrolment',
+      ref: "ClassEnrolment",
       required: true,
     },
-    student: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
-    class: { type: Schema.Types.ObjectId, ref: 'Class', required: true },
-    session: { type: Schema.Types.ObjectId, ref: 'Session', required: true },
-    subject: { type: Schema.Types.ObjectId, ref: 'Subject', required: true },
+    student: { type: Schema.Types.ObjectId, ref: "Student", required: true },
+    class: { type: Schema.Types.ObjectId, ref: "Class", required: true },
+    session: { type: Schema.Types.ObjectId, ref: "Session", required: true },
+    subject: { type: Schema.Types.ObjectId, ref: "Subject", required: true },
     subject_teacher: {
       type: Schema.Types.ObjectId,
-      ref: 'Teacher',
+      ref: "Teacher",
       required: true,
     },
     term_results: [
@@ -44,6 +44,8 @@ const subjectResultSchema = new Schema<SubjectResultDocument>(
         ],
         grade: { type: String },
         remark: { type: String },
+        class_highest_mark: { type: Number, default: null },
+        class_lowest_mark: { type: Number, default: null },
         subject_position: { type: String },
       },
     ],
@@ -54,6 +56,6 @@ const subjectResultSchema = new Schema<SubjectResultDocument>(
 );
 
 export const SubjectResult = model<SubjectResultDocument>(
-  'SubjectResult',
+  "SubjectResult",
   subjectResultSchema
 );

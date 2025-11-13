@@ -5,7 +5,7 @@ export class AppError extends Error {
   ) {
     super(message);
     Object.setPrototypeOf(this, AppError.prototype);
-    this.name = 'AppError';
+    this.name = "AppError";
   }
 }
 
@@ -17,7 +17,7 @@ export class JoiError extends Error {
     this.statusCode = statusCode;
     this.type = type;
     Object.setPrototypeOf(this, JoiError.prototype);
-    this.name = 'JoiError';
+    this.name = "JoiError";
   }
 }
 
@@ -29,6 +29,6 @@ export class JwtError extends Error {
     this.statusCode = statusCode;
     this.expiredAt = expiredAt;
     Object.setPrototypeOf(this, JwtError.prototype);
-    this.name = 'JwtError';
+    this.name = "JwtError";
   }
 }

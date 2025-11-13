@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
-import Teacher from '../models/teachers.model';
-import { AppError } from '../utils/app.error';
-import { GetTeacherByIdType } from '../constants/types';
+import mongoose from "mongoose";
+import Teacher from "../models/teachers.model";
+import { AppError } from "../utils/app.error";
+import { GetTeacherByIdType } from "../constants/types";
 
 const getTeacherById = async (payload: GetTeacherByIdType) => {
   try {
@@ -12,7 +12,7 @@ const getTeacherById = async (payload: GetTeacherByIdType) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };

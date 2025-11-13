@@ -1,4 +1,4 @@
-import mongoose, { ClientSession, ObjectId } from 'mongoose';
+import mongoose, { ClientSession, ObjectId } from "mongoose";
 import {
   AccountType,
   ClassDocument,
@@ -6,11 +6,11 @@ import {
   MandatoryFeeProcessingType,
   OptionalFeeProcessingType,
   SchoolFeesDocument,
-} from '../constants/types';
-import Fee from '../models/fees.model';
-import Class from '../models/class.model';
-import { AppError } from '../utils/app.error';
-import Session from '../models/session.model';
+} from "../constants/types";
+import Fee from "../models/fees.model";
+import Class from "../models/class.model";
+import { AppError } from "../utils/app.error";
+import Session from "../models/session.model";
 
 const getLevelFeeDoc = async (
   uniqueClassLevel: ClassDocument[],
@@ -34,15 +34,15 @@ const getLevelFeeDoc = async (
 const createFeeDoc = async (
   fee_array: FeePayloadType[],
   term: string,
-  activeSession: mongoose.Types.ObjectId,
-  session: mongoose.ClientSession
+  activeSession: mongoose.Types.ObjectId
+  // session: mongoose.ClientSession
 ) => {
   return await Promise.all(
     fee_array.map(async (fee) => {
       const feeData = {
         level: fee.class_level,
         mandatory_fees: {
-          fee_name: 'school_fee',
+          fee_name: "school_fee",
           amount: fee.amount,
         },
         term: term,
@@ -51,7 +51,7 @@ const createFeeDoc = async (
       };
       const response = new Fee(feeData);
 
-      const savedResponse = await response.save({ session });
+      const savedResponse = await response.save();
       const plainObject = savedResponse.toJSON();
       return plainObject;
     })
@@ -79,7 +79,7 @@ const mySchoolClasses = async (session: mongoose.ClientSession) => {
 
     if (!academicSession) {
       throw new AppError(
-        'There is no active session. Please create one to proceed.',
+        "There is no active session. Please create one to proceed.",
         400
       );
     }
@@ -96,7 +96,7 @@ const mySchoolClasses = async (session: mongoose.ClientSession) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -160,7 +160,7 @@ const optionalFeeProcessing = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -211,7 +211,7 @@ const mandatoryFeeProcessing = async (payload: MandatoryFeeProcessingType) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };

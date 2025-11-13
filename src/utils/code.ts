@@ -1,8 +1,8 @@
-import Student from '../models/students.model';
+import Student from "../models/students.model";
 
 const generateRandomCode = (num: number) => {
   if (num < 1) {
-    throw new Error('Number must be greater than zero');
+    throw new Error("Number must be greater than zero");
   }
 
   const min = Math.pow(10, num - 1);

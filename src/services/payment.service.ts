@@ -1452,11 +1452,11 @@
 // };
 
 ////////////////////////////////////////////////////////////////////////
-import mongoose from 'mongoose';
-import { AppError } from '../utils/app.error';
-import Session from '../models/session.model';
-import Student from '../models/students.model';
-import Fee from '../models/fees.model';
+import mongoose from "mongoose";
+import { AppError } from "../utils/app.error";
+import Session from "../models/session.model";
+import Student from "../models/students.model";
+import Fee from "../models/fees.model";
 import {
   AddFeeToStudentPaymentDocType,
   AddingFeeToPaymentPayload,
@@ -1471,15 +1471,15 @@ import {
   StudentFeePaymentType,
   WaitingForConfirmationType,
   ApproveStudentPayloadType,
-} from '../constants/types';
-import Payment from '../models/payment.model';
+} from "../constants/types";
+import Payment from "../models/payment.model";
 import {
   addFeeToStudentPaymentDoc,
   calculateAndUpdateStudentPaymentDocuments,
-} from '../repository/payment.repository';
-import { Request, Response } from 'express';
-import { bankWebhook } from '../utils/bank';
-import { paymentEnum, paymentStatusEnum } from '../constants/enum';
+} from "../repository/payment.repository";
+import { Request, Response } from "express";
+import { bankWebhook } from "../utils/bank";
+import { paymentEnum, paymentStatusEnum } from "../constants/enum";
 // import BusSubscription from '../models/bus_subscription.model';
 
 const createSchoolFeePaymentDocumentForStudents = async (
@@ -1496,7 +1496,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
 
     if (!activeSession) {
       throw new AppError(
-        'Payment can only be created in an active session. Please create a new session and term before proceeding.',
+        "Payment can only be created in an active session. Please create a new session and term before proceeding.",
         400
       );
     }
@@ -1505,7 +1505,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
 
     if (activeTermCheck?.is_active !== true) {
       throw new AppError(
-        'Payment can  only be created in an active term.',
+        "Payment can  only be created in an active term.",
         400
       );
     }
@@ -1513,13 +1513,13 @@ const createSchoolFeePaymentDocumentForStudents = async (
     const allStudents = await Student.find().session(session);
 
     if (!allStudents) {
-      throw new AppError('No students found yet.', 404);
+      throw new AppError("No students found yet.", 404);
     }
 
     const allSchoolFees = await Fee.find().session(session);
 
     if (!allSchoolFees || allSchoolFees.length === 0) {
-      throw new AppError('No school fees found yet.', 404);
+      throw new AppError("No school fees found yet.", 404);
     }
 
     const unenrolledStudents = allStudents.filter(
@@ -1563,8 +1563,8 @@ const createSchoolFeePaymentDocumentForStudents = async (
     ) {
       throw new AppError(
         `All enrolled students already have payment document for ${term.replace(
-          '_',
-          ' '
+          "_",
+          " "
         )} of ${activeSession.academic_session} session`,
         400
       );
@@ -1653,7 +1653,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
 
     if (bulkOperations.length === 0) {
       throw new AppError(
-        'No payment documents created. Ensure all students have corresponding fee.',
+        "No payment documents created. Ensure all students have corresponding fee.",
         404
       );
     }
@@ -1662,14 +1662,14 @@ const createSchoolFeePaymentDocumentForStudents = async (
       session,
     });
 
-    let msg = '';
+    let msg = "";
 
     if (unenrolledStudents.length > 0) {
       msg = `${
         unenrolledStudents.length
       } students are yet to be enrolled into classes for the ${term.replace(
-        '_',
-        ' '
+        "_",
+        " "
       )} of ${activeSession.academic_session} session.`;
     }
 
@@ -1687,7 +1687,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1708,7 +1708,7 @@ const addingFeeToStudentPaymentDocument = async (
     }).session(session);
 
     if (!schoolSession) {
-      throw new AppError('There is no active session.', 400);
+      throw new AppError("There is no active session.", 400);
     }
 
     const activeTerm = schoolSession.terms.find(
@@ -1717,7 +1717,7 @@ const addingFeeToStudentPaymentDocument = async (
 
     if (!activeTerm) {
       throw new AppError(
-        'There is no active term where the payment document can be updated.',
+        "There is no active term where the payment document can be updated.",
         400
       );
     }
@@ -1761,13 +1761,13 @@ const fetchAllStudentPaymentDocumentsByStudentId = async (
   try {
     const { student_id, userRole, userId } = payload;
 
-    if (userRole === 'parent') {
+    if (userRole === "parent") {
       const studentDoc = await Student.findOne({
         _id: student_id,
       });
 
       if (!studentDoc?.parent_id?.includes(userId)) {
-        throw new AppError('You are not a parent to this student.', 400);
+        throw new AppError("You are not a parent to this student.", 400);
       }
     }
 
@@ -1776,7 +1776,7 @@ const fetchAllStudentPaymentDocumentsByStudentId = async (
     });
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
       const isNumber = !isNaN(Number(searchParams));
 
       query = query.where({
@@ -1788,7 +1788,7 @@ const fetchAllStudentPaymentDocumentsByStudentId = async (
     }
 
     if (!query) {
-      throw new AppError('Payments not found.', 404);
+      throw new AppError("Payments not found.", 404);
     }
 
     const count = await query.clone().countDocuments();
@@ -1802,14 +1802,14 @@ const fetchAllStudentPaymentDocumentsByStudentId = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
 
     const response = await query.sort({ createdAt: -1 });
 
     if (!response || response.length === 0) {
-      throw new AppError('Student payment documents not found.', 404);
+      throw new AppError("Student payment documents not found.", 404);
     }
 
     const paymentDoc = response as PaymentDocument[];
@@ -1819,7 +1819,7 @@ const fetchAllStudentPaymentDocumentsByStudentId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1834,10 +1834,10 @@ const fetchAllPaymentDocuments = async (
   totalPages: number;
 }> => {
   try {
-    let query = Payment.find().populate('student class session', '-password');
+    let query = Payment.find().populate("student class session", "-password");
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
       const isNumber = !isNaN(Number(searchParams));
 
       // ALLOW SEARCH FOR STUDENT NAME CLASS AND SESSION
@@ -1850,7 +1850,7 @@ const fetchAllPaymentDocuments = async (
     }
 
     if (!query) {
-      throw new AppError('Payments not found.', 404);
+      throw new AppError("Payments not found.", 404);
     }
 
     const count = await query.clone().countDocuments();
@@ -1865,13 +1865,13 @@ const fetchAllPaymentDocuments = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found', 404);
+        throw new AppError("Page can not be found", 404);
       }
     }
     const response = await query.sort({ createdAt: -1 });
 
     if (!response || response.length === 0) {
-      throw new AppError('Payments not found.', 404);
+      throw new AppError("Payments not found.", 404);
     }
 
     const paymentDoc = response as PaymentDocument[];
@@ -1881,7 +1881,7 @@ const fetchAllPaymentDocuments = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1910,7 +1910,7 @@ const fetchStudentOutstandingPaymentDoc = async (student_id: string) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1939,7 +1939,7 @@ const fetchCurrentTermPaymentDocuments = async (
     });
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
       const isNumber = !isNaN(Number(searchParams));
 
       query = query.where({
@@ -1951,7 +1951,7 @@ const fetchCurrentTermPaymentDocuments = async (
     }
 
     if (!query) {
-      throw new AppError('Payment not found.', 404);
+      throw new AppError("Payment not found.", 404);
     }
 
     const count = await query.clone().countDocuments();
@@ -1965,14 +1965,14 @@ const fetchCurrentTermPaymentDocuments = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
 
     const response = await query.sort({ createdAt: -1 });
 
     if (!response || response.length === 0) {
-      throw new AppError('No active term payment found.', 404);
+      throw new AppError("No active term payment found.", 404);
     }
 
     const paymentDoc = response as PaymentDocument[];
@@ -1982,7 +1982,7 @@ const fetchCurrentTermPaymentDocuments = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -1997,7 +1997,7 @@ const fetchPaymentTransactionHistoryByStudentId = async (
     const { student_id, userId, userRole } = payload;
 
     // Verify parent relationship if userRole is 'parent'
-    if (student_id !== userId.toString() && userRole === 'parent') {
+    if (student_id !== userId.toString() && userRole === "parent") {
       const student = await Student.findOne({
         _id: student_id,
       });
@@ -2019,7 +2019,7 @@ const fetchPaymentTransactionHistoryByStudentId = async (
     // Count total documents
     const countPromise = Payment.aggregate([
       { $match: matchStage },
-      { $count: 'totalCount' },
+      { $count: "totalCount" },
     ]);
 
     // Remove pagination and sorting for fetching all documents
@@ -2030,7 +2030,7 @@ const fetchPaymentTransactionHistoryByStudentId = async (
         $project: {
           _id: 1,
           transaction_history: {
-            $setUnion: ['$payment_summary', '$waiting_for_confirmation'],
+            $setUnion: ["$payment_summary", "$waiting_for_confirmation"],
           },
         },
       },
@@ -2059,7 +2059,7 @@ const fetchPaymentTransactionHistoryByStudentId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2081,14 +2081,14 @@ const fetchPaymentDetailsByPaymentId = async (
       );
     }
 
-    if (userRole === 'student') {
+    if (userRole === "student") {
       if (paymentDetails.student !== userId) {
         throw new AppError(
           `Payment document with ID: ${payment_id} does not belong to you.`,
           403
         );
       }
-    } else if (userRole === 'parent') {
+    } else if (userRole === "parent") {
       const student = await Student.findOne({
         _id: paymentDetails.student,
       });
@@ -2106,7 +2106,7 @@ const fetchPaymentDetailsByPaymentId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2122,7 +2122,7 @@ const fetchStudentSinglePaymentDoc = async (
     });
 
     if (!response) {
-      throw new AppError('Payment not found', 404);
+      throw new AppError("Payment not found", 404);
     }
 
     return response;
@@ -2130,7 +2130,7 @@ const fetchStudentSinglePaymentDoc = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2217,8 +2217,8 @@ const fetchAllPaymentSummaryFailedAndSuccessful =
           waiting_for_confirmation: 1,
           transaction_history: {
             $setUnion: [
-              { $ifNull: ['$payment_summary', []] },
-              { $ifNull: ['$waiting_for_confirmation', []] },
+              { $ifNull: ["$payment_summary", []] },
+              { $ifNull: ["$waiting_for_confirmation", []] },
             ],
           },
         },
@@ -2243,7 +2243,7 @@ const fetchAllPaymentSummaryFailedAndSuccessful =
       if (error instanceof AppError) {
         throw new AppError(error.message, error.statusCode);
       } else {
-        throw new Error('Something happened');
+        throw new Error("Something happened");
       }
     }
   };
@@ -2271,7 +2271,7 @@ const studentBankFeePayment = async (
       throw new AppError(`Student not found.`, 404);
     }
 
-    if (userRole === 'parent' && userId) {
+    if (userRole === "parent" && userId) {
       if (!student.parent_id?.includes(userId)) {
         throw new AppError(
           `You are not a parent to ${student.first_name} ${student.last_name}.`,
@@ -2287,29 +2287,29 @@ const studentBankFeePayment = async (
     });
 
     if (!findPaymentDocument) {
-      throw new AppError('No payment record found', 404);
+      throw new AppError("No payment record found", 404);
     }
 
     if (findPaymentDocument.is_submit_response === false) {
       throw new AppError(
-        'You need to inform us if you are subscribing to school bus for this term or not.',
+        "You need to inform us if you are subscribing to school bus for this term or not.",
         400
       );
     }
 
     if (findPaymentDocument.is_payment_complete === true) {
       throw new AppError(
-        'Payment for this term has already being completed.',
+        "Payment for this term has already being completed.",
         400
       );
     }
 
     if (!findPaymentDocument.remaining_amount) {
-      throw new AppError('Remaining amount field is null.', 400);
+      throw new AppError("Remaining amount field is null.", 400);
     }
 
     const feeSummary = {
-      fee_name: 'school-fees',
+      fee_name: "school-fees",
       amount: amount_paying,
     };
 
@@ -2331,7 +2331,7 @@ const studentBankFeePayment = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -2348,19 +2348,19 @@ const studentCashFeePayment = async (payload: StudentFeePaymentType) => {
     });
 
     if (!currentTermPayment) {
-      throw new AppError('No payment record found for the current term.', 404);
+      throw new AppError("No payment record found for the current term.", 404);
     }
 
     const result = await calculateAndUpdateStudentPaymentDocuments(
       payload,
-      'cash'
+      "cash"
     );
     const student = await Student.findById({
       _id: student_id,
     });
 
     if (!student) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     const { password, ...others } = student.toObject();
@@ -2375,7 +2375,7 @@ const studentCashFeePayment = async (payload: StudentFeePaymentType) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -2395,7 +2395,7 @@ const approveStudentBankPayment = async (
     });
 
     if (!findPayment) {
-      throw new AppError('Payment not found.', 404);
+      throw new AppError("Payment not found.", 404);
     }
 
     const actualTransaction = findPayment.waiting_for_confirmation.find(
@@ -2407,19 +2407,19 @@ const approveStudentBankPayment = async (
     }
 
     if (!actualTransaction.amount_paid) {
-      throw new AppError('Amount paid is null.', 400);
+      throw new AppError("Amount paid is null.", 400);
     }
 
     if (actualTransaction.amount_paid !== amount_paid) {
-      throw new AppError('Amount paid does not match.', 400);
+      throw new AppError("Amount paid does not match.", 400);
     }
 
     if (actualTransaction.bank_name !== bank_name) {
-      throw new AppError('Bank name does not match.', 400);
+      throw new AppError("Bank name does not match.", 400);
     }
 
     if (!actualTransaction.transaction_id) {
-      throw new AppError('Transaction ID not present.', 400);
+      throw new AppError("Transaction ID not present.", 400);
     }
 
     const receipt = {
@@ -2440,16 +2440,16 @@ const approveStudentBankPayment = async (
       bank_name,
       teller_number: actualTransaction.transaction_id,
       staff_who_approve: bursar_id,
-      payment_method: 'bank',
+      payment_method: "bank",
     };
 
     const result = await calculateAndUpdateStudentPaymentDocuments(
       payload,
-      'bank'
+      "bank"
     );
 
     if (!result) {
-      throw new AppError('Unable to update student payment.', 400);
+      throw new AppError("Unable to update student payment.", 400);
     }
 
     const transactionObj = {
@@ -2462,7 +2462,7 @@ const approveStudentBankPayment = async (
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2472,11 +2472,11 @@ const fetchAPaymentNeedingApprovalById = async (
 ): Promise<WaitingForConfirmationType> => {
   try {
     const response = await Payment.find({
-      'waiting_for_confirmation.0': { $exists: true },
+      "waiting_for_confirmation.0": { $exists: true },
     });
 
     if (!response) {
-      throw new AppError('Payment not found.', 404);
+      throw new AppError("Payment not found.", 404);
     }
 
     const result = response
@@ -2488,7 +2488,7 @@ const fetchAPaymentNeedingApprovalById = async (
       .filter(Boolean);
 
     if (!result) {
-      throw new AppError('Payment not found.', 404);
+      throw new AppError("Payment not found.", 404);
     }
 
     return result[0] as WaitingForConfirmationType;
@@ -2496,7 +2496,7 @@ const fetchAPaymentNeedingApprovalById = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };

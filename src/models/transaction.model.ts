@@ -1,11 +1,11 @@
-import { Schema, model } from 'mongoose';
-import { TransactionDocument } from '../constants/types';
+import { Schema, model } from "mongoose";
+import { TransactionDocument } from "../constants/types";
 import {
   partyRoleEnum,
   transactionChannelEnum,
   transactionStatusEnum,
   transactionTypeEnum,
-} from '../constants/enum';
+} from "../constants/enum";
 
 const transactionSchema = new Schema<TransactionDocument>(
   {
@@ -40,6 +40,6 @@ const transactionSchema = new Schema<TransactionDocument>(
 );
 
 export const Transaction = model<TransactionDocument>(
-  'Transaction',
+  "Transaction",
   transactionSchema
 );

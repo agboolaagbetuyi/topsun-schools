@@ -173,11 +173,11 @@
 // };
 
 ///////////////////////////////////////////////////////////////////////
-import mongoose from 'mongoose';
-import Payment from '../models/payment.model';
-import Student from '../models/students.model';
-import { AppError } from '../utils/app.error';
-import { GetStudentByIdType } from '../constants/types';
+import mongoose from "mongoose";
+import Payment from "../models/payment.model";
+import Student from "../models/students.model";
+import { AppError } from "../utils/app.error";
+import { GetStudentByIdType } from "../constants/types";
 
 const calculateOutStandingPerTerm = async (
   session: mongoose.ClientSession,
@@ -196,9 +196,9 @@ const calculateOutStandingPerTerm = async (
       !studentsWithOutstandingPayments ||
       studentsWithOutstandingPayments.length === 0
     ) {
-      console.warn('No outstanding payments for this term');
+      console.warn("No outstanding payments for this term");
       return {
-        message: 'No students with outstanding payments',
+        message: "No students with outstanding payments",
       };
     }
     // FETCH AND UPDATE THE STUDENT DOCUMENT USING THE STUDENT ID STORED WITH THE STUDENT DOCUMENT
@@ -212,18 +212,18 @@ const calculateOutStandingPerTerm = async (
     }
 
     console.log(
-      'Outstanding payment recorded for students affected successfully.'
+      "Outstanding payment recorded for students affected successfully."
     );
 
     return {
-      message: 'Outstanding payments updated successfully',
+      message: "Outstanding payments updated successfully",
     };
   } catch (error) {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -239,7 +239,7 @@ const getAStudentById = async (payload: GetStudentByIdType) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };

@@ -1,7 +1,7 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
 class AES {
-  private static AES_ALGORITHM = 'aes-256-cbc';
+  private static AES_ALGORITHM = "aes-256-cbc";
 
   /**
    * Encrypt plaintext using AES-256-CBC
@@ -15,21 +15,21 @@ class AES {
 
       const cipher = crypto.createCipheriv(
         this.AES_ALGORITHM,
-        Buffer.from(key, 'hex'),
+        Buffer.from(key, "hex"),
         iv
       );
 
       const encrypted = Buffer.concat([
-        cipher.update(plainText, 'utf8'),
+        cipher.update(plainText, "utf8"),
         cipher.final(),
       ]);
 
       // Prepend IV to ciphertext, then encode to base64
-      const ivAndEncrypted = Buffer.concat([iv, encrypted]).toString('base64');
+      const ivAndEncrypted = Buffer.concat([iv, encrypted]).toString("base64");
 
       return ivAndEncrypted;
     } catch (e: any) {
-      console.error('Encryption error:', e.message);
+      console.error("Encryption error:", e.message);
       return plainText;
     }
   }
@@ -42,25 +42,25 @@ class AES {
    */
   static decrypt(encryptedText: string, key: string): string {
     try {
-      const ivAndEncrypted = Buffer.from(encryptedText, 'base64');
+      const ivAndEncrypted = Buffer.from(encryptedText, "base64");
 
       const iv = ivAndEncrypted.slice(0, 16); // first 16 bytes = IV
       const ciphertext = ivAndEncrypted.slice(16);
 
       const decipher = crypto.createDecipheriv(
         this.AES_ALGORITHM,
-        Buffer.from(key, 'hex'),
+        Buffer.from(key, "hex"),
         iv
       );
 
       const decrypted = Buffer.concat([
         decipher.update(ciphertext),
         decipher.final(),
-      ]).toString('utf8');
+      ]).toString("utf8");
 
       return decrypted;
     } catch (e: any) {
-      console.error('Decryption error:', e.message);
+      console.error("Decryption error:", e.message);
       return encryptedText;
     }
   }

@@ -3,13 +3,13 @@ import {
   StudentWithPaymentType,
   UserDocument,
   UserWithoutPassword,
-} from '../constants/types';
-import Parent from '../models/parents.model';
-import Payment from '../models/payment.model';
-import Session from '../models/session.model';
-import Student from '../models/students.model';
-import { AppError } from '../utils/app.error';
-import mongoose from 'mongoose';
+} from "../constants/types";
+import Parent from "../models/parents.model";
+import Payment from "../models/payment.model";
+import Session from "../models/session.model";
+import Student from "../models/students.model";
+import { AppError } from "../utils/app.error";
+import mongoose from "mongoose";
 
 const getStudentDetails = async (
   student_id: string,
@@ -21,7 +21,7 @@ const getStudentDetails = async (
     });
 
     if (!getParentDetails) {
-      throw new AppError('Parent not found.', 404);
+      throw new AppError("Parent not found.", 404);
     }
 
     const studentId = new mongoose.Types.ObjectId(student_id);
@@ -30,14 +30,14 @@ const getStudentDetails = async (
 
     if (!checkLinkage) {
       throw new AppError(
-        'This student is not linked to you and as such you do not have the right to fetch the student.',
+        "This student is not linked to you and as such you do not have the right to fetch the student.",
         401
       );
     }
 
     const getStudent = await Student.findById({ _id: student_id });
     if (!getStudent) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     const activeSession = await Session.findOne({
@@ -80,14 +80,14 @@ const getManyStudentDetails = async (
     });
 
     if (!getParentDetails) {
-      throw new AppError('Parent not found.', 404);
+      throw new AppError("Parent not found.", 404);
     }
 
     const student_ids = getParentDetails.children?.map((p) => p);
 
     const getStudents = await Student.find({ _id: { $in: student_ids } });
     if (!getStudents || getStudents.length === 0) {
-      throw new AppError('Students not found.', 404);
+      throw new AppError("Students not found.", 404);
     }
 
     const activeSession = await Session.findOne({
@@ -140,7 +140,7 @@ const fetchAllParents = async (
     let query = Parent.find();
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -154,7 +154,7 @@ const fetchAllParents = async (
     }
 
     if (!query) {
-      throw new AppError('Parents not found.', 404);
+      throw new AppError("Parents not found.", 404);
     }
 
     const count = await query.clone().countDocuments();
@@ -168,13 +168,13 @@ const fetchAllParents = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
     const findParent = await query;
 
     if (!findParent || findParent.length === 0) {
-      throw new AppError('Parents not found.', 404);
+      throw new AppError("Parents not found.", 404);
     }
 
     const parentsPasswordRemoved = findParent.map((p) => {
@@ -193,7 +193,7 @@ const fetchAllParents = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong.');
+      throw new Error("Something went wrong.");
     }
   }
 };
@@ -204,10 +204,10 @@ const fetchParentById = async (
   try {
     const response = await Parent.findById({
       _id: parent_id,
-    }).populate('children', '-password');
+    }).populate("children", "-password");
 
     if (!response) {
-      throw new AppError('Parent not found.', 404);
+      throw new AppError("Parent not found.", 404);
     }
 
     const { password, ...others } = response.toJSON();
@@ -217,7 +217,7 @@ const fetchParentById = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };

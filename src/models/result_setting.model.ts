@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { ResultSettingDocument } from '../constants/types';
-import { examKeyEnum } from '../constants/enum';
+import mongoose from "mongoose";
+import { ResultSettingDocument } from "../constants/types";
+import { examKeyEnum } from "../constants/enum";
 
 const gradingSchema = new mongoose.Schema(
   {
@@ -65,7 +65,7 @@ const resultSettingSchema = new mongoose.Schema<ResultSettingDocument>({
 });
 
 const ResultSetting = mongoose.model<ResultSettingDocument>(
-  'ResultSetting',
+  "ResultSetting",
   resultSettingSchema
 );
 export default ResultSetting;

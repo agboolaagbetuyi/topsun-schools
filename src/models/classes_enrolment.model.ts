@@ -1,12 +1,12 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 import {
   attendanceEnum,
   enrolmentEnum,
   streamEnum,
   termEnum,
   testTypeEnum,
-} from '../constants/enum';
-import { ClassEnrolmentDocument } from '../constants/types';
+} from "../constants/enum";
+import { ClassEnrolmentDocument } from "../constants/types";
 
 const classEnrolmentSchema = new mongoose.Schema<ClassEnrolmentDocument>(
   {
@@ -14,7 +14,7 @@ const classEnrolmentSchema = new mongoose.Schema<ClassEnrolmentDocument>(
       {
         student: {
           type: Schema.Types.ObjectId,
-          ref: 'Student',
+          ref: "Student",
           required: true,
         },
         term: {
@@ -23,20 +23,20 @@ const classEnrolmentSchema = new mongoose.Schema<ClassEnrolmentDocument>(
           enum: termEnum,
         },
         subjects_offered: [
-          { type: mongoose.Schema.Types.ObjectId, ref: 'Subject' },
+          { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
         ],
       },
     ],
     class: {
       type: Schema.Types.ObjectId,
-      ref: 'Class',
+      ref: "Class",
       required: true,
     },
     level: { type: String }, // Level (JSS 1, JSS 2, etc)
     is_active: { type: Boolean, default: false },
     academic_session_id: {
       type: Schema.Types.ObjectId,
-      ref: 'Session',
+      ref: "Session",
       required: true,
     },
     stream: {
@@ -45,7 +45,7 @@ const classEnrolmentSchema = new mongoose.Schema<ClassEnrolmentDocument>(
       required: false,
     }, // For SSS
     all_subjects_offered_in_the_class: [
-      { type: Schema.Types.ObjectId, ref: 'Subject' },
+      { type: Schema.Types.ObjectId, ref: "Subject" },
     ],
 
     status: {
@@ -59,6 +59,6 @@ const classEnrolmentSchema = new mongoose.Schema<ClassEnrolmentDocument>(
   }
 );
 
-const ClassEnrolment = mongoose.model('ClassEnrolment', classEnrolmentSchema);
+const ClassEnrolment = mongoose.model("ClassEnrolment", classEnrolmentSchema);
 
 export default ClassEnrolment;

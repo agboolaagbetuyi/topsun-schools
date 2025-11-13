@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { Request, Response } from 'express';
-import { AccountType, StudentWalletObjType } from '../constants/types';
+import axios from "axios";
+import { Request, Response } from "express";
+import { AccountType, StudentWalletObjType } from "../constants/types";
 
 const bankWebhook = async (req: Request, res: Response) => {
   try {
@@ -24,7 +24,7 @@ const generateWalletAccountForStudent = async (
   studentObj: StudentWalletObjType
 ) => {
   try {
-    const ACCESS_KEY = '';
+    const ACCESS_KEY = "";
     const data = {
       phoneNumber: studentObj.phoneNumber,
       email: studentObj.email,
@@ -37,7 +37,7 @@ const generateWalletAccountForStudent = async (
       {
         headers: {
           access: ACCESS_KEY,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
@@ -53,7 +53,7 @@ const accountValidationForTransfer = async (
   // accountObj: AccountType
 ) => {
   try {
-    const access = 'MY_CHANNEL_ID';
+    const access = "MY_CHANNEL_ID";
     const accountNumber = accountObj.account_number;
 
     const url = `https://apiplayground.alat.ng/debit-wallet/api/Shared/AccountNameEnquiry/Wallet/${accountNumber}`;

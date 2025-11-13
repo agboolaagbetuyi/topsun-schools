@@ -247,8 +247,8 @@
 // };
 
 ////////////////////////////////////////////////////////////////
-import mongoose from 'mongoose';
-import { FeePayloadType } from '../constants/types';
+import mongoose from "mongoose";
+import { FeePayloadType } from "../constants/types";
 import {
   fetchAllSchoolFeesPerTerm,
   fetchASchoolFee,
@@ -264,39 +264,39 @@ import {
   fetchAllOptionalFees,
   fetchTermMandatoryFees,
   fetchTermOptionalFees,
-} from '../services/fee.service';
-import { AppError } from '../utils/app.error';
-import catchErrors from '../utils/tryCatch';
+} from "../services/fee.service";
+import { AppError } from "../utils/app.error";
+import catchErrors from "../utils/tryCatch";
 import {
   optionalFeesValidation,
   schoolBusValidation,
   schoolFeesValidation,
-} from '../utils/validation';
+} from "../utils/validation";
 // import { saveLog } from '../logs/log.service';
 
 const createSchoolFees = catchErrors(async (req, res) => {
   // const start = Date.now();
 
-  const { fee_array, receiving_acc_id } = req.body;
+  const { fee_array } = req.body;
 
   if (fee_array.length === 0) {
-    throw new AppError('Class levels, and amounts must be provided.', 400);
+    throw new AppError("Class levels, and amounts must be provided.", 400);
   }
 
   if (fee_array.length < 6) {
-    throw new AppError('Please provide school fees for all levels.', 400);
+    throw new AppError("Please provide school fees for all levels.", 400);
   }
 
   if (fee_array.length > 6) {
-    throw new AppError('Please provide school fees for only 6 levels.', 400);
+    throw new AppError("Please provide school fees for only 6 levels.", 400);
   }
 
-  if (!receiving_acc_id) {
-    throw new AppError(
-      'Please choose an account number that the fee is going to be paid into.',
-      400
-    );
-  }
+  // if (!receiving_acc_id) {
+  //   throw new AppError(
+  //     'Please choose an account number that the fee is going to be paid into.',
+  //     400
+  //   );
+  // }
 
   for (const fee of fee_array) {
     const validationResult = schoolFeesValidation(fee.amount);
@@ -305,10 +305,10 @@ const createSchoolFees = catchErrors(async (req, res) => {
     }
   }
 
-  const result = await schoolFeesCreation(fee_array, receiving_acc_id);
+  const result = await schoolFeesCreation(fee_array);
 
   if (!result) {
-    throw new AppError('Unable to create school fees.', 400);
+    throw new AppError("Unable to create school fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -347,7 +347,7 @@ const getAllSchoolFeesPerTerm = catchErrors(async (req, res) => {
 
   if (!term || !academic_session_id) {
     throw new AppError(
-      'Please provide term and academic session ID to proceed.',
+      "Please provide term and academic session ID to proceed.",
       400
     );
   }
@@ -355,7 +355,7 @@ const getAllSchoolFeesPerTerm = catchErrors(async (req, res) => {
   const result = await fetchAllSchoolFeesPerTerm(term, academic_session_id);
 
   if (!result) {
-    throw new AppError('Unable to fetch all school fees.', 400);
+    throw new AppError("Unable to fetch all school fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -380,7 +380,7 @@ const getAllSchoolFeesPerTerm = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'All school fees fetched successfully.',
+    message: "All school fees fetched successfully.",
     success: true,
     status: 200,
     school_fees: result,
@@ -393,13 +393,13 @@ const getASchoolFeeById = catchErrors(async (req, res) => {
   const { school_fee_id } = req.params;
 
   if (!school_fee_id) {
-    throw new AppError('School fee id not provided.', 400);
+    throw new AppError("School fee id not provided.", 400);
   }
 
   const result = await fetchASchoolFee(school_fee_id);
 
   if (!result) {
-    throw new AppError('Unable to find School fee', 400);
+    throw new AppError("Unable to find School fee", 400);
   }
 
   // const duration = Date.now() - start;
@@ -424,7 +424,7 @@ const getASchoolFeeById = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'School fee fetched successfully.',
+    message: "School fee fetched successfully.",
     success: true,
     status: 200,
     school_fee: result,
@@ -438,7 +438,7 @@ const getASchoolFeeByLevelAndTerm = catchErrors(async (req, res) => {
 
   if (!term || !academic_session_id) {
     throw new AppError(
-      'Please provide term and academic session ID to proceed.',
+      "Please provide term and academic session ID to proceed.",
       400
     );
   }
@@ -446,7 +446,7 @@ const getASchoolFeeByLevelAndTerm = catchErrors(async (req, res) => {
   const result = await fetchASchoolFeeByLevelAndTerm(academic_session_id, term);
 
   if (!result) {
-    throw new AppError('Unable to find School fee', 400);
+    throw new AppError("Unable to find School fee", 400);
   }
 
   // const duration = Date.now() - start;
@@ -471,7 +471,7 @@ const getASchoolFeeByLevelAndTerm = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'School fee fetched successfully.',
+    message: "School fee fetched successfully.",
     success: true,
     status: 200,
     school_fee: result,
@@ -481,14 +481,7 @@ const getASchoolFeeByLevelAndTerm = catchErrors(async (req, res) => {
 const createOptionalFees = catchErrors(async (req, res) => {
   // const start = Date.now();
 
-  const { fee_name, applicable_classes, amount, receiving_acc_id } = req.body;
-
-  if (!receiving_acc_id) {
-    throw new AppError(
-      'Please choose an account number that the fee is going to be paid into.',
-      400
-    );
-  }
+  const { fee_name, applicable_classes, amount } = req.body;
 
   const requiredFields = {
     fee_name,
@@ -501,7 +494,7 @@ const createOptionalFees = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to proceed.`,
+      `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
       400
     );
   }
@@ -518,13 +511,12 @@ const createOptionalFees = catchErrors(async (req, res) => {
     fee_name: value.fee_name,
     applicable_classes,
     amount: value.amount,
-    receiving_acc_id,
   };
 
   const result = await optionalFeesCreation(payload);
 
   if (!result) {
-    throw new AppError('Unable to create fees.', 400);
+    throw new AppError("Unable to create fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -559,14 +551,7 @@ const createOptionalFees = catchErrors(async (req, res) => {
 const createMandatoryFees = catchErrors(async (req, res) => {
   // const start = Date.now();
 
-  const { fee_name, amount, receiving_acc_id } = req.body;
-
-  if (!receiving_acc_id) {
-    throw new AppError(
-      'Please choose an account number that the fee is going to be paid into.',
-      400
-    );
-  }
+  const { fee_name, amount } = req.body;
 
   const requiredFields = {
     fee_name,
@@ -578,7 +563,7 @@ const createMandatoryFees = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to proceed.`,
+      `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
       400
     );
   }
@@ -594,13 +579,12 @@ const createMandatoryFees = catchErrors(async (req, res) => {
   const payload = {
     fee_name: value.fee_name,
     amount: value.amount,
-    receiving_acc_id,
   };
 
   const result = await mandatoryFeesCreation(payload);
 
   if (!result) {
-    throw new AppError('Unable to create fees.', 400);
+    throw new AppError("Unable to create fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -635,14 +619,7 @@ const createMandatoryFees = catchErrors(async (req, res) => {
 const addMandatoryFeeDuringTerm = catchErrors(async (req, res) => {
   // const start = Date.now();
 
-  const { fee_name, amount, term, receiving_acc_id } = req.body;
-
-  if (!receiving_acc_id) {
-    throw new AppError(
-      'Please choose an account number that the fee is going to be paid into.',
-      400
-    );
-  }
+  const { fee_name, amount, term } = req.body;
 
   const requiredFields = {
     fee_name,
@@ -655,7 +632,7 @@ const addMandatoryFeeDuringTerm = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to proceed.`,
+      `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
       400
     );
   }
@@ -672,13 +649,12 @@ const addMandatoryFeeDuringTerm = catchErrors(async (req, res) => {
     fee_name: value.fee_name,
     amount: value.amount,
     term,
-    receiving_acc_id,
   };
 
   const result = await mandatoryFeesAddition(payload);
 
   if (!result) {
-    throw new AppError('Unable to create fees.', 400);
+    throw new AppError("Unable to create fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -713,15 +689,7 @@ const addMandatoryFeeDuringTerm = catchErrors(async (req, res) => {
 const addOptionalFeeDuringTerm = catchErrors(async (req, res) => {
   // const start = Date.now();
 
-  const { fee_name, applicable_classes, amount, receiving_acc_id, term } =
-    req.body;
-
-  if (!receiving_acc_id) {
-    throw new AppError(
-      'Please choose an account number that the fee is going to be paid into.',
-      400
-    );
-  }
+  const { fee_name, applicable_classes, amount, term } = req.body;
 
   const requiredFields = {
     fee_name,
@@ -735,7 +703,7 @@ const addOptionalFeeDuringTerm = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to proceed.`,
+      `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
       400
     );
   }
@@ -752,14 +720,13 @@ const addOptionalFeeDuringTerm = catchErrors(async (req, res) => {
     fee_name: value.fee_name,
     applicable_classes,
     amount: value.amount,
-    receiving_acc_id,
     term,
   };
 
   const result = await optionalFeesAddition(payload);
 
   if (!result) {
-    throw new AppError('Unable to create fees.', 400);
+    throw new AppError("Unable to create fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -797,16 +764,16 @@ const getSchoolFees = catchErrors(async (req, res) => {
   const page = req.query.page ? Number(req.query.page) : undefined;
   const limit = req.query.limit ? Number(req.query.limit) : undefined;
   const session =
-    typeof req.query.session === 'string' ? req.query.session : '';
-  const term = typeof req.query.term === 'string' ? req.query.term : '';
+    typeof req.query.session === "string" ? req.query.session : "";
+  const term = typeof req.query.term === "string" ? req.query.term : "";
 
   const searchQuery =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   const result = await fetchSchoolFees(page, limit, searchQuery, session, term);
 
   if (!result) {
-    throw new AppError('Unable to fetch fees.', 400);
+    throw new AppError("Unable to fetch fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -831,7 +798,7 @@ const getSchoolFees = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'School fees fetched successfully.',
+    message: "School fees fetched successfully.",
     success: true,
     status: 200,
     school_fees: result,
@@ -844,17 +811,17 @@ const getTermFees = catchErrors(async (req, res) => {
   const { academic_session_id, term } = req.params;
 
   if (!academic_session_id) {
-    throw new AppError('Please provide academic session ID to proceed.', 400);
+    throw new AppError("Please provide academic session ID to proceed.", 400);
   }
 
   if (!term) {
-    throw new AppError('Please provide term to proceed.', 400);
+    throw new AppError("Please provide term to proceed.", 400);
   }
 
   const result = await fetchTermFees(academic_session_id, term);
 
   if (!result) {
-    throw new AppError('Unable to fetch fees.', 400);
+    throw new AppError("Unable to fetch fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -879,7 +846,7 @@ const getTermFees = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Fees fetched successfully.',
+    message: "Fees fetched successfully.",
     success: true,
     status: 200,
     school_fees: result,
@@ -892,11 +859,11 @@ const getAllMandatoryFees = catchErrors(async (req, res) => {
   const page = req.query.page ? Number(req.query.page) : undefined;
   const limit = req.query.limit ? Number(req.query.limit) : undefined;
   const session =
-    typeof req.query.session === 'string' ? req.query.session : '';
-  const term = typeof req.query.term === 'string' ? req.query.term : '';
+    typeof req.query.session === "string" ? req.query.session : "";
+  const term = typeof req.query.term === "string" ? req.query.term : "";
 
   const searchQuery =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   const result = await fetchAllMandatoryFees(
     page,
@@ -907,7 +874,7 @@ const getAllMandatoryFees = catchErrors(async (req, res) => {
   );
 
   if (!result) {
-    throw new AppError('Unable to fetch fees.', 400);
+    throw new AppError("Unable to fetch fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -932,7 +899,7 @@ const getAllMandatoryFees = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Mandatory fees fetched successfully.',
+    message: "Mandatory fees fetched successfully.",
     success: true,
     status: 200,
     mandatory_fees: result,
@@ -945,11 +912,11 @@ const getAllOptionalFees = catchErrors(async (req, res) => {
   const page = req.query.page ? Number(req.query.page) : undefined;
   const limit = req.query.limit ? Number(req.query.limit) : undefined;
   const session =
-    typeof req.query.session === 'string' ? req.query.session : '';
-  const term = typeof req.query.term === 'string' ? req.query.term : '';
+    typeof req.query.session === "string" ? req.query.session : "";
+  const term = typeof req.query.term === "string" ? req.query.term : "";
 
   const searchQuery =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   const result = await fetchAllOptionalFees(
     page,
@@ -960,7 +927,7 @@ const getAllOptionalFees = catchErrors(async (req, res) => {
   );
 
   if (!result) {
-    throw new AppError('Unable to fetch fees.', 400);
+    throw new AppError("Unable to fetch fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -985,7 +952,7 @@ const getAllOptionalFees = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Optional fees fetched successfully.',
+    message: "Optional fees fetched successfully.",
     success: true,
     status: 200,
     optional_fees: result,
@@ -998,17 +965,17 @@ const getTermMandatoryFees = catchErrors(async (req, res) => {
   const { academic_session_id, term } = req.params;
 
   if (!academic_session_id) {
-    throw new AppError('Please provide academic session ID to proceed.', 400);
+    throw new AppError("Please provide academic session ID to proceed.", 400);
   }
 
   if (!term) {
-    throw new AppError('Please provide term to proceed.', 400);
+    throw new AppError("Please provide term to proceed.", 400);
   }
 
   const result = await fetchTermMandatoryFees(academic_session_id, term);
 
   if (!result) {
-    throw new AppError('Unable to fetch mandatory fees for this term.', 400);
+    throw new AppError("Unable to fetch mandatory fees for this term.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -1033,7 +1000,7 @@ const getTermMandatoryFees = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Mandatory fees fetched successfully.',
+    message: "Mandatory fees fetched successfully.",
     success: true,
     status: 200,
     mandatory_fees: result,
@@ -1046,17 +1013,17 @@ const getTermOptionalFees = catchErrors(async (req, res) => {
   const { academic_session_id, term } = req.params;
 
   if (!academic_session_id) {
-    throw new AppError('Please provide academic session ID to proceed.', 400);
+    throw new AppError("Please provide academic session ID to proceed.", 400);
   }
 
   if (!term) {
-    throw new AppError('Please provide term to proceed.', 400);
+    throw new AppError("Please provide term to proceed.", 400);
   }
 
   const result = await fetchTermOptionalFees(academic_session_id, term);
 
   if (!result) {
-    throw new AppError('Unable to fetch optional fees for this term.', 400);
+    throw new AppError("Unable to fetch optional fees for this term.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -1081,7 +1048,7 @@ const getTermOptionalFees = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Optional fees fetched successfully.',
+    message: "Optional fees fetched successfully.",
     success: true,
     status: 200,
     optional_fees: result,

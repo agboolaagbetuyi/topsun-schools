@@ -1,18 +1,18 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 import {
   busRouteEnum,
   busTripEnum,
   paymentEnum,
   paymentStatusEnum,
-} from '../constants/enum';
-import { PaymentDocument } from '../constants/types';
+} from "../constants/enum";
+import { PaymentDocument } from "../constants/types";
 // get the document and take out the following data:
 const paymentSchema = new mongoose.Schema<PaymentDocument>(
   {
-    student: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
-    class: { type: Schema.Types.ObjectId, ref: 'Class', required: true },
+    student: { type: Schema.Types.ObjectId, ref: "Student", required: true },
+    class: { type: Schema.Types.ObjectId, ref: "Class", required: true },
     class_level: { type: String, required: true },
-    session: { type: Schema.Types.ObjectId, ref: 'Session', required: true },
+    session: { type: Schema.Types.ObjectId, ref: "Session", required: true },
     term: { type: String, required: true },
     fees_breakdown: [
       {
@@ -38,7 +38,7 @@ const paymentSchema = new mongoose.Schema<PaymentDocument>(
             amount: { type: Number, required: true },
           },
         ],
-        staff_who_approve: { type: Schema.Types.ObjectId, ref: 'NonTeaching' },
+        staff_who_approve: { type: Schema.Types.ObjectId, ref: "NonTeaching" },
         status: {
           type: String,
           enum: paymentStatusEnum,
@@ -60,7 +60,7 @@ const paymentSchema = new mongoose.Schema<PaymentDocument>(
           },
         ],
         bank_name: { type: String },
-        staff_who_approve: { type: Schema.Types.ObjectId, ref: 'NonTeaching' },
+        staff_who_approve: { type: Schema.Types.ObjectId, ref: "NonTeaching" },
         status: {
           type: String,
           enum: paymentStatusEnum,
@@ -72,5 +72,5 @@ const paymentSchema = new mongoose.Schema<PaymentDocument>(
   { timestamps: true }
 );
 
-const Payment = mongoose.model<PaymentDocument>('Payment', paymentSchema);
+const Payment = mongoose.model<PaymentDocument>("Payment", paymentSchema);
 export default Payment;

@@ -1,20 +1,20 @@
-import mongoose, { Model, Schema } from 'mongoose';
-import { termEnum, finalResultStatusEnum } from '../constants/enum';
-import { ResultDocument } from '../constants/types';
+import mongoose, { Model, Schema } from "mongoose";
+import { termEnum, finalResultStatusEnum } from "../constants/enum";
+import { ResultDocument } from "../constants/types";
 
 const resultSchema = new mongoose.Schema<ResultDocument>(
   {
     enrolment: {
       type: Schema.Types.ObjectId,
-      ref: 'ClassEnrolment',
+      ref: "ClassEnrolment",
       required: true,
     },
-    student: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
-    class: { type: Schema.Types.ObjectId, ref: 'Class', required: true },
-    class_teacher: { type: Schema.Types.ObjectId, ref: 'Teacher' },
+    student: { type: Schema.Types.ObjectId, ref: "Student", required: true },
+    class: { type: Schema.Types.ObjectId, ref: "Class", required: true },
+    class_teacher: { type: Schema.Types.ObjectId, ref: "Teacher" },
     academic_session_id: {
       type: Schema.Types.ObjectId,
-      ref: 'Session',
+      ref: "Session",
       required: true,
     },
 
@@ -30,11 +30,13 @@ const resultSchema = new mongoose.Schema<ResultDocument>(
         class_position: { type: String },
         subject_results: [
           {
-            subject: { type: Schema.Types.ObjectId, ref: 'Subject' },
-            subject_teacher: { type: Schema.Types.ObjectId, ref: 'Teacher' },
+            subject: { type: Schema.Types.ObjectId, ref: "Subject" },
+            subject_teacher: { type: Schema.Types.ObjectId, ref: "Teacher" },
             total_score: { type: Number },
             last_term_cumulative: { type: Number },
             cumulative_average: { type: Number },
+            class_highest_mark: { type: Number, default: null },
+            class_lowest_mark: { type: Number, default: null },
             exam_object: [
               {
                 key: { type: String, trim: true },
@@ -72,7 +74,7 @@ const resultSchema = new mongoose.Schema<ResultDocument>(
 );
 
 const Result: Model<ResultDocument> = mongoose.model<ResultDocument>(
-  'Result',
+  "Result",
   resultSchema
 );
 export default Result;

@@ -321,18 +321,18 @@
 
 // export { calculateAndUpdateStudentPaymentDocuments, commonPaystackFunction };
 
-import mongoose, { ObjectId } from 'mongoose';
-import ClassEnrolment from '../models/classes_enrolment.model';
+import mongoose, { ObjectId } from "mongoose";
+import ClassEnrolment from "../models/classes_enrolment.model";
 import {
   AddFeeToStudentPaymentDocType,
   PaymentPayloadMandatoryFeeType,
   PaymentPayloadOptionalFeeType,
   StudentFeePaymentType,
-} from '../constants/types';
-import Payment from '../models/payment.model';
-import { AppError } from '../utils/app.error';
-import Student from '../models/students.model';
-import { paymentStatusEnum } from '../constants/enum';
+} from "../constants/types";
+import Payment from "../models/payment.model";
+import { AppError } from "../utils/app.error";
+import Student from "../models/students.model";
+import { paymentStatusEnum } from "../constants/enum";
 
 // use to add optional fee to payment document when the fee is needed to be added during the term
 const optionalFeeAdditionToPaymentDocuments = async (
@@ -416,7 +416,7 @@ const addFeeToStudentPaymentDoc = async (
 
     if (!paymentDocExist) {
       throw new AppError(
-        'No payment document found for the student for the current term.',
+        "No payment document found for the student for the current term.",
         404
       );
     }
@@ -456,7 +456,7 @@ const addFeeToStudentPaymentDoc = async (
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -473,28 +473,28 @@ const processFeePayment = async (studentPaymentObj: string) => {
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
 
 const calculateAndUpdateStudentPaymentDocuments = async (
   payload: StudentFeePaymentType,
-  payment_type: 'cash' | 'bank'
+  payment_type: "cash" | "bank"
 ) => {
   try {
     // Find the student document
     const studentDoc = await Student.findById({ _id: payload.student_id });
 
     if (!studentDoc) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     // Initialize outstanding balance if undefined
     studentDoc.outstanding_balance = studentDoc.outstanding_balance ?? 0;
 
     // Define the term order for sorting
-    const termOrder = ['first_term', 'second_term', 'third_term'];
+    const termOrder = ["first_term", "second_term", "third_term"];
 
     // Fetch overdue payments excluding the current term
     const overduePayments = await Payment.find({
@@ -527,25 +527,25 @@ const calculateAndUpdateStudentPaymentDocuments = async (
     if (overduePayments.length === 0) {
       if (!currentTermPayment) {
         throw new AppError(
-          'No payment record found for the current term.',
+          "No payment record found for the current term.",
           404
         );
       }
 
       if (currentTermPayment.is_payment_complete) {
         throw new AppError(
-          'Payment for this term has already been completed.',
+          "Payment for this term has already been completed.",
           400
         );
       }
 
       if (!currentTermPayment.remaining_amount) {
-        throw new AppError('Remaining amount field is null.', 400);
+        throw new AppError("Remaining amount field is null.", 400);
       }
 
       if (remainingAmountToPay > currentTermPayment.remaining_amount) {
         throw new AppError(
-          'Amount planning to pay is more than what is expected for this term.',
+          "Amount planning to pay is more than what is expected for this term.",
           400
         );
       }
@@ -556,7 +556,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
       const doc = {
         amount_paid: remainingAmountToPay,
         date_paid: new Date(),
-        transaction_id: payload.teller_number ? payload.teller_number : '',
+        transaction_id: payload.teller_number ? payload.teller_number : "",
         bank_name: payload.bank_name && payload.bank_name,
         staff_who_approve:
           payload.staff_who_approve && payload.staff_who_approve,
@@ -565,7 +565,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
       };
       currentTermPayment.payment_summary.push(doc);
 
-      if (payment_type === 'bank') {
+      if (payment_type === "bank") {
         currentTermPayment.waiting_for_confirmation.pull(
           currentTermPayment.waiting_for_confirmation.find(
             (p) => p.transaction_id === payload.teller_number
@@ -603,7 +603,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
           const doc = {
             amount_paid: remainingAmount,
             date_paid: new Date(),
-            transaction_id: payload.teller_number ? payload.teller_number : '',
+            transaction_id: payload.teller_number ? payload.teller_number : "",
             status: paymentStatusEnum[1],
             payment_method: payload.payment_method,
             bank_name: payload.bank_name && payload.bank_name,
@@ -619,7 +619,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
           const doc = {
             amount_paid: remainingAmountToPay,
             date_paid: new Date(),
-            transaction_id: payload.teller_number ? payload.teller_number : '',
+            transaction_id: payload.teller_number ? payload.teller_number : "",
             status: paymentStatusEnum[1],
             payment_method: payload.payment_method,
             bank_name: payload.bank_name && payload.bank_name,
@@ -636,11 +636,11 @@ const calculateAndUpdateStudentPaymentDocuments = async (
         // Save payment after update
         await payment.save();
         lastProcessedPayment = payment;
-        if (payment_type === 'bank') {
+        if (payment_type === "bank") {
           // FETCH THE PAYMENT info from waiting_for_approval and remove it
           if (!currentTermPayment) {
             throw new AppError(
-              'No payment record found for the current term.',
+              "No payment record found for the current term.",
               404
             );
           }
@@ -666,25 +666,25 @@ const calculateAndUpdateStudentPaymentDocuments = async (
 
       if (!currentTermPayment) {
         throw new AppError(
-          'No payment record found for the current term.',
+          "No payment record found for the current term.",
           404
         );
       }
 
       if (currentTermPayment.is_payment_complete) {
         throw new AppError(
-          'Payment for this term has already been completed.',
+          "Payment for this term has already been completed.",
           400
         );
       }
 
       if (!currentTermPayment.remaining_amount) {
-        throw new AppError('Remaining amount field is null.', 400);
+        throw new AppError("Remaining amount field is null.", 400);
       }
 
       if (remainingAmountToPay > currentTermPayment.remaining_amount) {
         throw new AppError(
-          'Amount planning to pay is more than what is expected for this term.',
+          "Amount planning to pay is more than what is expected for this term.",
           400
         );
       }
@@ -693,7 +693,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
       currentTermPayment.remaining_amount -= remainingAmountToPay;
 
       if (!payload.teller_number) {
-        throw new AppError('Transaction ID is required.', 400);
+        throw new AppError("Transaction ID is required.", 400);
       }
 
       const doc = {
@@ -707,7 +707,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
           payload.staff_who_approve && payload.staff_who_approve,
       };
 
-      if (payment_type === 'bank') {
+      if (payment_type === "bank") {
         currentTermPayment.waiting_for_confirmation.pull(
           currentTermPayment.waiting_for_confirmation.find(
             (p) => p?.transaction_id === payload?.teller_number
@@ -736,7 +736,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something went wrong while processing payment.');
+      throw new Error("Something went wrong while processing payment.");
     }
   }
 };

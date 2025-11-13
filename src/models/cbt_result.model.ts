@@ -1,48 +1,48 @@
-import mongoose from 'mongoose';
-import { examStatusEnum, triggerTypeEnum } from '../constants/enum';
-import { CbtResultDocument } from '../constants/types';
+import mongoose from "mongoose";
+import { examStatusEnum, triggerTypeEnum } from "../constants/enum";
+import { CbtResultDocument } from "../constants/types";
 
 const cbtResultSchema = new mongoose.Schema<CbtResultDocument>(
   {
     subject_teacher: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Teacher',
+      ref: "Teacher",
       required: true,
     },
 
     academic_session_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Session',
+      ref: "Session",
       required: true,
     },
 
     exam_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'CbtExam',
+      ref: "CbtExam",
       required: true,
     },
 
     subject_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Subject',
+      ref: "Subject",
       required: true,
     },
 
     student_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Student',
+      ref: "Student",
       required: true,
     },
 
     class_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Class',
+      ref: "Class",
       required: true,
     },
 
     enrolment: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'ClassEnrolment',
+      ref: "ClassEnrolment",
       required: true,
     },
 
@@ -103,7 +103,7 @@ const cbtResultSchema = new mongoose.Schema<CbtResultDocument>(
 );
 
 const CbtResult = mongoose.model<CbtResultDocument>(
-  'CbtResult',
+  "CbtResult",
   cbtResultSchema
 );
 export default CbtResult;

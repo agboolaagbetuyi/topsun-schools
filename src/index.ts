@@ -16,6 +16,7 @@ import resultRoute from "./routes/result.route";
 import paymentRoute from "./routes/payment.route";
 import feeRoute from "./routes/fee.route";
 import authRoute from "./routes/auth.route";
+import assignmentRoute from "./routes/assignment.route";
 import classEnrolmentRoute from "./routes/class_enrolment.route";
 import classRoute from "./routes/class.route";
 import schoolAdminRoute from "./routes/school_admin.route";
@@ -44,7 +45,10 @@ const httpServer = createServer(app);
 
 const allowedOrigins: string[] = [
   process.env.FRONTEND_URL || "",
-  "https://topsun.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:5173",
+  // 'https://topsun.vercel.app',
+  "https://topsun-dev.vercel.app",
 ];
 
 const corsOptions: CorsOptions = {
@@ -78,6 +82,7 @@ app.use("/api/v1/subjects", subjectRoute);
 app.use("/api/v1/teachers", teacherRoute);
 app.use("/api/v1/school-admin", schoolAdminRoute);
 app.use("/api/v1/admins", adminRoute);
+app.use("/api/v1/assignments", assignmentRoute);
 app.use("/api/v1/results", resultRoute);
 app.use("/api/v1/payments", paymentRoute);
 app.use("/api/v1/fees", feeRoute);
@@ -87,13 +92,7 @@ app.use("/api/v1/cbt", cbtRoute);
 app.use("/api/v1/super-admin", superAdminRoute);
 app.use("/api/v1/school", schoolRoute);
 
-app.use(
-  "/admin/queues",
-  () => {
-    console.log("connecting redis");
-  },
-  serverAdapter.getRouter()
-);
+app.use("/admin/queues", serverAdapter.getRouter());
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -128,7 +127,8 @@ io.on("connection", (socket) => {
   registerCbtHandlers(io, socket);
 });
 
-httpServer.listen(port, async () => {
+httpServer.listen(port, () => {
+  // console.log(`Bull Board is running at http://localhost:${port}/admin/queues`);
   console.log(`Listening on port ${port}`);
 });
 

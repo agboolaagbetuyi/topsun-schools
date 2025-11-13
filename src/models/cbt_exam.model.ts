@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
-import { CbtAssessmentDocument } from '../constants/types';
+import mongoose from "mongoose";
+import { CbtAssessmentDocument } from "../constants/types";
 
 const cbtExamSchema = new mongoose.Schema<CbtAssessmentDocument>(
   {
     academic_session_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Session',
+      ref: "Session",
       required: true,
     },
     term: { type: String, required: true },
@@ -24,5 +24,5 @@ const cbtExamSchema = new mongoose.Schema<CbtAssessmentDocument>(
   }
 );
 
-const CbtExam = mongoose.model<CbtAssessmentDocument>('CbtExam', cbtExamSchema);
+const CbtExam = mongoose.model<CbtAssessmentDocument>("CbtExam", cbtExamSchema);
 export default CbtExam;

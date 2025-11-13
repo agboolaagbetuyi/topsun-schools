@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import {
   getCbtAssessmentDocumentById,
   getAllClassCbtAssessmentTimetables,
@@ -18,143 +18,143 @@ import {
   getAllCbtAssessmentDocument,
   endTakingASubjectInATimetableForATerm,
   endAllActiveTermCbtAssessmentDocumentsInATerm,
-} from '../controllers/cbt.controller';
+} from "../controllers/cbt.controller";
 // import requireFeatureAccess from '../middleware/featureAccess';
-import { permission } from '../middleware/authorization';
+import { permission } from "../middleware/authorization";
 // import getSchoolId from '../middleware/getSchoolId';
 // import schoolSubDomain from '../middleware/subDomain';
-import { verifyAccessToken } from '../middleware/jwtAuth';
-import { developerProtected } from '../middleware/developerProtected';
+import { verifyAccessToken } from "../middleware/jwtAuth";
+import { developerProtected } from "../middleware/developerProtected";
 
 const router = express.Router();
 
 router.use(verifyAccessToken);
 router.post(
-  '/create-term-exam-document/:academic_session_id/:term',
+  "/create-term-exam-document/:academic_session_id/:term",
   // requireFeatureAccess(['objective_exam', 'theory_exam'], 'any'),
-  permission(['super_admin']),
+  permission(["super_admin"]),
   developerProtected,
   createTermCbtAssessmentDocument
 );
 
 router.put(
-  '/end-term-exam-document/:exam_document_id',
-  permission(['super_admin']),
+  "/end-term-exam-document/:exam_document_id",
+  permission(["super_admin"]),
   developerProtected,
   endTermCbtAssessmentDocument
 );
 
 router.put(
-  '/end-all-active-term-exam-documents',
-  permission(['super_admin']),
+  "/end-all-active-term-exam-documents",
+  permission(["super_admin"]),
   developerProtected,
   endAllActiveTermCbtAssessmentDocumentsInATerm
 );
 
 router.get(
-  '/all-exam-documents',
+  "/all-exam-documents",
   // requireFeatureAccess(['objective_exam', 'theory_exam'], 'any'),
-  permission(['super_admin', 'teacher', 'admin']),
+  permission(["super_admin", "teacher", "admin"]),
   getAllCbtAssessmentDocument
 );
 
 router.get(
-  '/get-exam-document-by-id/:exam_document_id',
+  "/get-exam-document-by-id/:exam_document_id",
   // requireFeatureAccess(['objective_exam', 'theory_exam'], 'any'),
-  permission(['super_admin', 'teacher', 'student', 'admin']),
+  permission(["super_admin", "teacher", "student", "admin"]),
   getCbtAssessmentDocumentById
 );
 
 router.get(
-  '/get-term-exam-document/:academic_session_id/:term',
+  "/get-term-exam-document/:academic_session_id/:term",
   // requireFeatureAccess(['objective_exam', 'theory_exam'], 'any'),
-  permission(['super_admin', 'teacher', 'admin']),
+  permission(["super_admin", "teacher", "admin"]),
   getTermCbtAssessmentDocument
 );
 
 // rely on term to fetch exam id
 router.post(
-  '/create-term-class-exam-timetable/:academic_session_id/:class_id',
+  "/create-term-class-exam-timetable/:academic_session_id/:class_id",
   // requireFeatureAccess(['objective_exam', 'theory_exam'], 'any'),
-  permission(['super_admin', 'admin']),
+  permission(["super_admin", "admin"]),
   developerProtected,
   createTermClassCbtAssessmentTimetable
 );
 
 router.put(
-  '/end-subject-term-class-exam-timetable/:timetable_id/:subject_id',
-  permission(['super_admin', 'admin']),
+  "/end-subject-term-class-exam-timetable/:timetable_id/:subject_id",
+  permission(["super_admin", "admin"]),
   developerProtected,
   endTakingASubjectInATimetableForATerm
 );
 
 router.put(
-  '/update-term-class-exam-timetable/:timetable_id/:subject_id',
-  permission(['super_admin', 'admin']),
+  "/update-term-class-exam-timetable/:timetable_id/:subject_id",
+  permission(["super_admin", "admin"]),
   developerProtected,
   updateTermClassCbtAssessmentTimetableToChangeSubjectDate
 );
 
 router.get(
-  '/get-term-class-exam-timetable/:academic_session_id/:class_id/:term',
+  "/get-term-class-exam-timetable/:academic_session_id/:class_id/:term",
   // requireFeatureAccess(['objective_exam', 'theory_exam'], 'any'),
-  permission(['teacher', 'student', 'admin', 'super_admin', 'parent']),
+  permission(["teacher", "student", "admin", "super_admin", "parent"]),
   getTermClassCbtAssessmentTimetables
 );
 
 router.get(
-  '/get-term-class-exam-timetable/:class_id',
+  "/get-term-class-exam-timetable/:class_id",
   // requireFeatureAccess(['objective_exam', 'theory_exam'], 'any'),
-  permission(['teacher', 'student', 'admin', 'super_admin', 'parent']),
+  permission(["teacher", "student", "admin", "super_admin", "parent"]),
   getAllClassCbtAssessmentTimetables
 );
 
 router.post(
-  '/set-obj-questions/:academic_session_id/:class_id',
+  "/set-obj-questions/:academic_session_id/:class_id",
   // requireFeatureAccess(['objective_exam']),
-  permission(['teacher']),
+  permission(["teacher"]),
   setSubjectCbtObjQuestionsForAClass
 );
 
 router.post(
-  '/class-teacher-authorize-students-to-do-subject-cbt/:subject_id/:academic_session_id/:class_id',
+  "/class-teacher-authorize-students-to-do-subject-cbt/:subject_id/:academic_session_id/:class_id",
   // requireFeatureAccess(['objective_exam']),
-  permission(['teacher']),
+  permission(["teacher"]),
   classTeacherAuthorizeStudentsToWriteSubjectCbt
 );
 
 router.get(
-  '/start-obj-exam/:subject_id/:academic_session_id/:class_id/:term',
+  "/start-obj-exam/:subject_id/:academic_session_id/:class_id/:term",
   // requireFeatureAccess(['objective_exam']),
-  permission(['student']),
+  permission(["student"]),
   startSubjectCbtObjCbtAssessmentForAClass
 );
 
 router.put(
-  '/update-obj-exam-answers/:cbt_result_id/:exam_id',
+  "/update-obj-exam-answers/:cbt_result_id/:exam_id",
   // requireFeatureAccess(['objective_exam']),
-  permission(['student']),
+  permission(["student"]),
   updateSubjectCbtObjCbtAssessmentAnswersForAClass
 );
 
 router.put(
-  '/update-obj-exam-remaining-time/:cbt_result_id/:exam_id',
+  "/update-obj-exam-remaining-time/:cbt_result_id/:exam_id",
   // requireFeatureAccess(['objective_exam']),
-  permission(['student']),
+  permission(["student"]),
   updateSubjectCbtObjCbtAssessmentRemainingTimeForAClass
 );
 
 router.put(
-  '/submit-obj-exam/:cbt_result_id/:exam_id',
+  "/submit-obj-exam/:cbt_result_id/:exam_id",
   // requireFeatureAccess(['objective_exam']),
-  permission(['student']),
+  permission(["student"]),
   submitSubjectCbtObjCbtAssessmentForAClass
 );
 
 router.post(
-  '/set-theory-questions/:academic_session_id/:class_id',
+  "/set-theory-questions/:academic_session_id/:class_id",
   // requireFeatureAccess(['theory_exam']),
-  permission(['teacher']),
+  permission(["teacher"]),
   setSubjectCbtTheroyQuestionsForAClass
 );
 

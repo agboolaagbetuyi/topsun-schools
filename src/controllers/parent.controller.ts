@@ -122,15 +122,15 @@
 // };
 
 //////////////////////////////////////////
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   fetchAllParents,
   fetchParentById,
   getManyStudentDetails,
   getStudentDetails,
-} from '../services/parent.service';
-import { AppError } from '../utils/app.error';
-import catchErrors from '../utils/tryCatch';
+} from "../services/parent.service";
+import { AppError } from "../utils/app.error";
+import catchErrors from "../utils/tryCatch";
 // import { saveLog } from '../logs/log.service';
 
 const fetchALinkedStudent = catchErrors(async (req, res) => {
@@ -139,18 +139,18 @@ const fetchALinkedStudent = catchErrors(async (req, res) => {
   const { student_id } = req.params;
 
   if (!student_id) {
-    throw new AppError('Student ID is required to fetch student details.', 404);
+    throw new AppError("Student ID is required to fetch student details.", 404);
   }
   const parent_id = req.user?.userId;
 
   if (!parent_id) {
-    throw new AppError('Parent ID is required to fetch student details.', 404);
+    throw new AppError("Parent ID is required to fetch student details.", 404);
   }
 
   const response = await getStudentDetails(student_id, parent_id);
 
   if (!response) {
-    throw new AppError('Unable to get student details.', 404);
+    throw new AppError("Unable to get student details.", 404);
   }
 
   // const duration = Date.now() - start;
@@ -175,7 +175,7 @@ const fetchALinkedStudent = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Student details fetched successfully',
+    message: "Student details fetched successfully",
     success: true,
     status: 200,
     student: response,
@@ -189,7 +189,7 @@ const fetchAllLinkedStudents = catchErrors(async (req, res) => {
 
   const userId = req.user?.userId;
   if (!parent_id) {
-    throw new AppError('Parent ID is required to fetch student details.', 404);
+    throw new AppError("Parent ID is required to fetch student details.", 404);
   }
 
   if (userId && userId.toString() !== parent_id) {
@@ -199,7 +199,7 @@ const fetchAllLinkedStudents = catchErrors(async (req, res) => {
   const result = await getManyStudentDetails(parent_id);
 
   if (!result) {
-    throw new AppError('Unable to get students details.', 404);
+    throw new AppError("Unable to get students details.", 404);
   }
 
   // const duration = Date.now() - start;
@@ -224,7 +224,7 @@ const fetchAllLinkedStudents = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Students details fetched successfully',
+    message: "Students details fetched successfully",
     success: true,
     status: 200,
     students: result,
@@ -237,26 +237,26 @@ const getParentById = catchErrors(async (req, res) => {
   const { parent_id } = req.params;
 
   if (!parent_id) {
-    throw new AppError('Parent ID is required.', 404);
+    throw new AppError("Parent ID is required.", 404);
   }
 
   const userId = req.user?.userId;
   const userRole = req.user?.userRole;
 
   if (!userId) {
-    throw new AppError('Please login to proceed.', 404);
+    throw new AppError("Please login to proceed.", 404);
   }
 
-  if (userRole === 'parent') {
+  if (userRole === "parent") {
     if (userId.toString() !== parent_id) {
-      throw new AppError('You are only allowed to view your own account.', 400);
+      throw new AppError("You are only allowed to view your own account.", 400);
     }
   }
 
   const response = await fetchParentById(parent_id);
 
   if (!response) {
-    throw new AppError('Unable to get parent.', 404);
+    throw new AppError("Unable to get parent.", 404);
   }
 
   // const duration = Date.now() - start;
@@ -281,7 +281,7 @@ const getParentById = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Parent fetched successfully',
+    message: "Parent fetched successfully",
     success: true,
     status: 200,
     parent: response,
@@ -295,12 +295,12 @@ const getAllParents = catchErrors(async (req, res) => {
   const limit = req.query.limit ? Number(req.query.limit) : undefined;
 
   const searchQuery =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   const result = await fetchAllParents(page, limit, searchQuery);
 
   if (!result) {
-    throw new AppError('Unable to get parents.', 404);
+    throw new AppError("Unable to get parents.", 404);
   }
 
   // const duration = Date.now() - start;
@@ -325,7 +325,7 @@ const getAllParents = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Parents fetched successfully',
+    message: "Parents fetched successfully",
     success: true,
     status: 200,
     parents: result,

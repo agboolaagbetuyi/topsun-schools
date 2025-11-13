@@ -295,19 +295,19 @@
 // };
 
 /////////////////////////////////////////////////////////////////////
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   ClassSubjectFetchPayload,
   OptionalSubjectProcessingType,
   SubjectCreationType,
   SubjectFetchingPayload,
-} from '../constants/types';
-import Class from '../models/class.model';
-import ClassEnrolment from '../models/classes_enrolment.model';
-import Session from '../models/session.model';
-import Student from '../models/students.model';
-import Subject from '../models/subject.model';
-import { AppError } from '../utils/app.error';
+} from "../constants/types";
+import Class from "../models/class.model";
+import ClassEnrolment from "../models/classes_enrolment.model";
+import Session from "../models/session.model";
+import Student from "../models/students.model";
+import Subject from "../models/subject.model";
+import { AppError } from "../utils/app.error";
 
 const subjectCreation = async (payload: SubjectCreationType) => {
   try {
@@ -316,7 +316,7 @@ const subjectCreation = async (payload: SubjectCreationType) => {
     });
 
     if (existingSubject) {
-      throw new AppError('Subject with this name already exists', 400);
+      throw new AppError("Subject with this name already exists", 400);
     }
 
     const newSubject = await new Subject({
@@ -337,10 +337,10 @@ const fetchingASubject = async (payload: SubjectFetchingPayload) => {
   try {
     const getSubject = await Subject.findById({
       _id: payload.subject_id,
-    }).populate('teacher_ids');
+    }).populate("teacher_ids");
 
     if (!getSubject) {
-      throw new AppError('No subject found', 404);
+      throw new AppError("No subject found", 404);
     }
 
     return getSubject;
@@ -357,7 +357,7 @@ const fetchingAllSubjects = async () => {
     const getSubjects = await Subject.find();
 
     if (!getSubjects) {
-      throw new AppError('No subject found', 404);
+      throw new AppError("No subject found", 404);
     }
 
     return getSubjects;
@@ -374,14 +374,14 @@ const fetchingAllJssSubjects = async () => {
     const getJssSubjects = await Subject.find({
       sections: {
         $elemMatch: {
-          tier: 'jss_section',
+          tier: "jss_section",
           is_compulsory: true,
         },
       },
     });
 
     if (!getJssSubjects) {
-      throw new AppError('No subject found', 404);
+      throw new AppError("No subject found", 404);
     }
 
     return getJssSubjects;
@@ -398,14 +398,14 @@ const fetchingAllSssCompulsorySubjects = async () => {
     const getSssSubjects = await Subject.find({
       sections: {
         $elemMatch: {
-          tier: 'sss_section',
+          tier: "sss_section",
           is_compulsory: true,
         },
       },
     });
 
     if (!getSssSubjects) {
-      throw new AppError('No subject found', 404);
+      throw new AppError("No subject found", 404);
     }
 
     return getSssSubjects;
@@ -422,14 +422,14 @@ const fetchingAllOptionalSubjects = async () => {
     const getSssOptionalSubjects = await Subject.find({
       sections: {
         $elemMatch: {
-          tier: 'sss_section',
+          tier: "sss_section",
           is_compulsory: false,
         },
       },
     });
 
     if (!getSssOptionalSubjects) {
-      throw new AppError('No subject found', 404);
+      throw new AppError("No subject found", 404);
     }
 
     return getSssOptionalSubjects;
@@ -449,10 +449,10 @@ const fetchAllClassSubjectsByClassId = async (
 
     const classExist = await Class.findById({
       _id: class_id,
-    }).populate('compulsory_subjects');
+    }).populate("compulsory_subjects");
 
     if (!classExist) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     const class_subjects = classExist.compulsory_subjects;
@@ -462,7 +462,7 @@ const fetchAllClassSubjectsByClassId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };

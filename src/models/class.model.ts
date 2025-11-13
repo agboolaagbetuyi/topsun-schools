@@ -1,6 +1,6 @@
-import mongoose, { Schema } from 'mongoose';
-import { streamEnum } from '../constants/enum';
-import { ClassDocument } from '../constants/types';
+import mongoose, { Schema } from "mongoose";
+import { streamEnum } from "../constants/enum";
+import { ClassDocument } from "../constants/types";
 
 const classSchema = new mongoose.Schema<ClassDocument>(
   {
@@ -10,11 +10,11 @@ const classSchema = new mongoose.Schema<ClassDocument>(
     description: { type: String },
     // arms: [{ type: String }],
     // streams: [{ type: String, enum: streamEnum }],
-    class_teacher: { type: Schema.Types.ObjectId, ref: 'Teacher' },
+    class_teacher: { type: Schema.Types.ObjectId, ref: "Teacher" },
     compulsory_subjects: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Subject',
+        ref: "Subject",
       },
     ],
     // optional_subjects: [
@@ -25,8 +25,8 @@ const classSchema = new mongoose.Schema<ClassDocument>(
     // ],
     teacher_subject_assignments: [
       {
-        teacher: { type: Schema.Types.ObjectId, ref: 'Teacher' },
-        subject: { type: Schema.Types.ObjectId, ref: 'Subject' },
+        teacher: { type: Schema.Types.ObjectId, ref: "Teacher" },
+        subject: { type: Schema.Types.ObjectId, ref: "Subject" },
       },
     ],
   },
@@ -37,5 +37,5 @@ const classSchema = new mongoose.Schema<ClassDocument>(
 
 classSchema.index({ name: 1, level: 1, section: 1 }, { unique: true });
 
-const Class = mongoose.model<ClassDocument>('Class', classSchema);
+const Class = mongoose.model<ClassDocument>("Class", classSchema);
 export default Class;

@@ -917,7 +917,7 @@
 // };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   // ResultSettingComponentType,
   // GradingAndRemarkType,
@@ -945,28 +945,29 @@ import {
   SubjectResultDocument,
   ExamScoreType,
   SubjectPositionJobData,
-} from '../constants/types';
-import Class from '../models/class.model';
-import ClassEnrolment from '../models/classes_enrolment.model';
-import Result from '../models/result.model';
-import ResultSetting from '../models/result_setting.model';
-import Subject from '../models/subject.model';
-import Teacher from '../models/teachers.model';
-import { recordScore, recordCumScore } from '../repository/result.repository';
-import { AppError } from '../utils/app.error';
-import { getAStudentById } from '../repository/student.repository';
-import Session from '../models/session.model';
-import { getTeacherById } from '../repository/teacher.repository';
-import Student from '../models/students.model';
+} from "../constants/types";
+import Class from "../models/class.model";
+import ClassEnrolment from "../models/classes_enrolment.model";
+import Result from "../models/result.model";
+import ResultSetting from "../models/result_setting.model";
+import Subject from "../models/subject.model";
+import Teacher from "../models/teachers.model";
+import { recordScore, recordCumScore } from "../repository/result.repository";
+import { AppError } from "../utils/app.error";
+import { getAStudentById } from "../repository/student.repository";
+import Session from "../models/session.model";
+import { getTeacherById } from "../repository/teacher.repository";
+import Student from "../models/students.model";
 import {
   assignPositions,
   classPositionCalculation,
+  getMinMax,
   schoolSubscriptionPlan,
-} from '../utils/functions';
-import { examKeyEnum, subscriptionEnum } from '../constants/enum';
-import { studentResultQueue } from '../utils/queue';
-import { SubjectResult } from '../models/subject_result.model';
-import CbtResult from '../models/cbt_result.model';
+} from "../utils/functions";
+import { examKeyEnum, subscriptionEnum } from "../constants/enum";
+import { studentResultQueue } from "../utils/queue";
+import { SubjectResult } from "../models/subject_result.model";
+import CbtResult from "../models/cbt_result.model";
 
 // MAKE PROVISION FOR CUMMULATIVE. THEN IF FIRST TERM,
 // CUMMULATIVE SPACE SHOULD TAKE TOTAL AND WHEN IT IS SECOND TERM,
@@ -981,7 +982,7 @@ const fetchResultSetting = async () => {
 
     if (!resultSettingExist || resultSettingExist.length === 0) {
       throw new AppError(
-        'This school does not have result component yet.',
+        "This school does not have result component yet.",
         400
       );
     }
@@ -991,7 +992,7 @@ const fetchResultSetting = async () => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -1004,7 +1005,7 @@ const fetchLevelResultSetting = async (level: string) => {
 
     if (!resultSettingExist) {
       throw new AppError(
-        'There is no result settings for this level yet.',
+        "There is no result settings for this level yet.",
         400
       );
     }
@@ -1032,7 +1033,7 @@ const fetchLevelResultSetting = async (level: string) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -1071,7 +1072,7 @@ const recordStudentScore = async (
     const result = await recordScore(resultPayload);
 
     if (!result) {
-      throw new AppError('Unable to process score.', 400);
+      throw new AppError("Unable to process score.", 400);
     }
 
     // await session.commitTransaction();
@@ -1083,14 +1084,12 @@ const recordStudentScore = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
 
 const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
-  // const session = await mongoose.startSession();
-  // session.startTransaction();
   try {
     const {
       result_objs, // Array of { student_id, score }
@@ -1114,7 +1113,6 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
         class_id,
         student_id: student.student_id,
         score: student.score,
-        // session,
       })
         .then((result) => {
           const currentTermResult = result.term_results.find(
@@ -1122,7 +1120,7 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
           );
           const lastScore = currentTermResult?.scores.at(-1);
           return {
-            status: 'fulfilled',
+            status: "fulfilled",
             student_id: student.student_id,
             result,
             score: lastScore?.score,
@@ -1133,39 +1131,40 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
           // Skip only if it's the "score already recorded" error
           if (
             err instanceof AppError &&
-            err.message.includes('score has already been recorded')
+            err.message.includes("score has already been recorded")
           ) {
             return {
-              status: 'skipped',
+              status: "skipped",
               student_id: student.student_id,
               reason: err.message,
             };
           }
           return {
-            status: 'rejected',
+            status: "rejected",
             student_id: student.student_id,
-            reason: err.message || 'Unknown error',
+            reason: err.message || "Unknown error",
           };
         })
     );
 
     const results = await Promise.all(recordPromises);
 
-    const successfulRecords = results.filter((r) => r.status === 'fulfilled');
-    const skippedRecords = results.filter((r) => r.status === 'skipped');
-    const failedRecords = results.filter((r) => r.status === 'rejected');
+    const successfulRecords = results.filter((r) => r.status === "fulfilled");
+    const skippedRecords = results.filter((r) => r.status === "skipped");
+    const failedRecords = results.filter((r) => r.status === "rejected");
 
     if (successfulRecords.length > 0) {
-      const jobs = successfulRecords.map((record) => {
+      const jobs = results.map((record) => {
         const r = record as {
-          status: 'fulfilled';
+          // status: 'fulfilled';
+          status: "fulfilled" | "skipped" | "rejected";
           student_id: string;
           score: number;
           score_name: string;
         };
 
         return {
-          name: 'update-student-result',
+          name: "update-student-result",
           data: {
             term: term,
             session_id: session_id,
@@ -1173,6 +1172,7 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
             subject_id: subject_id,
             class_enrolment_id: class_enrolment_id,
             class_id: class_id,
+            status: r.status,
             student_id: r.student_id,
             score: r.score,
             score_name: r.score_name,
@@ -1181,7 +1181,7 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
             attempts: 5,
             removeOnComplete: true,
             backoff: {
-              type: 'exponential',
+              type: "exponential",
               delay: 3000,
             },
           },
@@ -1191,9 +1191,6 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
       await studentResultQueue.addBulk(jobs);
     }
 
-    // await session.commitTransaction();
-    // session.endSession();
-
     return {
       successfulRecords: successfulRecords,
       failedRecords: failedRecords,
@@ -1201,12 +1198,10 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
       all_results: results,
     };
   } catch (error) {
-    // await session.abortTransaction();
-    // session.endSession();
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -1263,7 +1258,7 @@ const recordManyStudentCumScores = async (
 
       const result = await recordCumScore(singleStudentPayload);
       results.push({
-        status: 'fulfilled',
+        status: "fulfilled",
         student_id: student.student_id,
         result,
       });
@@ -1275,7 +1270,7 @@ const recordManyStudentCumScores = async (
           );
 
           return {
-            name: 'update-cum-score',
+            name: "update-cum-score",
             data: {
               term: term,
               session_id: session_id,
@@ -1290,7 +1285,7 @@ const recordManyStudentCumScores = async (
               attempts: 5,
               removeOnComplete: true,
               backoff: {
-                type: 'exponential',
+                type: "exponential",
                 delay: 3000,
               },
             },
@@ -1308,7 +1303,7 @@ const recordManyStudentCumScores = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -1333,7 +1328,7 @@ const recordManyStudentExamScores = async (
       _id: class_id,
     });
     if (!classExist) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     const subjectTeacher = classExist.teacher_subject_assignments.find(
@@ -1344,7 +1339,7 @@ const recordManyStudentExamScores = async (
 
     if (!subjectTeacher) {
       throw new AppError(
-        'You are not the teacher assigned to teach this subject in this class.',
+        "You are not the teacher assigned to teach this subject in this class.",
         400
       );
     }
@@ -1357,7 +1352,7 @@ const recordManyStudentExamScores = async (
       throw new AppError(`Session does not exist.`, 404);
     }
     if (!sessionExist.is_active) {
-      throw new AppError('This session is not active.', 400);
+      throw new AppError("This session is not active.", 400);
     }
 
     const termExist = sessionExist.terms.find((a) => a.name === term);
@@ -1370,7 +1365,7 @@ const recordManyStudentExamScores = async (
     });
 
     if (!resultSettings) {
-      throw new AppError('Result setting not found.', 404);
+      throw new AppError("Result setting not found.", 404);
     }
 
     const exam_component_name = resultSettings.exam_components.exam_name;
@@ -1401,7 +1396,7 @@ const recordManyStudentExamScores = async (
     // **********
 
     const checkCBTScore = async (
-      type: 'obj' | 'theory',
+      type: "obj" | "theory",
       student_id: string
     ): Promise<number | undefined> => {
       const result = await CbtResult.findOne({
@@ -1410,7 +1405,7 @@ const recordManyStudentExamScores = async (
         student_id,
         subject_id,
       });
-      return type === 'obj'
+      return type === "obj"
         ? result?.objective_total_score
         : result?.theory_total_score;
     };
@@ -1453,7 +1448,7 @@ const recordManyStudentExamScores = async (
           score.score_name.toLowerCase() === exam_component_name.toLowerCase()
       );
       if (alreadyHasExam) {
-        console.log('Student already has exam result recorded.');
+        console.log("Student already has exam result recorded.");
         continue;
       }
 
@@ -1469,18 +1464,18 @@ const recordManyStudentExamScores = async (
 
       let scoreToRecord = result.score;
 
-      console.log('actualScoreObj.key:', actualScoreObj.key);
+      console.log("actualScoreObj.key:", actualScoreObj.key);
 
-      if (actualScoreObj.key === 'obj') {
-        const objScore = await checkCBTScore('obj', result.student_id);
+      if (actualScoreObj.key === "obj") {
+        const objScore = await checkCBTScore("obj", result.student_id);
 
         if (objScore !== undefined && objScore !== scoreToRecord) {
           scoreToRecord = objScore;
         }
       }
 
-      if (actualScoreObj.key === 'theory') {
-        const theoryScore = await checkCBTScore('theory', result.student_id);
+      if (actualScoreObj.key === "theory") {
+        const theoryScore = await checkCBTScore("theory", result.student_id);
         if (theoryScore !== undefined && theoryScore !== scoreToRecord) {
           scoreToRecord = theoryScore;
         }
@@ -1547,14 +1542,14 @@ const recordManyStudentExamScores = async (
           const total = filteredScoreArray.reduce((sum, a) => sum + a.score, 0);
 
           let last_term_cumulative = 0;
-          if (termExist.name === 'second_term') {
+          if (termExist.name === "second_term") {
             const firstTerm = studentResult.term_results.find(
-              (t) => t.term === 'first_term'
+              (t) => t.term === "first_term"
             );
             last_term_cumulative = firstTerm?.cumulative_average ?? 0;
-          } else if (termExist.name === 'third_term') {
+          } else if (termExist.name === "third_term") {
             const secondTerm = studentResult.term_results.find(
-              (t) => t.term === 'second_term'
+              (t) => t.term === "second_term"
             );
             last_term_cumulative = secondTerm?.cumulative_average ?? 0;
           } else {
@@ -1587,7 +1582,7 @@ const recordManyStudentExamScores = async (
         )
       ) {
         return {
-          name: 'update-student-exam',
+          name: "update-student-exam",
           // name: 'update-student-result',
           data: {
             term,
@@ -1606,7 +1601,7 @@ const recordManyStudentExamScores = async (
             removeOnComplete: true,
             // removeOnFail: { count: 3 },
             backoff: {
-              type: 'exponential',
+              type: "exponential",
               delay: 3000,
             },
           },
@@ -1626,7 +1621,7 @@ const recordManyStudentExamScores = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -1649,7 +1644,7 @@ const fetchAllScoresPerSubject = async (payload: ScorePayload) => {
     });
 
     if (!classExist) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     const subjectExist = await Subject.findOne({
@@ -1667,18 +1662,18 @@ const fetchAllScoresPerSubject = async (payload: ScorePayload) => {
 
     if (!enrolment) {
       throw new AppError(
-        'Enrolment for this class in this session not found.',
+        "Enrolment for this class in this session not found.",
         404
       );
     }
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       const teacherExist = await Teacher.findById({
         _id: userId,
       });
 
       if (!teacherExist) {
-        throw new AppError('Teacher not found.', 404);
+        throw new AppError("Teacher not found.", 404);
       }
 
       if (classExist.class_teacher !== teacherExist._id) {
@@ -1702,7 +1697,7 @@ const fetchAllScoresPerSubject = async (payload: ScorePayload) => {
       enrolment: enrolment._id,
       class: class_id,
       academic_session_id: academic_session_id,
-    }).populate<{ student: StudentPopulatedType }>('student', '-password');
+    }).populate<{ student: StudentPopulatedType }>("student", "-password");
 
     const scores = studentsResults.map((result) => {
       const termResult = result.term_results.find(
@@ -1733,7 +1728,7 @@ const fetchAllScoresPerSubject = async (payload: ScorePayload) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -1761,7 +1756,7 @@ const fetchStudentSubjectResultInAClass = async (
     }).session(session);
 
     if (!classExist) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     const subjectExist = await Subject.findById({
@@ -1780,7 +1775,7 @@ const fetchStudentSubjectResultInAClass = async (
     const studentExist = await getAStudentById(getStudentByIdPayload);
 
     if (!studentExist) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     const sessionExist = await Session.findById({
@@ -1788,7 +1783,7 @@ const fetchStudentSubjectResultInAClass = async (
     }).session(session);
 
     if (!sessionExist) {
-      throw new AppError('Session not found.', 404);
+      throw new AppError("Session not found.", 404);
     }
 
     const enrolment = await ClassEnrolment.findOne({
@@ -1798,7 +1793,7 @@ const fetchStudentSubjectResultInAClass = async (
 
     if (!enrolment) {
       throw new AppError(
-        'Enrolment for this class in this session not found.',
+        "Enrolment for this class in this session not found.",
         404
       );
     }
@@ -1808,11 +1803,11 @@ const fetchStudentSubjectResultInAClass = async (
       session,
     };
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       const teacherExist = await getTeacherById(getTeacherPayload);
 
       if (!teacherExist) {
-        throw new AppError('Teacher not found.', 404);
+        throw new AppError("Teacher not found.", 404);
       }
 
       if (classExist.class_teacher !== teacherExist._id) {
@@ -1840,8 +1835,8 @@ const fetchStudentSubjectResultInAClass = async (
     })
       .session(session)
       .populate<{
-        'term_results.subject_results.subject': SubjectPopulatedType;
-      }>('student term_results.subject_results.subject', '-password');
+        "term_results.subject_results.subject": SubjectPopulatedType;
+      }>("student term_results.subject_results.subject", "-password");
 
     if (!studentResult) {
       throw new AppError(
@@ -1893,7 +1888,7 @@ const fetchStudentSubjectResultInAClass = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -1915,10 +1910,10 @@ const fetchStudentTermResult = async (payload: StudentResultTermType) => {
     });
 
     if (!academicSession) {
-      throw new AppError('Academic session not found', 404);
+      throw new AppError("Academic session not found", 404);
     }
 
-    if (userId && userRole === 'parent') {
+    if (userId && userRole === "parent") {
       if (!student.parent_id?.includes(userId)) {
         throw new AppError(
           `You are not a parent to ${student.first_name} ${student.last_name}`,
@@ -1931,7 +1926,7 @@ const fetchStudentTermResult = async (payload: StudentResultTermType) => {
       student: student_id,
       academic_session_id: academic_session_id,
     }).populate(
-      'term_results.subject_results.subject term_results.subject_results.subject_teacher'
+      "term_results.subject_results.subject term_results.subject_results.subject_teacher"
     );
     // populate subject and subject teacher
 
@@ -1953,7 +1948,7 @@ const fetchStudentTermResult = async (payload: StudentResultTermType) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -1977,10 +1972,10 @@ const fetchStudentSessionResults = async (
     });
 
     if (!academicSession) {
-      throw new AppError('Academic session not found', 404);
+      throw new AppError("Academic session not found", 404);
     }
 
-    if (userId && userRole === 'parent') {
+    if (userId && userRole === "parent") {
       if (!student.parent_id?.includes(userId)) {
         throw new AppError(
           `You are not a parent to ${student.first_name} ${student.last_name}`,
@@ -2006,7 +2001,7 @@ const fetchStudentSessionResults = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -2025,7 +2020,7 @@ const fetchAllStudentResultsInClassForActiveTermByClassId = async (
       throw new AppError(`Class with ID: ${class_id} does not exist.`, 404);
     }
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       const teacherExist = await Teacher.findById({
         _id: userId,
       });
@@ -2084,15 +2079,15 @@ const fetchAllStudentResultsInClassForActiveTermByClassId = async (
       enrolment: classEnrolment._id,
       class: classExist._id,
       academic_session_id: activeSession._id,
-      'term_results.term': termValue,
-    }).populate('student term_results.subject_results.subject', '-password');
+      "term_results.term": termValue,
+    }).populate("student term_results.subject_results.subject", "-password");
 
     return studentResults;
   } catch (error) {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2108,13 +2103,13 @@ const fetchAllResultsOfAStudent = async (
     const studentResults = await Result.find({
       student: student,
     }).populate([
-      { path: 'class', select: 'level name' },
-      { path: 'academic_session_id', select: 'academic_session' },
-      { path: 'student', select: 'first_name last_name' },
+      { path: "class", select: "level name" },
+      { path: "academic_session_id", select: "academic_session" },
+      { path: "student", select: "first_name last_name" },
     ]);
 
     if (!studentResults || studentResults.length === 0) {
-      throw new AppError('No result found for this student.', 404);
+      throw new AppError("No result found for this student.", 404);
     }
 
     const formattedStudentResults = studentResults.flatMap((a) => {
@@ -2133,7 +2128,7 @@ const fetchAllResultsOfAStudent = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2150,19 +2145,19 @@ const fetchStudentResultByResultId = async (
     const studentResult = await Result.findOne(
       {
         student: student,
-        'term_results._id': result,
+        "term_results._id": result,
       },
       {
         term_results: { $elemMatch: { _id: result } },
       }
     ).populate([
-      { path: 'academic_session_id' },
-      { path: 'student' },
-      { path: 'term_results.subject_results.subject' },
+      { path: "academic_session_id" },
+      { path: "student" },
+      { path: "term_results.subject_results.subject" },
     ]);
 
     if (!studentResult || !studentResult.term_results.length) {
-      throw new AppError('Specific term result not found.', 404);
+      throw new AppError("Specific term result not found.", 404);
     }
 
     // const schoolType = studentResult.school as unknown as SchoolType;
@@ -2195,7 +2190,7 @@ const fetchStudentResultByResultId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2210,7 +2205,7 @@ const studentsSubjectPositionInClass = async (
 
     if (!userId || !userRole) {
       throw new AppError(
-        'Please login as the subject teacher to proceed.',
+        "Please login as the subject teacher to proceed.",
         400
       );
     }
@@ -2223,7 +2218,7 @@ const studentsSubjectPositionInClass = async (
           student: UserDocument;
           subjects_offered: mongoose.Types.ObjectId[];
         }[];
-      }>('students.student', '-password')
+      }>("students.student", "-password")
       .session(session);
 
     if (!classEnrolment) {
@@ -2242,12 +2237,12 @@ const studentsSubjectPositionInClass = async (
     }).session(session);
 
     if (!activeSession) {
-      throw new AppError('Session not found.', 404);
+      throw new AppError("Session not found.", 404);
     }
 
     if (activeSession.is_active !== true) {
       throw new AppError(
-        'You can only give position in an active session.',
+        "You can only give position in an active session.",
         400
       );
     }
@@ -2257,7 +2252,7 @@ const studentsSubjectPositionInClass = async (
     );
 
     if (!activeTerm) {
-      throw new AppError('There is no active term in the session,', 400);
+      throw new AppError("There is no active term in the session,", 400);
     }
 
     const classExist = await Class.findById({
@@ -2265,7 +2260,7 @@ const studentsSubjectPositionInClass = async (
     }).session(session);
 
     if (!classExist) {
-      throw new AppError('This class does not exist.', 400);
+      throw new AppError("This class does not exist.", 400);
     }
 
     const subjectExist = await Subject.findById({
@@ -2273,7 +2268,7 @@ const studentsSubjectPositionInClass = async (
     }).session(session);
 
     if (!subjectExist) {
-      throw new AppError('Subject does not exist.', 400);
+      throw new AppError("Subject does not exist.", 400);
     }
 
     const subjectTeacher = classExist.teacher_subject_assignments.find(
@@ -2346,7 +2341,7 @@ const studentsSubjectPositionInClass = async (
 
       throw new AppError(
         `The following students: ${affectedStudentsFullName.join(
-          ', '
+          ", "
         )} do not have result for the subject. Please record their scores before proceeding.`,
         400
       );
@@ -2364,12 +2359,24 @@ const studentsSubjectPositionInClass = async (
       );
       throw new AppError(
         `The scores of following students: ${studentFullName.join(
-          ', '
+          ", "
         )} has not been totally updated. Please make sure you have filled in their scores so as to be to all have cumulative average.`,
         400
       );
     } else {
       const ranking = assignPositions(studentResults);
+
+      const cums = studentResults
+        .map((a) => a.cumulative_score)
+        .filter((score): score is number => typeof score === "number");
+
+      const minMax = getMinMax(cums);
+
+      const highestScore = minMax.highest;
+      const lowestScore = minMax.lowest;
+
+      console.log("highestScore:", highestScore);
+      console.log("lowestScore:", lowestScore);
       const studentReturns: SubjectPositionJobData[] = [];
       await Promise.all(
         ranking.map(async (student) => {
@@ -2402,18 +2409,38 @@ const studentsSubjectPositionInClass = async (
                 student: student.studentId,
                 class: classExist._id,
                 session: activeSession._id,
-                'term_results.term': activeTerm.name,
+                subject: subject_id,
+                "term_results.term": activeTerm.name,
               },
+
               {
                 $set: {
-                  'term_results.$[elem].subject_position':
+                  "term_results.$[elem].subject_position":
                     student.subjectObj.subject_position,
+                  "term_results.$[elem].class_highest_mark": highestScore,
+                  "term_results.$[elem].class_lowest_mark": lowestScore,
                 },
               },
               {
-                arrayFilters: [{ 'elem.term': activeTerm.name }],
+                arrayFilters: [{ "elem.term": activeTerm.name }],
               }
             ).session(session);
+
+            // await SubjectResult.updateOne(
+            //   {
+            //     enrolment: classEnrolment._id,
+            //     student: student.studentId,
+            //     class: classExist._id,
+            //     session: activeSession._id,
+            //     'term_results.term': activeTerm.name,
+            //   },
+            //   {
+            //     $set: {
+            //       'term_results.$.subject_position':
+            //         student.subjectObj.subject_position,
+            //     },
+            //   }
+            // ).session(session);
 
             const studentReturn = {
               student_id: student.studentId as string,
@@ -2422,6 +2449,8 @@ const studentsSubjectPositionInClass = async (
               class_id: classExist._id,
               class_enrolment_id: classEnrolment._id,
               session_id: classEnrolment.academic_session_id,
+              class_highest_mark: highestScore,
+              class_lowest_mark: lowestScore,
               subject_position: student.subjectObj.subject_position as string,
             };
 
@@ -2433,7 +2462,7 @@ const studentsSubjectPositionInClass = async (
       const jobs = studentReturns.map((studentRes) => {
         if (studentReturns.length !== 0) {
           return {
-            name: 'subject-position',
+            name: "subject-position",
             data: {
               student_id: studentRes.student_id,
               term: studentRes.term,
@@ -2442,13 +2471,15 @@ const studentsSubjectPositionInClass = async (
               class_enrolment_id: studentRes.class_enrolment_id,
               session_id: studentRes.session_id,
               subject_position: studentRes.subject_position,
+              class_highest_mark: studentRes.class_highest_mark,
+              class_lowest_mark: studentRes.class_lowest_mark,
             },
             opts: {
               attempts: 5,
               removeOnComplete: true,
               // removeOnFail: { count: 3 },
               backoff: {
-                type: 'exponential',
+                type: "exponential",
                 delay: 3000,
               },
             },
@@ -2470,7 +2501,7 @@ const studentsSubjectPositionInClass = async (
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -2491,7 +2522,7 @@ const calculatePositionOfStudentsInClass = async (
       throw new AppError(`Class with ID: ${class_id} does not exist.`, 404);
     }
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       const teacherExist = await Teacher.findById({
         _id: userId,
       }).session(session);
@@ -2548,10 +2579,10 @@ const calculatePositionOfStudentsInClass = async (
           student: s.student._id,
           class: classExist._id,
           academic_session_id: activeSession._id,
-          'term_results.term': activeTerm.name,
+          "term_results.term": activeTerm.name,
         })
 
-          .populate<{ student: UserDocument }>('student', '-password')
+          .populate<{ student: UserDocument }>("student", "-password")
           .session(session)
           .lean()) as unknown as StudentResultPopulatedType;
 
@@ -2566,7 +2597,7 @@ const calculatePositionOfStudentsInClass = async (
           allCummulatives: (allCumm ?? {
             term: activeTerm.name,
             cumulative_score: 0,
-            class_position: '',
+            class_position: "",
             subject_results: [] as SubjectResultType[],
             _id: new mongoose.Types.ObjectId(),
           }) as TermResult,
@@ -2586,15 +2617,15 @@ const calculatePositionOfStudentsInClass = async (
             student: student.studentId,
             class: classExist._id,
             academic_session_id: activeSession._id,
-            'term_results.term': activeTerm.name,
+            "term_results.term": activeTerm.name,
           },
           {
             $set: {
-              'term_results.$.cumulative_score':
+              "term_results.$.cumulative_score":
                 student.allCummulatives.cumulative_score,
-              'term_results.$.class_position':
+              "term_results.$.class_position":
                 student.allCummulatives.class_position,
-              'term_results.$.subject_results':
+              "term_results.$.subject_results":
                 student.allCummulatives.subject_results,
             },
           },
@@ -2615,7 +2646,7 @@ const calculatePositionOfStudentsInClass = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   } finally {
     session.endSession();

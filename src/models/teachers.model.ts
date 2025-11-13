@@ -1,6 +1,6 @@
-import mongoose, { Schema } from 'mongoose';
-import { rolesEnum, teacherStatusEnum } from '../constants/enum';
-import { UserDocument } from '../constants/types';
+import mongoose, { Schema } from "mongoose";
+import { rolesEnum, teacherStatusEnum } from "../constants/enum";
+import { UserDocument } from "../constants/types";
 
 const teacherSchema = new mongoose.Schema<UserDocument>(
   {
@@ -16,7 +16,7 @@ const teacherSchema = new mongoose.Schema<UserDocument>(
     redundant: { type: Boolean, default: false },
     is_verified: { type: Boolean, default: false },
     is_updated: { type: Boolean, default: false },
-    class_managing: { type: Schema.Types.ObjectId, ref: 'Class' },
+    class_managing: { type: Schema.Types.ObjectId, ref: "Class" },
     employment_date: { type: Date, required: true },
     status: {
       type: String,
@@ -26,18 +26,18 @@ const teacherSchema = new mongoose.Schema<UserDocument>(
     subjects_capable_of_teaching: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Subject',
+        ref: "Subject",
       },
     ],
     teaching_assignment: [
       {
         subject: {
           type: Schema.Types.ObjectId,
-          ref: 'Subject',
+          ref: "Subject",
         },
         class_id: {
           type: Schema.Types.ObjectId,
-          ref: 'Class',
+          ref: "Class",
         },
       },
     ],
@@ -49,5 +49,5 @@ const teacherSchema = new mongoose.Schema<UserDocument>(
 
 teacherSchema.index({ email: 1 });
 
-const Teacher = mongoose.model<UserDocument>('Teacher', teacherSchema);
+const Teacher = mongoose.model<UserDocument>("Teacher", teacherSchema);
 export default Teacher;

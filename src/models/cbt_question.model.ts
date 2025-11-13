@@ -1,31 +1,31 @@
-import mongoose from 'mongoose';
-import { termEnum } from '../constants/enum';
-import { CbtQuestionDocument } from '../constants/types';
+import mongoose from "mongoose";
+import { termEnum } from "../constants/enum";
+import { CbtQuestionDocument } from "../constants/types";
 
 const cbtQuestionSchema = new mongoose.Schema<CbtQuestionDocument>(
   {
     exam_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'CbtExam',
+      ref: "CbtExam",
       required: true,
     },
     academic_session_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Session',
+      ref: "Session",
       required: true,
     },
     class_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Class',
+      ref: "Class",
       required: true,
     },
     subject_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Subject',
+      ref: "Subject",
       required: true,
     },
     allowed_students: [
-      { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
+      { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
     ],
     obj_questions: [
       {
@@ -54,15 +54,15 @@ const cbtQuestionSchema = new mongoose.Schema<CbtQuestionDocument>(
     ],
     teacher_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Teacher',
+      ref: "Teacher",
       required: true,
     },
     term: { type: String, enum: termEnum, required: true },
     level: { type: String, required: true },
     exam_subject_status: {
       type: String,
-      enum: ['not_started', 'ongoing', 'late_to_start', 'ended'],
-      default: 'not_started',
+      enum: ["not_started", "ongoing", "late_to_start", "ended"],
+      default: "not_started",
     },
   },
   {
@@ -71,7 +71,7 @@ const cbtQuestionSchema = new mongoose.Schema<CbtQuestionDocument>(
 );
 
 const CbtQuestion = mongoose.model<CbtQuestionDocument>(
-  'CbtQuestion',
+  "CbtQuestion",
   cbtQuestionSchema
 );
 export default CbtQuestion;

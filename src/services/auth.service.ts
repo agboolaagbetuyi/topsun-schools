@@ -7,78 +7,78 @@ import {
   VerifyUserType,
   LogoutPayload,
   GenerateBankReferenceType,
-} from '../constants/types';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+} from "../constants/types";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-import Admin from '../models/admin.model';
-import Parent from '../models/parents.model';
-import Student from '../models/students.model';
-import Teacher from '../models/teachers.model';
+import Admin from "../models/admin.model";
+import Parent from "../models/parents.model";
+import Student from "../models/students.model";
+import Teacher from "../models/teachers.model";
 import {
   generateAndStoreVerificationToken,
   getUserRefreshTokenDetails,
   getUserTokenDetails,
   getUserTokenDetailsUsingUserId,
-} from '../repository/token.repository';
+} from "../repository/token.repository";
 import {
   createNewUserDoc,
   findAndVerifyUser,
   findSameAdmissionNumber,
   findUserByEmail,
   findUserById,
-} from '../repository/user.repository';
-import { AppError } from '../utils/app.error';
-import { sendEmailVerification } from '../utils/nodemailer';
-import { object } from 'joi';
+} from "../repository/user.repository";
+import { AppError } from "../utils/app.error";
+import { sendEmailVerification } from "../utils/nodemailer";
+import { object } from "joi";
 import {
   capitalizeFirstLetter,
   mySchoolDomain,
   mySchoolName,
-} from '../utils/functions';
-import { emailQueue } from '../utils/queue';
+} from "../utils/functions";
+import { emailQueue } from "../utils/queue";
 import {
   generateAccessToken,
   generateRefreshToken,
   jwtDecodeRefreshToken,
-} from '../middleware/jwtAuth';
-import { RefreshToken } from '../models/refresh_token.model';
-import Payment from '../models/payment.model';
-import Session from '../models/session.model';
-import BlackListedToken from '../models/black_listed.model';
-import mongoose from 'mongoose';
+} from "../middleware/jwtAuth";
+import { RefreshToken } from "../models/refresh_token.model";
+import Payment from "../models/payment.model";
+import Session from "../models/session.model";
+import BlackListedToken from "../models/black_listed.model";
+import mongoose from "mongoose";
 
 const registerNewUser = async (payload: UserDocument) => {
   try {
     const userAlreadyExist = await findUserByEmail(payload?.email);
 
     if (userAlreadyExist) {
-      throw new AppError('User already exist...', 400);
+      throw new AppError("User already exist...", 400);
     }
 
-    if (payload.role === 'student') {
+    if (payload.role === "student") {
       const admissionNumberExist = await findSameAdmissionNumber(
         payload.admission_number
       );
 
       if (admissionNumberExist) {
-        throw new AppError('Admission number already exist.', 400);
+        throw new AppError("Admission number already exist.", 400);
       }
     }
 
     const userResult = await createNewUserDoc(payload);
 
     if (!userResult) {
-      throw new AppError('Unable to create user', 400);
+      throw new AppError("Unable to create user", 400);
     }
 
     const userEmailVerification = await generateAndStoreVerificationToken(
       userResult,
-      'email_verification'
+      "email_verification"
     );
 
     if (!userEmailVerification) {
-      throw new AppError('Unable to create token', 400);
+      throw new AppError("Unable to create token", 400);
     }
 
     const name = capitalizeFirstLetter(userResult.first_name);
@@ -87,10 +87,10 @@ const registerNewUser = async (payload: UserDocument) => {
       email: userResult.email,
       first_name: name,
       token: userEmailVerification.token,
-      type: 'email-verification',
+      type: "email-verification",
     };
 
-    const mailSent = await emailQueue.add('sendEmail', jobData, {
+    const mailSent = await emailQueue.add("sendEmail", jobData, {
       attempts: 3,
       backoff: 10000,
       removeOnComplete: true,
@@ -101,7 +101,7 @@ const registerNewUser = async (payload: UserDocument) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -110,12 +110,12 @@ const userEmailVerification = async (token: string) => {
   try {
     const tokenResponse = await getUserTokenDetails(
       token,
-      'email_verification'
+      "email_verification"
     );
 
     if (!tokenResponse) {
       throw new AppError(
-        'Token does not exist or verification token has expired. You can request for another one',
+        "Token does not exist or verification token has expired. You can request for another one",
         404
       );
     }
@@ -127,9 +127,9 @@ const userEmailVerification = async (token: string) => {
       tokenResponse.teacher_id ||
       tokenResponse.admin_id;
 
-    if (!user_id || typeof user_id !== 'object') {
+    if (!user_id || typeof user_id !== "object") {
       throw new AppError(
-        'Invalid token: No valid user associated with this token',
+        "Invalid token: No valid user associated with this token",
         400
       );
     }
@@ -143,7 +143,7 @@ const userEmailVerification = async (token: string) => {
     const verifyResponse = await findAndVerifyUser(input);
 
     if (!verifyResponse) {
-      throw new AppError('Unable to verify user', 401);
+      throw new AppError("Unable to verify user", 401);
     }
 
     await tokenResponse.deleteOne();
@@ -152,7 +152,7 @@ const userEmailVerification = async (token: string) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -164,15 +164,15 @@ const userLogin = async (
     const userExist = await findUserByEmail(payload?.email);
 
     if (!userExist) {
-      throw new AppError('Invalid credential...', 404);
+      throw new AppError("Invalid credential...", 404);
     }
 
     // let userPaymentDoc = null;
 
-    if (userExist.role === 'parent') {
-      await userExist.populate('children', '-password');
-    } else if (userExist.role === 'student') {
-      await userExist.populate('parent_id current_class.class_id', '-password');
+    if (userExist.role === "parent") {
+      await userExist.populate("children", "-password");
+    } else if (userExist.role === "student") {
+      await userExist.populate("parent_id current_class.class_id", "-password");
       const session = await Session.findOne({
         is_active: true,
       });
@@ -186,9 +186,9 @@ const userLogin = async (
       // });
 
       // userExist.set('latest_payment_document', userPaymentDoc, { strict: false });
-    } else if (userExist.role === 'teacher') {
+    } else if (userExist.role === "teacher") {
       await userExist.populate(
-        'teaching_assignment.class_id teaching_assignment.subject subjects_capable_of_teaching class_managing'
+        "teaching_assignment.class_id teaching_assignment.subject subjects_capable_of_teaching class_managing"
       );
     }
 
@@ -198,40 +198,40 @@ const userLogin = async (
     );
 
     if (!passwordMatch) {
-      throw new AppError('Invalid credential...', 404);
+      throw new AppError("Invalid credential...", 404);
     }
 
     if (userExist.is_verified !== true) {
       const checkTokenExist = await getUserTokenDetailsUsingUserId(
         userExist._id,
-        'email_verification'
+        "email_verification"
       );
 
       if (!checkTokenExist) {
         const userVerifyResponse = await generateAndStoreVerificationToken(
           userExist,
-          'email_verification'
+          "email_verification"
         );
 
         if (!userVerifyResponse) {
-          throw new AppError('Unable to create token', 400);
+          throw new AppError("Unable to create token", 400);
         }
 
         const jobData = {
           email: userExist.email,
           first_name: userExist.first_name,
           token: userVerifyResponse.token,
-          type: 'email-verification',
+          type: "email-verification",
         };
 
-        const mailSent = await emailQueue.add('sendEmail', jobData, {
+        const mailSent = await emailQueue.add("sendEmail", jobData, {
           attempts: 3,
           backoff: 10000,
           removeOnComplete: true,
         });
 
         throw new AppError(
-          'Please verify your email with the token sent to your email address...',
+          "Please verify your email with the token sent to your email address...",
           400
         );
       } else {
@@ -239,17 +239,17 @@ const userLogin = async (
           email: userExist.email,
           first_name: userExist.first_name,
           token: checkTokenExist.token,
-          type: 'email-verification',
+          type: "email-verification",
         };
 
-        const mailSent = await emailQueue.add('sendEmail', jobData, {
+        const mailSent = await emailQueue.add("sendEmail", jobData, {
           attempts: 3,
           backoff: 10000,
           removeOnComplete: true,
         });
 
         throw new AppError(
-          'Please verify your email with the token sent to your email address...',
+          "Please verify your email with the token sent to your email address...",
           400
         );
       }
@@ -291,7 +291,7 @@ const userLogin = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -304,19 +304,19 @@ const generateAnotherAccessToken = async (token: string) => {
     );
 
     if (!tokenResponse) {
-      throw new AppError('Token does not exist or token has expired.', 404);
+      throw new AppError("Token does not exist or token has expired.", 404);
     }
 
     const compareToken = await bcrypt.compare(token, tokenResponse.token);
 
     if (!compareToken) {
-      throw new AppError('Invalid token', 404);
+      throw new AppError("Invalid token", 404);
     }
 
     const user = await findUserById(tokenResponse.user_id);
 
     if (!user) {
-      throw new AppError('Invalid user', 404);
+      throw new AppError("Invalid user", 404);
     }
 
     const newAccessToken = await generateAccessToken(
@@ -336,7 +336,7 @@ const generateAnotherAccessToken = async (token: string) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -346,33 +346,33 @@ const forgotPass = async (email: string): Promise<UserDocument> => {
     const findUser = await findUserByEmail(email);
 
     if (!findUser) {
-      throw new AppError('User does not exist', 404);
+      throw new AppError("User does not exist", 404);
     }
 
     const name = capitalizeFirstLetter(findUser.first_name);
 
     const getTokenResponse = await getUserTokenDetailsUsingUserId(
       findUser._id,
-      'password_reset'
+      "password_reset"
     );
 
     if (!getTokenResponse) {
       const userEmailVerification = await generateAndStoreVerificationToken(
         findUser,
-        'password_reset'
+        "password_reset"
       );
 
       if (!userEmailVerification) {
-        throw new AppError('Unable to create token', 400);
+        throw new AppError("Unable to create token", 400);
       } else {
         const jobData = {
           email: findUser.email,
           first_name: name,
           token: userEmailVerification.token,
-          type: 'forgot-password',
+          type: "forgot-password",
         };
 
-        const mailSent = await emailQueue.add('sendEmail', jobData, {
+        const mailSent = await emailQueue.add("sendEmail", jobData, {
           attempts: 3,
           backoff: 10000,
           removeOnComplete: true,
@@ -383,10 +383,10 @@ const forgotPass = async (email: string): Promise<UserDocument> => {
         email: findUser.email,
         first_name: name,
         token: getTokenResponse.token,
-        type: 'forgot-password',
+        type: "forgot-password",
       };
 
-      const mailSent = await emailQueue.add('sendEmail', jobData, {
+      const mailSent = await emailQueue.add("sendEmail", jobData, {
         attempts: 3,
         backoff: 10000,
         removeOnComplete: true,
@@ -397,7 +397,7 @@ const forgotPass = async (email: string): Promise<UserDocument> => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -409,18 +409,18 @@ const sendingEmailVerificationToken = async (
     const findUser = await findUserByEmail(email);
 
     if (!findUser) {
-      throw new AppError('User does not exist', 404);
+      throw new AppError("User does not exist", 404);
     }
 
     if (findUser.is_verified === true) {
-      throw new AppError('User already verified', 400);
+      throw new AppError("User already verified", 400);
     }
 
     let tokenObj: VerificationType;
 
     const userToken = await getUserTokenDetailsUsingUserId(
       findUser._id,
-      'email_verification'
+      "email_verification"
     );
 
     if (userToken) {
@@ -428,7 +428,7 @@ const sendingEmailVerificationToken = async (
     } else {
       const generateToken = await generateAndStoreVerificationToken(
         findUser,
-        'email_verification'
+        "email_verification"
       );
 
       tokenObj = generateToken;
@@ -440,10 +440,10 @@ const sendingEmailVerificationToken = async (
       email: findUser.email,
       first_name: name,
       token: tokenObj.token,
-      type: 'email-verification',
+      type: "email-verification",
     };
 
-    const mailSent = await emailQueue.add('sendEmail', jobData, {
+    const mailSent = await emailQueue.add("sendEmail", jobData, {
       attempts: 3,
       backoff: 10000,
       removeOnComplete: true,
@@ -454,7 +454,7 @@ const sendingEmailVerificationToken = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -465,46 +465,46 @@ const changeUserPassword = async (
   try {
     const findToken = await getUserTokenDetails(
       payload.token,
-      'password_reset'
+      "password_reset"
     );
 
     if (!findToken) {
-      throw new AppError('User does not exist', 404);
+      throw new AppError("User does not exist", 404);
     }
 
     let userId;
-    if (findToken.role === 'admin') {
+    if (findToken.role === "admin") {
       userId = findToken?.admin_id;
     }
 
-    if (findToken.role === 'super_admin') {
+    if (findToken.role === "super_admin") {
       userId = findToken?.super_admin_id;
     }
 
-    if (findToken.role === 'non_teaching') {
+    if (findToken.role === "non_teaching") {
       userId = findToken?.non_teaching_id;
     }
 
-    if (findToken.role === 'parent') {
+    if (findToken.role === "parent") {
       userId = findToken?.parent_id;
     }
 
-    if (findToken.role === 'student') {
+    if (findToken.role === "student") {
       userId = findToken?.student_id;
     }
 
-    if (findToken.role === 'teacher') {
+    if (findToken.role === "teacher") {
       userId = findToken?.teacher_id;
     }
 
     if (userId === undefined || userId === null) {
-      throw new AppError('user id is required', 404);
+      throw new AppError("user id is required", 404);
     }
 
     const user = await findUserById(userId);
 
     if (!user) {
-      throw new AppError('user not found', 404);
+      throw new AppError("user not found", 404);
     }
     const hashedPassword = await bcrypt.hash(payload.password, 10);
 
@@ -518,7 +518,7 @@ const changeUserPassword = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -536,7 +536,7 @@ const loggingUserOut = async (payload: LogoutPayload) => {
       }).save();
 
       return {
-        message: 'Access token invalid or expired. Forced logout successful.',
+        message: "Access token invalid or expired. Forced logout successful.",
       };
     }
 
@@ -557,7 +557,7 @@ const loggingUserOut = async (payload: LogoutPayload) => {
         await RefreshToken.findByIdAndDelete({ _id: findToken._id });
       }
     } else {
-      console.log('No refresh token stored for this user.');
+      console.log("No refresh token stored for this user.");
     }
 
     const expiresAt = new Date(decoded.exp * 1000);
@@ -567,12 +567,12 @@ const loggingUserOut = async (payload: LogoutPayload) => {
       expires_at: expiresAt,
     }).save();
 
-    return { message: 'User logged out successfully' };
+    return { message: "User logged out successfully" };
   } catch (error) {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };

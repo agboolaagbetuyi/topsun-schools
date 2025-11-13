@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { StudentLinkingType } from '../constants/types';
+import mongoose from "mongoose";
+import { StudentLinkingType } from "../constants/types";
 import {
   fetchAllStudents,
   fetchAllStudentsOnAClassLevel,
@@ -12,10 +12,10 @@ import {
   studentSessionSubscriptionUpdateByAdmin,
   studentSessionSubscriptionUpdateByStudentOrParent,
   studentUpdateDetails,
-} from '../services/student.service';
-import { AppError, JoiError } from '../utils/app.error';
-import catchErrors from '../utils/tryCatch';
-import { addressValidation, joiValidation } from '../utils/validation';
+} from "../services/student.service";
+import { AppError, JoiError } from "../utils/app.error";
+import catchErrors from "../utils/tryCatch";
+import { addressValidation, joiValidation } from "../utils/validation";
 // import { saveLog } from '../logs/log.service';
 
 const getAStudentById = catchErrors(async (req, res) => {
@@ -24,26 +24,26 @@ const getAStudentById = catchErrors(async (req, res) => {
   const { student_id } = req.params;
 
   if (!student_id) {
-    throw new AppError('Student ID is required.', 404);
+    throw new AppError("Student ID is required.", 404);
   }
 
   const userId = req.user?.userId;
   const userRole = req.user?.userRole;
 
   if (!userId) {
-    throw new AppError('Please login to proceed.', 404);
+    throw new AppError("Please login to proceed.", 404);
   }
 
-  if (userRole === 'student') {
+  if (userRole === "student") {
     if (userId.toString() !== student_id) {
-      throw new AppError('You are only allowed to view your own account.', 400);
+      throw new AppError("You are only allowed to view your own account.", 400);
     }
   }
 
   const response = await fetchStudentById(student_id);
 
   if (!response) {
-    throw new AppError('Unable to get student.', 404);
+    throw new AppError("Unable to get student.", 404);
   }
 
   // const duration = Date.now() - start;
@@ -68,7 +68,7 @@ const getAStudentById = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Student fetched successfully',
+    message: "Student fetched successfully",
     success: true,
     status: 200,
     student: response,
@@ -87,16 +87,16 @@ const updateStudentDetails = catchErrors(async (req, res) => {
   const validateInput = addressValidation(home_address);
 
   if (!validateInput) {
-    throw new AppError('Unable to validate input fields.', 400);
+    throw new AppError("Unable to validate input fields.", 400);
   }
 
   const { success, value } = validateInput;
 
   const parent_id =
-    userRole === 'parent' ? req.user?.userId.toString() : undefined;
+    userRole === "parent" ? req.user?.userId.toString() : undefined;
 
-  if (userRole === 'parent' && !parent_id) {
-    throw new AppError('Parent ID not found.', 400);
+  if (userRole === "parent" && !parent_id) {
+    throw new AppError("Parent ID not found.", 400);
   }
 
   const userObj = {
@@ -108,7 +108,7 @@ const updateStudentDetails = catchErrors(async (req, res) => {
 
   const result = await studentUpdateDetails(req, userObj, res);
   if (!result) {
-    throw new AppError('Unable to update student.', 400);
+    throw new AppError("Unable to update student.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -133,7 +133,7 @@ const updateStudentDetails = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Student updated successfully',
+    message: "Student updated successfully",
     status: 200,
     success: true,
     student: result,
@@ -147,12 +147,12 @@ const getAllStudents = catchErrors(async (req, res) => {
   const limit = req.query.limit ? Number(req.query.limit) : undefined;
 
   const searchQuery =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   const result = await fetchAllStudents(page, limit, searchQuery);
 
   if (!result) {
-    throw new AppError('Unable to get students.', 404);
+    throw new AppError("Unable to get students.", 404);
   }
 
   // const duration = Date.now() - start;
@@ -177,7 +177,7 @@ const getAllStudents = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Students fetched successfully',
+    message: "Students fetched successfully",
     success: true,
     status: 200,
     students: result,
@@ -190,13 +190,13 @@ const getAllStudentsOnAClassLevel = catchErrors(async (req, res) => {
   const { level } = req.params;
 
   if (!level) {
-    throw new AppError('Please provide a valid level.', 400);
+    throw new AppError("Please provide a valid level.", 400);
   }
 
   const result = await fetchAllStudentsOnAClassLevel(level);
 
   if (!result) {
-    throw new AppError('Unable to fetch all students on the class level.', 400);
+    throw new AppError("Unable to fetch all students on the class level.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -238,10 +238,10 @@ const linkStudentWithParent = catchErrors(async (req, res) => {
     last_name: last_name.trim().toLowerCase(),
   };
 
-  const response = joiValidation(payload, 'link-student');
+  const response = joiValidation(payload, "link-student");
 
   if (!response) {
-    throw new JoiError('Could not validate input fields');
+    throw new JoiError("Could not validate input fields");
   }
 
   const { success, value } = response;
@@ -256,7 +256,7 @@ const linkStudentWithParent = catchErrors(async (req, res) => {
   const linkStudent = await studentLinking(param);
 
   if (!linkStudent) {
-    throw new AppError('Unable to link student to parent.', 400);
+    throw new AppError("Unable to link student to parent.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -294,7 +294,7 @@ const studentsSubscribeToNewSession = catchErrors(async (req, res) => {
 
   if (!result) {
     throw new AppError(
-      'Unable to send subscription notification to students and parents.',
+      "Unable to send subscription notification to students and parents.",
       400
     );
   }
@@ -321,7 +321,7 @@ const studentsSubscribeToNewSession = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Subscription notification sent to students and parents.',
+    message: "Subscription notification sent to students and parents.",
     success: true,
     status: 200,
   });
@@ -337,18 +337,18 @@ const adminUpdateStudentSessionSubscription = catchErrors(async (req, res) => {
   const userRole = req.user?.userRole;
 
   if (!academic_session_id) {
-    throw new AppError('Please provide a academic session ID to proceed.', 400);
+    throw new AppError("Please provide a academic session ID to proceed.", 400);
   }
 
   if (student_ids_array.length === 0) {
     throw new AppError(
-      'Please provide the IDs of the students that which to subscribe to a new session in the school.',
+      "Please provide the IDs of the students that which to subscribe to a new session in the school.",
       400
     );
   }
 
   if (!userId || !userRole) {
-    throw new AppError('Please login to continue.', 400);
+    throw new AppError("Please login to continue.", 400);
   }
 
   const payload = {
@@ -362,7 +362,7 @@ const adminUpdateStudentSessionSubscription = catchErrors(async (req, res) => {
 
   if (!result) {
     throw new AppError(
-      'Unable to update student for session subscription.',
+      "Unable to update student for session subscription.",
       400
     );
   }
@@ -389,7 +389,7 @@ const adminUpdateStudentSessionSubscription = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Student session subscription successfully updated.',
+    message: "Student session subscription successfully updated.",
     status: 200,
     success: true,
     student: result,
@@ -412,13 +412,13 @@ const studentOrParentUpdateStudentSessionSubscription = catchErrors(
       !new_session_subscription_status
     ) {
       throw new AppError(
-        'Please provide a valid student ID, new session subscription status and academic session ID to proceed.',
+        "Please provide a valid student ID, new session subscription status and academic session ID to proceed.",
         400
       );
     }
 
     if (!userId || !userRole) {
-      throw new AppError('Please login to continue.', 400);
+      throw new AppError("Please login to continue.", 400);
     }
 
     const payload = {
@@ -435,7 +435,7 @@ const studentOrParentUpdateStudentSessionSubscription = catchErrors(
 
     if (!result) {
       throw new AppError(
-        'Unable to update student for session subscription.',
+        "Unable to update student for session subscription.",
         400
       );
     }
@@ -462,7 +462,7 @@ const studentOrParentUpdateStudentSessionSubscription = catchErrors(
     // await saveLog(savelogPayload);
 
     return res.status(200).json({
-      message: 'Student session subscription successfully updated.',
+      message: "Student session subscription successfully updated.",
       status: 200,
       success: true,
       student: result,
@@ -476,14 +476,14 @@ const getStudentsThatSubscribedToNewSession = catchErrors(async (req, res) => {
   const { level } = req.params;
 
   if (!level) {
-    throw new AppError('Please provide a valid class level to proceed.', 400);
+    throw new AppError("Please provide a valid class level to proceed.", 400);
   }
 
   const result = await fetchStudentsThatSubscribedToNewSession(level);
 
   if (!result) {
     throw new AppError(
-      'Unable to fetch students that has subscribed to a new session for this class.',
+      "Unable to fetch students that has subscribed to a new session for this class.",
       404
     );
   }
@@ -512,7 +512,7 @@ const getStudentsThatSubscribedToNewSession = catchErrors(async (req, res) => {
 
   return res.status(200).json({
     message:
-      'Students who have subscribed to a new session for this class fetched successfully.',
+      "Students who have subscribed to a new session for this class fetched successfully.",
     status: 200,
     success: true,
     students: result,
@@ -527,7 +527,7 @@ const getNewStudentsThatHasNoClassEnrolmentBefore = catchErrors(
     const limit = req.query.limit ? Number(req.query.limit) : undefined;
 
     const searchQuery =
-      typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+      typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
     const result = await fetchNewStudentsThatHasNoClassEnrolmentBefore(
       page,
@@ -536,7 +536,7 @@ const getNewStudentsThatHasNoClassEnrolmentBefore = catchErrors(
     );
 
     if (!result) {
-      throw new AppError('Unable to get students.', 400);
+      throw new AppError("Unable to get students.", 400);
     }
 
     // const duration = Date.now() - start;
@@ -561,7 +561,7 @@ const getNewStudentsThatHasNoClassEnrolmentBefore = catchErrors(
     // await saveLog(savelogPayload);
 
     return res.status(200).json({
-      message: 'Students fetched successfully.',
+      message: "Students fetched successfully.",
       status: 200,
       success: true,
       students: result,
@@ -577,7 +577,7 @@ const getStudentsThatAreYetToSubscribedToNewSession = catchErrors(
     const limit = req.query.limit ? Number(req.query.limit) : undefined;
 
     const searchQuery =
-      typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+      typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
     const result = await fetchStudentsThatAreYetToSubscribedToNewSession(
       page,
@@ -587,7 +587,7 @@ const getStudentsThatAreYetToSubscribedToNewSession = catchErrors(
 
     if (!result) {
       throw new AppError(
-        'Unable to fetch students that are yet to subscribe to a new session.',
+        "Unable to fetch students that are yet to subscribe to a new session.",
         400
       );
     }
@@ -614,7 +614,7 @@ const getStudentsThatAreYetToSubscribedToNewSession = catchErrors(
     // await saveLog(savelogPayload);
 
     return res.status(200).json({
-      message: 'Students fetched successfully.',
+      message: "Students fetched successfully.",
       status: 200,
       success: true,
       students_yet_to_subscribe_to_new_session: result,

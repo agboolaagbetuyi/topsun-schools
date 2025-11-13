@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   MultipleResultCreationType,
   ResultCreationType,
@@ -17,21 +17,21 @@ import {
   ExamScoreType,
   ScoreType,
   CbtAssessmentResultType,
-} from '../constants/types';
-import Class from '../models/class.model';
-import ClassEnrolment from '../models/classes_enrolment.model';
-import Result from '../models/result.model';
-import ResultSetting from '../models/result_setting.model';
-import Session from '../models/session.model';
-import Student from '../models/students.model';
-import { AppError } from '../utils/app.error';
-import { calculateSubjectSumAndGrade } from '../utils/functions';
-import { SubjectResult } from '../models/subject_result.model';
-import { subjectCbtObjCbtAssessmentSubmission } from '../services/cbt.service';
-import ClassExamTimetable from '../models/class_exam_timetable.model';
-import CbtResult from '../models/cbt_result.model';
-import CbtExam from '../models/cbt_exam.model';
-import { examKeyEnum } from '../constants/enum';
+} from "../constants/types";
+import Class from "../models/class.model";
+import ClassEnrolment from "../models/classes_enrolment.model";
+import Result from "../models/result.model";
+import ResultSetting from "../models/result_setting.model";
+import Session from "../models/session.model";
+import Student from "../models/students.model";
+import { AppError } from "../utils/app.error";
+import { calculateSubjectSumAndGrade } from "../utils/functions";
+import { SubjectResult } from "../models/subject_result.model";
+import { subjectCbtObjCbtAssessmentSubmission } from "../services/cbt.service";
+import ClassExamTimetable from "../models/class_exam_timetable.model";
+import CbtResult from "../models/cbt_result.model";
+import CbtExam from "../models/cbt_exam.model";
+import { examKeyEnum } from "../constants/enum";
 
 const createResult = async (payload: ResultCreationType) => {
   try {
@@ -48,7 +48,7 @@ const createResult = async (payload: ResultCreationType) => {
 
     if (!studentExistInsideClass) {
       throw new AppError(
-        'Student not enrolled into this class for the session.',
+        "Student not enrolled into this class for the session.",
         404
       );
     }
@@ -60,7 +60,7 @@ const createResult = async (payload: ResultCreationType) => {
 
     if (studentAlreadyHaveResultForTheSession) {
       throw new AppError(
-        'Since a student can only have one result per session, this student already have the result for the session.',
+        "Since a student can only have one result per session, this student already have the result for the session.",
         400
       );
     }
@@ -88,7 +88,7 @@ const createResult = async (payload: ResultCreationType) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -163,7 +163,7 @@ const createResultsForStudents = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -182,7 +182,6 @@ const recordScore = async (
       score_name,
       class_enrolment_id,
       class_id,
-      // session,
     } = payload;
 
     const subjectId = Object(subject_id);
@@ -195,54 +194,54 @@ const recordScore = async (
     const studentExist = await Student.findById({
       _id: studentId,
     });
-    // .session(session);
 
     if (!studentExist) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     const sessionActive = await Session.findOne({
       _id: sessionId,
       is_active: true,
     });
-    // .session(session);
 
     if (!sessionActive) {
-      throw new AppError('Session not found or it is not active.', 404);
+      throw new AppError("Session not found or it is not active.", 404);
     }
 
     const checkActiveTerm = sessionActive.terms.find((t) => t.name === term);
 
     if (checkActiveTerm?.is_active === false) {
-      throw new AppError('Term is not active.', 400);
+      throw new AppError("Term is not active.", 400);
     }
 
     const classExist = await Class.findById({
       _id: classId,
     });
-    // .session(session);
 
     if (!classExist) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     const resultSettings = await ResultSetting.findOne({
       level: classExist.level,
     });
-    // .session(session);
 
     if (!resultSettings) {
-      throw new AppError('Result setting not found for this level.', 404);
+      throw new AppError("Result setting not found for this level.", 404);
     }
+
+    console.log("resultSettings:", resultSettings);
 
     const validComponent = resultSettings.components.find(
       (comp) => comp.name === score_name
     );
+    console.log("validComponent:", validComponent);
 
     if (!validComponent) {
       throw new AppError(`Invalid score type: ${score_name}.`, 400);
     }
 
+    console.log("validComponent.percentage:", validComponent.percentage);
     if (score > validComponent.percentage) {
       throw new AppError(
         `${validComponent.name} score can not be greater than ${validComponent.percentage}.`,
@@ -258,7 +257,7 @@ const recordScore = async (
 
     if (!subjectTeacher) {
       throw new AppError(
-        'You are not the teacher assigned to teach this subject.',
+        "You are not the teacher assigned to teach this subject.",
         400
       );
     }
@@ -266,10 +265,9 @@ const recordScore = async (
     const classEnrolmentExist = await ClassEnrolment.findById({
       _id: classEnrolmentId,
     });
-    // .session(session);
 
     if (!classEnrolmentExist) {
-      throw new AppError('Class enrolment not found.', 404);
+      throw new AppError("Class enrolment not found.", 404);
     }
 
     const scoreObj = {
@@ -285,7 +283,7 @@ const recordScore = async (
       last_term_cumulative: 0,
       scores: [scoreObj],
       exam_object: [],
-      subject_position: '',
+      subject_position: "",
     };
 
     let studentSubjectResult = await SubjectResult.findOne({
@@ -294,9 +292,7 @@ const recordScore = async (
       class: class_id,
       session: sessionId,
       subject: subjectId,
-      // subject_teacher: teacherId,
     });
-    // .session(session);
 
     if (!studentSubjectResult) {
       studentSubjectResult = new SubjectResult({
@@ -317,43 +313,42 @@ const recordScore = async (
         studentSubjectResult.term_results.push({
           term: term,
           total_score: 0,
+          class_highest_mark: 0,
+          class_lowest_mark: 0,
           last_term_cumulative: 0,
           cumulative_average: 0,
           // cumulative_score: 0,
-          class_position: '',
+          class_position: "",
           exam_object: [],
           scores: [scoreObj],
-          subject_position: '',
-          grade: '',
-          remark: '',
+          subject_position: "",
+          grade: "",
+          remark: "",
         });
       } else {
         const existingScore = termResult.scores.find(
           (s) => s.score_name === score_name
         );
 
-        if (!existingScore) {
-          termResult.scores.push(scoreObj);
+        if (existingScore) {
+          throw new AppError(
+            `${score_name} score has already been recorded for this student`,
+            409
+          );
         }
+        termResult.scores.push(scoreObj);
       }
-      // studentSubjectResult.term_results.scores.push(scoreObj);
     }
 
-    studentSubjectResult.markModified('term_results');
+    studentSubjectResult.markModified("term_results");
     await studentSubjectResult.save();
-    // try {
-    //   await studentSubjectResult.save({ session });
-    // } catch (error) {
-    //   console.error('Error saving SubjectResult:', error);
-    //   throw error;
-    // }
 
     return studentSubjectResult as SubjectResultDocument;
   } catch (error) {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -379,7 +374,7 @@ const recordCumScore = async (
     });
 
     if (!studentExist) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     const sessionActive = await Session.findOne({
@@ -388,13 +383,13 @@ const recordCumScore = async (
     });
 
     if (!sessionActive) {
-      throw new AppError('Session not found or it is not active.', 404);
+      throw new AppError("Session not found or it is not active.", 404);
     }
 
     const checkActiveTerm = sessionActive.terms.find((t) => t.name === term);
 
     if (checkActiveTerm?.is_active === false) {
-      throw new AppError('Term is not active.', 400);
+      throw new AppError("Term is not active.", 400);
     }
 
     const classExist = await Class.findById({
@@ -402,7 +397,7 @@ const recordCumScore = async (
     });
 
     if (!classExist) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     const resultSettings = await ResultSetting.findOne({
@@ -411,7 +406,7 @@ const recordCumScore = async (
 
     if (!resultSettings) {
       throw new AppError(
-        'Result setting not found for this level in the school.',
+        "Result setting not found for this level in the school.",
         404
       );
     }
@@ -424,7 +419,7 @@ const recordCumScore = async (
 
     if (!subjectTeacher) {
       throw new AppError(
-        'You are not the teacher assigned to teach this subject.',
+        "You are not the teacher assigned to teach this subject.",
         400
       );
     }
@@ -434,7 +429,7 @@ const recordCumScore = async (
     });
 
     if (!classEnrolmentExist) {
-      throw new AppError('Class enrolment not found.', 404);
+      throw new AppError("Class enrolment not found.", 404);
     }
 
     const subject = Object(subject_id);
@@ -448,7 +443,7 @@ const recordCumScore = async (
     });
 
     if (!resultExist) {
-      throw new AppError('No result found for this student.', 404);
+      throw new AppError("No result found for this student.", 404);
     }
 
     let subjectResult = resultExist.term_results.find(
@@ -456,12 +451,12 @@ const recordCumScore = async (
     ) as SubjectTermResult | undefined;
 
     if (!subjectResult) {
-      throw new AppError('No result for this subject for the term.', 404);
+      throw new AppError("No result for this subject for the term.", 404);
     }
 
     if (!subjectResult.total_score || subjectResult.total_score === 0) {
       throw new AppError(
-        'You can only record last term cumulative when all scores has been recorded.',
+        "You can only record last term cumulative when all scores has been recorded.",
         400
       );
     }
@@ -480,25 +475,25 @@ const recordCumScore = async (
 
     const sortedGrades = gradingArray.sort((a, b) => b.value - a.value);
 
-    let grade = 'F';
-    let remark = 'Fail';
+    let grade = "F";
+    let remark = "Fail";
 
     for (const gradeItem of gradingArray) {
       if (subjectResult.cumulative_average >= gradeItem.value) {
         (grade = gradeItem.grade), (remark = gradeItem.remark);
         break;
       } else {
-        (grade = 'F'), (remark = 'Fail');
+        (grade = "F"), (remark = "Fail");
       }
     }
 
     subjectResult.grade = grade;
     subjectResult.remark = remark;
 
-    resultExist.markModified('term_results');
+    resultExist.markModified("term_results");
 
-    resultExist.markModified('term_results.subject_results');
-    resultExist.markModified('term_results.subject_results.scores');
+    resultExist.markModified("term_results.subject_results");
+    resultExist.markModified("term_results.subject_results.scores");
 
     const updatedResult = await resultExist.save();
 
@@ -507,7 +502,7 @@ const recordCumScore = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -533,7 +528,7 @@ const processStudentResultUpdate = async (payload: ResultJobData) => {
     });
 
     if (!resultExist) {
-      throw new AppError('No result found for this student.', 404);
+      throw new AppError("No result found for this student.", 404);
     }
 
     let termExistInResultDoc = resultExist.term_results.find(
@@ -550,10 +545,12 @@ const processStudentResultUpdate = async (payload: ResultJobData) => {
       subject_teacher: Object(teacher_id),
       total_score: 0,
       cumulative_average: 0,
+      class_lowest_mark: 0,
+      class_highest_mark: 0,
       last_term_cumulative: 0,
       scores: [scoreObj],
       exam_object: [],
-      subject_position: '',
+      subject_position: "",
     };
 
     if (!termExistInResultDoc) {
@@ -561,7 +558,7 @@ const processStudentResultUpdate = async (payload: ResultJobData) => {
         term,
         cumulative_score: 0,
         subject_results: [subjectObj],
-        class_position: '',
+        class_position: "",
       };
 
       resultExist.term_results.push(termExistInResultDoc);
@@ -577,9 +574,11 @@ const processStudentResultUpdate = async (payload: ResultJobData) => {
           total_score: 0,
           cumulative_average: 0,
           last_term_cumulative: 0,
+          class_lowest_mark: 0,
+          class_highest_mark: 0,
           scores: [scoreObj],
           exam_object: [],
-          subject_position: '',
+          subject_position: "",
         };
 
         termExistInResultDoc.subject_results = [
@@ -605,16 +604,16 @@ const processStudentResultUpdate = async (payload: ResultJobData) => {
       }
     }
 
-    resultExist.markModified('term_results');
+    resultExist.markModified("term_results");
 
-    resultExist.markModified('term_results.subject_results');
-    resultExist.markModified('term_results.subject_results.scores');
+    resultExist.markModified("term_results.subject_results");
+    resultExist.markModified("term_results.subject_results.scores");
 
     const updatedResult = await resultExist.save();
 
     return { student_id, updated: true };
   } catch (error) {
-    console.error('Failed to process student result update:', error);
+    console.error("Failed to process student result update:", error);
     throw error;
   }
 };
@@ -643,7 +642,7 @@ const processStudentExamResultUpdate = async (
     });
 
     if (!resultExist) {
-      throw new AppError('No result found for this student.', 404);
+      throw new AppError("No result found for this student.", 404);
     }
 
     let termExistInResultDoc = resultExist.term_results.find(
@@ -662,9 +661,11 @@ const processStudentExamResultUpdate = async (
       total_score: 0,
       cumulative_average: 0,
       last_term_cumulative: 0,
+      class_lowest_mark: 0,
+      class_highest_mark: 0,
       scores: [scoreObj],
       exam_object: [scoreObj],
-      subject_position: '',
+      subject_position: "",
     };
 
     if (!termExistInResultDoc) {
@@ -672,7 +673,7 @@ const processStudentExamResultUpdate = async (
         term,
         cumulative_score: 0,
         subject_results: [subjectObj],
-        class_position: '',
+        class_position: "",
       };
 
       resultExist.term_results.push(termExistInResultDoc);
@@ -688,9 +689,11 @@ const processStudentExamResultUpdate = async (
           total_score: 0,
           cumulative_average: 0,
           last_term_cumulative: 0,
+          class_lowest_mark: 0,
+          class_highest_mark: 0,
           scores: [scoreObj],
           exam_object: [scoreObj],
-          subject_position: '',
+          subject_position: "",
         };
 
         termExistInResultDoc.subject_results = [
@@ -742,17 +745,17 @@ const processStudentExamResultUpdate = async (
       // total_score of the subject in the result and do same for
       // last_term_cumulative
 
-      if (term_results) resultExist.markModified('term_results');
+      if (term_results) resultExist.markModified("term_results");
     }
 
-    resultExist.markModified('term_results.subject_results');
-    resultExist.markModified('term_results.subject_results.scores');
+    resultExist.markModified("term_results.subject_results");
+    resultExist.markModified("term_results.subject_results.scores");
 
     const updatedResult = await resultExist.save();
 
     return { student_id, updated: true };
   } catch (error) {
-    console.error('Failed to process student result update:', error);
+    console.error("Failed to process student result update:", error);
     throw error;
   }
 };
@@ -768,6 +771,8 @@ const processStudentSubjectPositionUpdate = async (
     class_enrolment_id,
     session_id,
     subject_position,
+    class_highest_mark,
+    class_lowest_mark,
   } = payload;
 
   const student = Object(student_id);
@@ -791,6 +796,16 @@ const processStudentSubjectPositionUpdate = async (
 
     if (actualSubject) {
       actualSubject.subject_position = subject_position;
+      actualSubject.class_highest_mark = class_highest_mark;
+      actualSubject.class_lowest_mark = class_lowest_mark;
+      console.log(
+        "actualSubject.class_highest_mark:",
+        actualSubject.class_highest_mark
+      );
+      console.log(
+        "actualSubject.class_lowest_mark:",
+        actualSubject.class_lowest_mark
+      );
     }
 
     await sessionResult?.save();
@@ -879,7 +894,7 @@ const processCbtAssessmentResultSubmission = async (
     );
 
     if (!examDocExist) {
-      throw new AppError('Exam document not found.', 400);
+      throw new AppError("Exam document not found.", 400);
     }
 
     const resultSettings = await ResultSetting.findOne({
@@ -891,6 +906,11 @@ const processCbtAssessmentResultSubmission = async (
     }
 
     const exam_component_name = resultSettings?.exam_components.exam_name;
+    const cbtObj = resultSettings?.exam_components.component.find(
+      (a) => a.key === "obj"
+    );
+
+    console.log("cbtObj:", cbtObj);
 
     // first fetch the cbtResult
     let studentSubjectResult = await SubjectResult.findOne({
@@ -923,10 +943,12 @@ const processCbtAssessmentResultSubmission = async (
         scores: [],
         exam_object: [],
         total_score: 0,
+        class_highest_mark: 0,
+        class_lowest_mark: 0,
         cumulative_average: 0,
         last_term_cumulative: 0,
-        subject_position: '',
-        class_position: '',
+        subject_position: "",
+        class_position: "",
       };
       studentSubjectResult.term_results.push(termEntry);
 
@@ -942,10 +964,20 @@ const processCbtAssessmentResultSubmission = async (
     let examObj: ExamScoreType | null = null;
     let testObj: ScoreType | null = null;
 
+    // const cbtObj = resultSettings?.exam_components.component.find(
+    //   (a) => a.key === 'obj'
+    // );
+
+    // console.log('cbtObj:', cbtObj);
+
     if (
       examDocExist.assessment_type.trim().toLowerCase() !==
-      exam_component_name.trim().toLowerCase()
+        exam_component_name.trim().toLowerCase() &&
+      examDocExist.assessment_type.trim().toLowerCase() !==
+        cbtObj?.name.trim().toLowerCase()
     ) {
+      console.log("i want to do for test...");
+
       // do for test
       objKeyName = resultSettings.components?.find(
         (k) =>
@@ -955,12 +987,12 @@ const processCbtAssessmentResultSubmission = async (
 
       if (!objKeyName?.percentage || !objKeyName?.name) {
         throw new AppError(
-          'Objective scoring setup not found in result settings.',
+          "Objective scoring setup not found in result settings.",
           400
         );
       }
 
-      console.log('Iam doing for test...');
+      console.log("Iam doing for test...");
 
       testObj = {
         score_name: objKeyName?.name,
@@ -973,9 +1005,11 @@ const processCbtAssessmentResultSubmission = async (
         total_score: 0,
         cumulative_average: 0,
         last_term_cumulative: 0,
+        class_lowest_mark: 0,
+        class_highest_mark: 0,
         scores: [testObj],
         exam_object: [],
-        subject_position: '',
+        subject_position: "",
       };
 
       const hasRecordedExamScore = termResult?.scores.find(
@@ -993,6 +1027,7 @@ const processCbtAssessmentResultSubmission = async (
       }
     } else {
       // do for exam
+      console.log("I want to run for exam...");
 
       const exam_components = resultSettings?.exam_components.component;
 
@@ -1002,7 +1037,7 @@ const processCbtAssessmentResultSubmission = async (
 
       if (!objKeyName?.percentage || !objKeyName?.name) {
         throw new AppError(
-          'Objective scoring setup not found in result settings.',
+          "Objective scoring setup not found in result settings.",
           400
         );
       }
@@ -1019,9 +1054,11 @@ const processCbtAssessmentResultSubmission = async (
         total_score: 0,
         cumulative_average: 0,
         last_term_cumulative: 0,
+        class_lowest_mark: 0,
+        class_highest_mark: 0,
         scores: [examObj],
         exam_object: [examObj],
-        subject_position: '',
+        subject_position: "",
       };
 
       const hasRecordedExamScore = termResult?.exam_object.find(
@@ -1039,7 +1076,7 @@ const processCbtAssessmentResultSubmission = async (
       }
     }
 
-    studentSubjectResult?.markModified('term_results');
+    studentSubjectResult?.markModified("term_results");
 
     let mainResult = await Result.findOne({
       student: payload.student_id,
@@ -1048,7 +1085,11 @@ const processCbtAssessmentResultSubmission = async (
       academic_session_id: payload.session,
     }).session(session);
 
+    console.log("I can find main result:", mainResult);
+
     if (!mainResult) {
+      console.log("No main result but created it:", mainResult);
+
       mainResult = new Result({
         student: payload.student_id,
         enrolment: payload.enrolment,
@@ -1056,19 +1097,23 @@ const processCbtAssessmentResultSubmission = async (
         academic_session_id: payload.session,
         term_results: [],
       });
+      console.log("No main result but created it:", mainResult);
     }
 
     let termExistInResultDoc = mainResult?.term_results.find(
       (t) => t.term === payload.term
     );
 
+    console.log("I can find term result:", termExistInResultDoc);
+
     if (!termExistInResultDoc) {
       termExistInResultDoc = {
         term: payload.term,
         cumulative_score: 0,
         subject_results: [subjectObj],
-        class_position: '',
+        class_position: "",
       };
+      console.log("No term result but i created it:", termExistInResultDoc);
 
       mainResult?.term_results.push(termExistInResultDoc);
       // mainResult?.markModified('term_results');
@@ -1077,11 +1122,23 @@ const processCbtAssessmentResultSubmission = async (
         (s) => s.subject.toString() === payload.subject_id.toString()
       );
 
+      console.log("Getting mainSubjectResult:", mainSubjectResult);
+
       if (!mainSubjectResult) {
         termExistInResultDoc?.subject_results?.push(subjectObj);
+        console.log(
+          "Not find but created it mainSubjectResult:",
+          mainSubjectResult
+        );
         // mainResult?.markModified('term_results');
       } else {
-        if (examDocExist.assessment_type !== exam_component_name) {
+        if (
+          examDocExist.assessment_type.trim().toLowerCase() !==
+            exam_component_name.trim().toLowerCase() &&
+          examDocExist.assessment_type.trim().toLowerCase() !==
+            cbtObj?.name.trim().toLowerCase()
+        ) {
+          console.log("I am running for testObj...");
           if (testObj) {
             const hasTest = mainSubjectResult.scores.find(
               (s) =>
@@ -1093,6 +1150,7 @@ const processCbtAssessmentResultSubmission = async (
             }
           }
         } else {
+          console.log("I am running for examObj...");
           if (examObj) {
             const hasExam = mainSubjectResult.exam_object.find(
               (s) =>
@@ -1106,7 +1164,7 @@ const processCbtAssessmentResultSubmission = async (
           }
         }
 
-        mainResult?.markModified('term_results');
+        mainResult?.markModified("term_results");
       }
     }
 
@@ -1115,6 +1173,7 @@ const processCbtAssessmentResultSubmission = async (
     }
 
     if (mainResult) {
+      console.log("mainResult when found at the bottom", mainResult);
       await mainResult.save({ session });
     }
 
@@ -1149,14 +1208,14 @@ const processCbtAssessmentResultSubmission = async (
         class_id: payload.class_id,
         term: payload.term,
         exam_id: payload.exam_id,
-        'scheduled_subjects.subject_id': payload.subject_id,
+        "scheduled_subjects.subject_id": payload.subject_id,
       },
       {
         $pull: {
-          'scheduled_subjects.$.students_that_have_started': payload.student_id,
+          "scheduled_subjects.$.students_that_have_started": payload.student_id,
         },
         $addToSet: {
-          'scheduled_subjects.$.students_that_have_submitted':
+          "scheduled_subjects.$.students_that_have_submitted":
             payload.student_id,
         },
       },

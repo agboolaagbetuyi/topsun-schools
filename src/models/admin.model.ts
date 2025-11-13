@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { teacherStatusEnum, genderEnum, rolesEnum } from '../constants/enum';
-import { UserDocument } from '../constants/types';
+import mongoose from "mongoose";
+import { teacherStatusEnum, genderEnum, rolesEnum } from "../constants/enum";
+import { UserDocument } from "../constants/types";
 
 const adminSchema = new mongoose.Schema<UserDocument>(
   {
@@ -28,5 +28,5 @@ const adminSchema = new mongoose.Schema<UserDocument>(
 );
 
 adminSchema.index({ email: 1 });
-const Admin = mongoose.model<UserDocument>('Admin', adminSchema);
+const Admin = mongoose.model<UserDocument>("Admin", adminSchema);
 export default Admin;

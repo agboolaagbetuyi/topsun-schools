@@ -1,7 +1,7 @@
-import express from 'express';
+import express from "express";
 
-import { verifyAccessToken } from '../middleware/jwtAuth';
-import { permission } from '../middleware/authorization';
+import { verifyAccessToken } from "../middleware/jwtAuth";
+import { permission } from "../middleware/authorization";
 import {
   createNewSession,
   createNewTerm,
@@ -12,61 +12,61 @@ import {
   deleteSessionById,
   deleteTermById,
   endASessionBySessionId,
-} from '../controllers/session.controller';
-import { developerProtected } from '../middleware/developerProtected';
+} from "../controllers/session.controller";
+import { developerProtected } from "../middleware/developerProtected";
 
 const router = express.Router();
 
 router.use(verifyAccessToken);
-router.get('/get-active-session', getActiveSession);
+router.get("/get-active-session", getActiveSession);
 
 router.get(
-  '/get-sessions',
-  permission(['admin', 'super_admin']),
+  "/get-sessions",
+  permission(["admin", "super_admin"]),
   getAllSessions
 );
 
 router.get(
-  '/get-session/:session_id',
-  permission(['admin', 'super_admin']),
+  "/get-session/:session_id",
+  permission(["admin", "super_admin"]),
   getASessionBySessionId
 );
 
 router.put(
-  '/end-session/:session_id',
-  permission(['admin', 'super_admin']),
+  "/end-session/:session_id",
+  permission(["admin", "super_admin"]),
   developerProtected,
   endASessionBySessionId
 );
 
 router.put(
-  '/end-term/:session_id/:term_id',
-  permission(['admin', 'super_admin']),
+  "/end-term/:session_id/:term_id",
+  permission(["admin", "super_admin"]),
   developerProtected,
   endATermInASessionByTermId
 );
 
 router.post(
-  '/create-session',
-  permission(['admin', 'super_admin']),
+  "/create-session",
+  permission(["admin", "super_admin"]),
   createNewSession
 );
 
 router.post(
-  '/:session_id/create-term',
-  permission(['admin', 'super_admin']),
+  "/:session_id/create-term",
+  permission(["admin", "super_admin"]),
   createNewTerm
 );
 
 router.delete(
-  '/delete-session/:session_id',
-  permission(['admin', 'super_admin']),
+  "/delete-session/:session_id",
+  permission(["admin", "super_admin"]),
   deleteSessionById
 );
 
 router.delete(
-  '/:session_id/delete-term/:term_id',
-  permission(['admin', 'super_admin']),
+  "/:session_id/delete-term/:term_id",
+  permission(["admin", "super_admin"]),
   deleteTermById
 );
 

@@ -66,12 +66,12 @@
 // export default router;
 
 ///////////////////////////////////////////
-import express from 'express';
-import { verifyAccessToken } from '../middleware/jwtAuth';
+import express from "express";
+import { verifyAccessToken } from "../middleware/jwtAuth";
 import {
   // checkFeatureAccessForSchool,
   permission,
-} from '../middleware/authorization';
+} from "../middleware/authorization";
 import {
   createSchoolFees,
   getAllSchoolFeesPerTerm,
@@ -89,95 +89,95 @@ import {
   getTermOptionalFees,
   ///////////////////////////////////
   updateSchoolFeesById,
-} from '../controllers/fee.controller';
+} from "../controllers/fee.controller";
 
 const router = express.Router();
 
 router.use(verifyAccessToken);
 router.post(
-  '/create-school-fees',
-  permission(['admin', 'super_admin']),
+  "/create-school-fees",
+  permission(["admin", "super_admin"]),
   createSchoolFees
 );
 
 router.put(
-  '/add-optional-fees-during-term',
-  permission(['admin', 'super_admin']),
+  "/add-optional-fees-during-term",
+  permission(["admin", "super_admin"]),
   addOptionalFeeDuringTerm
 );
 
 router.put(
-  '/add-mandatory-fees-during-term',
-  permission(['admin', 'super_admin']),
+  "/add-mandatory-fees-during-term",
+  permission(["admin", "super_admin"]),
   addMandatoryFeeDuringTerm
 );
 router.put(
-  '/create-optional-fees',
-  permission(['admin', 'super_admin']),
+  "/create-optional-fees",
+  permission(["admin", "super_admin"]),
   createOptionalFees
 );
 router.put(
-  '/create-mandatory-fees',
-  permission(['admin', 'super_admin']),
+  "/create-mandatory-fees",
+  permission(["admin", "super_admin"]),
   createMandatoryFees
 );
 
 router.put(
-  '/update-school-fee/:fee_id',
-  permission(['admin', 'super_admin']),
+  "/update-school-fee/:fee_id",
+  permission(["admin", "super_admin"]),
   updateSchoolFeesById
 );
 
 router.get(
-  '/get-all-school-fees',
-  permission(['admin', 'super_admin']),
+  "/get-all-school-fees",
+  permission(["admin", "super_admin"]),
   // checkFeatureAccessForSchool('payment'),
   getAllSchoolFeesPerTerm
 );
 
 router.get(
-  '/get-school-fees',
-  permission(['admin', 'super_admin', 'student', 'parent']),
+  "/get-school-fees",
+  permission(["admin", "super_admin", "student", "parent"]),
   getSchoolFees
 );
 router.get(
-  '/get-term-fees/:academic_session_id/:term',
-  permission(['admin', 'super_admin', 'student', 'parent']),
+  "/get-term-fees/:academic_session_id/:term",
+  permission(["admin", "super_admin", "student", "parent"]),
   getTermFees
 );
 
 router.get(
-  '/get-all-mandatory-fees',
-  permission(['admin', 'super_admin', 'student', 'parent']),
+  "/get-all-mandatory-fees",
+  permission(["admin", "super_admin", "student", "parent"]),
   getAllMandatoryFees
 );
 
 router.get(
-  '/get-all-optional-fees',
-  permission(['admin', 'super_admin', 'student', 'parent']),
+  "/get-all-optional-fees",
+  permission(["admin", "super_admin", "student", "parent"]),
   getAllOptionalFees
 );
 
 router.get(
-  '/get-term-mandatory-fees/:academic_session_id/:term',
-  permission(['admin', 'super_admin', 'student', 'parent']),
+  "/get-term-mandatory-fees/:academic_session_id/:term",
+  permission(["admin", "super_admin", "student", "parent"]),
   getTermMandatoryFees
 );
 
 router.get(
-  '/get-term-optional-fees/:academic_session_id/:term',
-  permission(['admin', 'super_admin', 'student', 'parent']),
+  "/get-term-optional-fees/:academic_session_id/:term",
+  permission(["admin", "super_admin", "student", "parent"]),
   getTermOptionalFees
 );
 
 router.get(
-  '/get-school-fee/:school_fee_id',
-  permission(['admin', 'super_admin', 'parent', 'student']),
+  "/get-school-fee/:school_fee_id",
+  permission(["admin", "super_admin", "parent", "student"]),
   getASchoolFeeById
 );
 router.get(
-  '/get-school-fee/:level',
-  permission(['admin', 'super_admin', 'parent', 'student']),
+  "/get-school-fee/:level",
+  permission(["admin", "super_admin", "parent", "student"]),
   getASchoolFeeByLevelAndTerm
 );
 

@@ -1,11 +1,11 @@
 // import dotenv from 'dotenv'
 // dotenv.config()
 
-import axios from 'axios';
-import { AppError } from './app.error';
-import { CustomerCreationPayloadType } from '../constants/types';
+import axios from "axios";
+import { AppError } from "./app.error";
+import { CustomerCreationPayloadType } from "../constants/types";
 
-const secret = process.env.PAYSTACK_TEST_SECRET_KEY || '';
+const secret = process.env.PAYSTACK_TEST_SECRET_KEY || "";
 
 // THIS WILL CREATE CUSTOMER DOCUMENT FOR EACH STUDENT WHEN THIS
 // ENDPOINT IS USED. THEN THE CUSTOMER NUMBER IS NEEDED FOR THE
@@ -32,12 +32,12 @@ const createCustomerPaystackAccount = async (
   });
   try {
     const response = await axios.post(
-      'https://api.paystack.co/customer',
+      "https://api.paystack.co/customer",
       paystackParam,
       {
         headers: {
           Authorization: `Bearer ${secret}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
@@ -45,7 +45,7 @@ const createCustomerPaystackAccount = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -56,16 +56,16 @@ const openDedicatedVirtualAccount = async (student_paystack_id: string) => {
   try {
     const data = {
       customer: student_paystack_id,
-      preferred_bank: 'wema-bank',
+      preferred_bank: "wema-bank",
     };
 
     const response = await axios.post(
-      'https://api.paystack.co/dedicated_account',
+      "https://api.paystack.co/dedicated_account",
       data,
       {
         headers: {
           Authorization: `Bearer ${secret}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
@@ -73,7 +73,7 @@ const openDedicatedVirtualAccount = async (student_paystack_id: string) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };

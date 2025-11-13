@@ -1,6 +1,6 @@
-import express from 'express';
-import { verifyAccessToken } from '../middleware/jwtAuth';
-import { permission } from '../middleware/authorization';
+import express from "express";
+import { verifyAccessToken } from "../middleware/jwtAuth";
+import { permission } from "../middleware/authorization";
 import {
   getAStudentById,
   updateStudentDetails,
@@ -15,27 +15,27 @@ import {
   getStudentsThatAreYetToSubscribedToNewSession,
 
   // calculateStudentCumulativeScoreForAllSubjectsPerTerm,
-} from '../controllers/student.controller';
-import uploadFile from '../middleware/multer';
+} from "../controllers/student.controller";
+import uploadFile from "../middleware/multer";
 
 const router = express.Router();
 
 router.use(verifyAccessToken);
 router.post(
-  '/link-student',
-  permission(['parent', 'admin', 'super_admin']),
+  "/link-student",
+  permission(["parent", "admin", "super_admin"]),
   linkStudentWithParent
 );
 
 router.put(
-  '/student-subscribe-to-new-session/:student_id/:academic_session_id',
-  permission(['parent', 'student']),
+  "/student-subscribe-to-new-session/:student_id/:academic_session_id",
+  permission(["parent", "student"]),
   studentOrParentUpdateStudentSessionSubscription
 );
 
 router.put(
-  '/update-student-to-subscribe-to-new-session/:academic_session_id',
-  permission(['admin', 'super_admin']),
+  "/update-student-to-subscribe-to-new-session/:academic_session_id",
+  permission(["admin", "super_admin"]),
   adminUpdateStudentSessionSubscription
 );
 
@@ -47,27 +47,27 @@ router.put(
 
 // Get all students, get student by id
 router.get(
-  '/get-all-students',
-  permission(['admin', 'super_admin']),
+  "/get-all-students",
+  permission(["admin", "super_admin"]),
   getAllStudents
 );
 
 router.get(
-  '/get-a-student/:student_id',
-  permission(['admin', 'super_admin', 'student', 'teacher']),
+  "/get-a-student/:student_id",
+  permission(["admin", "super_admin", "student", "teacher"]),
   getAStudentById
 );
 
 router.put(
-  '/update-student-details/:student_id',
-  permission(['parent', 'student']),
-  uploadFile.single('image'),
+  "/update-student-details/:student_id",
+  permission(["parent", "student"]),
+  uploadFile.single("image"),
   updateStudentDetails
 );
 
 router.get(
-  '/get-all-student-using-class-level/:level',
-  permission(['admin', 'super_admin']),
+  "/get-all-student-using-class-level/:level",
+  permission(["admin", "super_admin"]),
   getAllStudentsOnAClassLevel
 );
 
@@ -80,15 +80,15 @@ router.get(
  */
 
 router.get(
-  '/get-students-that-subscribed-to-new-session/:level',
+  "/get-students-that-subscribed-to-new-session/:level",
 
-  permission(['admin', 'super_admin']),
+  permission(["admin", "super_admin"]),
   getStudentsThatSubscribedToNewSession
 );
 
 router.post(
-  '/notify-students-to-subscribe-to-new-session',
-  permission(['admin', 'super_admin']),
+  "/notify-students-to-subscribe-to-new-session",
+  permission(["admin", "super_admin"]),
   studentsSubscribeToNewSession
 );
 
@@ -99,14 +99,14 @@ router.post(
 // );
 
 router.get(
-  '/get-new-students',
-  permission(['admin', 'super_admin']),
+  "/get-new-students",
+  permission(["admin", "super_admin"]),
   getNewStudentsThatHasNoClassEnrolmentBefore
 );
 
 router.get(
-  '/get-students-yet-to-subscribe-to-new-session',
-  permission(['admin', 'super_admin']),
+  "/get-students-yet-to-subscribe-to-new-session",
+  permission(["admin", "super_admin"]),
   getStudentsThatAreYetToSubscribedToNewSession
 );
 

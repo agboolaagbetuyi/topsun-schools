@@ -1,13 +1,13 @@
-import nodemailer from 'nodemailer';
-import ejs from 'ejs';
-import fs from 'fs';
-import path from 'path';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { EmailType } from '../constants/types';
+import nodemailer from "nodemailer";
+import ejs from "ejs";
+import fs from "fs";
+import path from "path";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
+import { EmailType } from "../constants/types";
 
 const getMailTemplate = (filePath: string, data: {}) => {
-  const templatePath = path.join(__dirname, './templates', filePath);
-  const template = fs.readFileSync(templatePath, 'utf8');
+  const templatePath = path.join(__dirname, "./templates", filePath);
+  const template = fs.readFileSync(templatePath, "utf8");
   return ejs.render(template, data);
 };
 
@@ -30,7 +30,7 @@ const sendEmailVerification = async ({
   token,
 }: EmailType) => {
   try {
-    const emailVerificationContent = getMailTemplate('emailTemplate.ejs', {
+    const emailVerificationContent = getMailTemplate("emailTemplate.ejs", {
       first_name,
       token,
     });
@@ -38,7 +38,7 @@ const sendEmailVerification = async ({
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_USER,
       to: email,
-      subject: 'Email verification',
+      subject: "Email verification",
       html: emailVerificationContent,
     });
     return info;
@@ -49,7 +49,7 @@ const sendEmailVerification = async ({
 
 const sendPasswordReset = async ({ email, first_name, token }: EmailType) => {
   try {
-    const passwordResetContent = getMailTemplate('passwordResetTemplate.ejs', {
+    const passwordResetContent = getMailTemplate("passwordResetTemplate.ejs", {
       first_name,
       token,
     });
@@ -57,7 +57,7 @@ const sendPasswordReset = async ({ email, first_name, token }: EmailType) => {
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_USER,
       to: email,
-      subject: 'Password Reset',
+      subject: "Password Reset",
       html: passwordResetContent,
     });
     return info;
@@ -73,7 +73,7 @@ const sendChildLinkageMail = async ({
   message,
 }: EmailType) => {
   try {
-    const childLinkageContent = getMailTemplate('childLinkageTemplate.ejs', {
+    const childLinkageContent = getMailTemplate("childLinkageTemplate.ejs", {
       first_name,
       title,
       message,
@@ -82,7 +82,7 @@ const sendChildLinkageMail = async ({
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_USER,
       to: email,
-      subject: 'Child Linkage',
+      subject: "Child Linkage",
       html: childLinkageContent,
     });
 
@@ -99,7 +99,7 @@ const sendStudentSessionNotification = async ({
 }: EmailType) => {
   try {
     const sessionSubscriptionContent = getMailTemplate(
-      'studentSessionSubscriptionTemplate.ejs',
+      "studentSessionSubscriptionTemplate.ejs",
       {
         first_name,
         academic_session,
@@ -109,7 +109,7 @@ const sendStudentSessionNotification = async ({
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_USER,
       to: email,
-      subject: 'Session Subscription Notification',
+      subject: "Session Subscription Notification",
       html: sessionSubscriptionContent,
     });
 
@@ -128,7 +128,7 @@ const sendParentSessionNotification = async ({
 }: EmailType) => {
   try {
     const sessionSubscriptionContent = getMailTemplate(
-      'studentSessionSubscriptionByParentTemplate.ejs',
+      "studentSessionSubscriptionByParentTemplate.ejs",
       {
         first_name,
         email,
@@ -141,7 +141,7 @@ const sendParentSessionNotification = async ({
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_USER,
       to: email,
-      subject: 'Session Subscription Notification',
+      subject: "Session Subscription Notification",
       html: sessionSubscriptionContent,
     });
 

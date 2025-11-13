@@ -1,4 +1,4 @@
-import { AsyncHandler } from '../constants/types';
+import { AsyncHandler } from "../constants/types";
 
 const catchErrors =
   (controller: AsyncHandler): AsyncHandler =>

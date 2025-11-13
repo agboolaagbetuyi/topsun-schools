@@ -706,7 +706,7 @@
 // };
 
 ////////////////////////////////////////////////////////////////////////////////
-import mongoose, { ObjectId } from 'mongoose';
+import mongoose, { ObjectId } from "mongoose";
 import {
   ParentObjType,
   SessionSubscriptionType,
@@ -719,15 +719,15 @@ import {
   StudentWithPaymentType,
   UserDocument,
   UserWithoutPassword,
-} from '../constants/types';
-import Payment from '../models/payment.model';
-import Session from '../models/session.model';
-import Student from '../models/students.model';
-import { AppError } from '../utils/app.error';
-import { Request } from 'express';
-import { cloudinaryDestroy, handleFileUpload } from '../utils/cloudinary';
-import { maxParentLength } from '../utils/code';
-import Parent from '../models/parents.model';
+} from "../constants/types";
+import Payment from "../models/payment.model";
+import Session from "../models/session.model";
+import Student from "../models/students.model";
+import { AppError } from "../utils/app.error";
+import { Request } from "express";
+import { cloudinaryDestroy, handleFileUpload } from "../utils/cloudinary";
+import { maxParentLength } from "../utils/code";
+import Parent from "../models/parents.model";
 import {
   capitalizeFirstLetter,
   mySchoolDomain,
@@ -737,9 +737,9 @@ import {
   schoolNameHandCoded,
   schoolStateHandCoded,
   sendingEmailToQueue,
-} from '../utils/functions';
-import { emailQueue } from '../utils/queue';
-import Class from '../models/class.model';
+} from "../utils/functions";
+import { emailQueue } from "../utils/queue";
+import Class from "../models/class.model";
 
 const fetchStudentById = async (
   student_id: string
@@ -750,7 +750,7 @@ const fetchStudentById = async (
     const response = await Student.findById({
       _id: student_id,
     })
-      .populate('parent_id', '-password')
+      .populate("parent_id", "-password")
       .session(session);
 
     const sessionExist = await Session.findOne({
@@ -770,13 +770,13 @@ const fetchStudentById = async (
         term: activeTerm?.name,
       }).session(session);
 
-      response?.set('latest_payment_document', userPaymentDoc, {
+      response?.set("latest_payment_document", userPaymentDoc, {
         strict: false,
       });
     }
 
     if (!response) {
-      throw new AppError('Parent not found.', 404);
+      throw new AppError("Parent not found.", 404);
     }
 
     const { password, ...others } = response.toJSON();
@@ -797,7 +797,7 @@ const fetchStudentById = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -817,14 +817,14 @@ const studentUpdateDetails = async (
     }).session(session);
 
     if (!response) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     if (parent_id !== student_id) {
-      if (userRole === 'parent') {
+      if (userRole === "parent") {
         if (!response.parent_id?.includes(Object(parent_id))) {
           throw new AppError(
-            'You can not update this student because you are not a parent to this student.',
+            "You can not update this student because you are not a parent to this student.",
             400
           );
         }
@@ -840,7 +840,7 @@ const studentUpdateDetails = async (
     const imageUpload = await handleFileUpload(req, res);
 
     if (!imageUpload) {
-      throw new AppError('Unable to upload profile image.', 400);
+      throw new AppError("Unable to upload profile image.", 400);
     }
 
     let imageData: { url: string; public_url: string } | undefined;
@@ -852,7 +852,7 @@ const studentUpdateDetails = async (
     }
 
     if (!imageData) {
-      throw new AppError('This is not a valid cloudinary image upload.', 400);
+      throw new AppError("This is not a valid cloudinary image upload.", 400);
     }
 
     const updateStudent = await Student.findByIdAndUpdate(
@@ -869,7 +869,7 @@ const studentUpdateDetails = async (
     ).session(session);
 
     if (!updateStudent) {
-      throw new AppError('Unable to update student.', 400);
+      throw new AppError("Unable to update student.", 400);
     }
 
     const { password, ...others } = updateStudent.toJSON();
@@ -889,7 +889,7 @@ const studentUpdateDetails = async (
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -987,7 +987,7 @@ const studentUpdateDetails = async (
 const fetchAllStudents = async (
   page?: number,
   limit?: number,
-  searchParams = ''
+  searchParams = ""
 ): Promise<{
   studentObj: StudentWithPaymentType[];
   totalCount: number;
@@ -998,7 +998,7 @@ const fetchAllStudents = async (
 
     // Apply search filter if present
     if (searchParams?.trim()) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -1021,14 +1021,14 @@ const fetchAllStudents = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
 
     const findStudent = await query.sort({ createdAt: -1 });
 
     if (!findStudent || findStudent.length === 0) {
-      throw new AppError('Students not found.', 404);
+      throw new AppError("Students not found.", 404);
     }
 
     const activeSession = await Session.findOne({ is_active: true });
@@ -1062,7 +1062,7 @@ const fetchAllStudents = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     }
-    throw new Error('Something went wrong.');
+    throw new Error("Something went wrong.");
   }
 };
 
@@ -1070,10 +1070,10 @@ const fetchAllStudentsOnAClassLevel = async (level: string) => {
   try {
     const students = await Student.find({
       current_class_level: level,
-    }).select('-password');
+    }).select("-password");
 
     if (!students || students.length === 0) {
-      throw new AppError('No student found for this class level.', 404);
+      throw new AppError("No student found for this class level.", 404);
     }
 
     return students;
@@ -1081,7 +1081,7 @@ const fetchAllStudentsOnAClassLevel = async (level: string) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1104,7 +1104,7 @@ const studentLinking = async (param: StudentLinkingType) => {
     );
 
     if (!student) {
-      throw new AppError('Student not found', 404);
+      throw new AppError("Student not found", 404);
     }
 
     if (student.parent_id && student?.parent_id?.length + 1 > maxParentLength) {
@@ -1115,7 +1115,7 @@ const studentLinking = async (param: StudentLinkingType) => {
     }
 
     if (student.parent_id?.includes(parent_id)) {
-      throw new AppError('This parent is already linked to the student', 400);
+      throw new AppError("This parent is already linked to the student", 400);
     }
 
     const parent = await Parent.findById({ _id: parent_id }, null, {
@@ -1123,13 +1123,13 @@ const studentLinking = async (param: StudentLinkingType) => {
     });
 
     if (!parent) {
-      throw new AppError('Parent does not exist', 404);
+      throw new AppError("Parent does not exist", 404);
     }
 
     const studentObj = Object(student._id);
 
     if (parent.children?.includes(studentObj)) {
-      throw new AppError('This student is already linked to the parent', 400);
+      throw new AppError("This student is already linked to the parent", 400);
     }
 
     const getStudent = await Student.findOneAndUpdate(
@@ -1148,7 +1148,7 @@ const studentLinking = async (param: StudentLinkingType) => {
     );
 
     if (!getStudent) {
-      throw new AppError('Student not found.', 404);
+      throw new AppError("Student not found.", 404);
     }
 
     const getParent = await Parent.findByIdAndUpdate(
@@ -1165,11 +1165,11 @@ const studentLinking = async (param: StudentLinkingType) => {
     );
 
     if (!getParent) {
-      throw new AppError('Parent not found.', 404);
+      throw new AppError("Parent not found.", 404);
     }
 
     const notificationPayload = {
-      title: 'Student Linkage',
+      title: "Student Linkage",
       message: `Your child whose name is ${getStudent.first_name} ${getStudent.last_name} has been linked to you. You can now view the progress of ${getStudent.first_name} and also pay for his/her school fees and other fees.`,
       user_id: getParent._id,
       session: session,
@@ -1180,7 +1180,7 @@ const studentLinking = async (param: StudentLinkingType) => {
 
     const jobDataPayload = {
       first_name: getStudent.first_name,
-      title: 'Child Linkage',
+      title: "Child Linkage",
       school_name: sch_name,
       school_city: schoolCityHandCoded,
       school_state: schoolStateHandCoded,
@@ -1189,7 +1189,7 @@ const studentLinking = async (param: StudentLinkingType) => {
       message: `Your child whose name is ${name} ${getStudent.last_name} who is a student of ${sch_name} has been linked to you. You can now view the progress of ${name} and also pay for his/her school fees and other fees.`,
     };
 
-    const info = await sendingEmailToQueue(jobDataPayload, 'child-linkage');
+    const info = await sendingEmailToQueue(jobDataPayload, "child-linkage");
 
     await session.commitTransaction();
     session.endSession();
@@ -1241,11 +1241,11 @@ const newSessionStudentsSubscription = async (): Promise<
       active_class_enrolment: false,
       new_session_subscription: null,
     })
-      .populate<{ parent_id: ParentObjType[] }>('parent_id') // Ensure correct type for populated data
+      .populate<{ parent_id: ParentObjType[] }>("parent_id") // Ensure correct type for populated data
       .lean();
 
     if (!students) {
-      throw new AppError('Students not found', 404);
+      throw new AppError("Students not found", 404);
     }
 
     const activeSession = await Session.findOne({
@@ -1253,11 +1253,11 @@ const newSessionStudentsSubscription = async (): Promise<
     });
 
     if (!activeSession) {
-      throw new AppError('No active session found', 404);
+      throw new AppError("No active session found", 404);
     }
 
     if (activeSession.is_subscription_mail_sent === true) {
-      throw new AppError('Session notification mail has been sent ones.', 400);
+      throw new AppError("Session notification mail has been sent ones.", 400);
     }
 
     const studentDetails = students.map((student) => {
@@ -1270,7 +1270,7 @@ const newSessionStudentsSubscription = async (): Promise<
           email: student.email,
           first_name: capitalizeFirstLetter(student.first_name),
           last_name: capitalizeFirstLetter(student.last_name),
-          type: 'session-subscription',
+          type: "session-subscription",
         },
 
         parentDetails: parent
@@ -1281,7 +1281,7 @@ const newSessionStudentsSubscription = async (): Promise<
               child_email: student.email,
               child_first_name: capitalizeFirstLetter(student.first_name),
               child_last_name: capitalizeFirstLetter(student.last_name),
-              type: 'session-subscription',
+              type: "session-subscription",
             }
           : null,
       };
@@ -1290,17 +1290,17 @@ const newSessionStudentsSubscription = async (): Promise<
     const sendStudentEmail = studentDetails.map(async (s) => {
       const studentJobData = {
         first_name:
-          s.studentDetails.first_name + ' ' + s.studentDetails.last_name,
-        type: 'session-subscription',
+          s.studentDetails.first_name + " " + s.studentDetails.last_name,
+        type: "session-subscription",
         email: s.studentDetails.email,
         academic_session: activeSession.academic_session,
         school_name: schoolNameHandCoded,
         city: schoolCityHandCoded,
         state: schoolStateHandCoded,
         country: schoolCountryHandCoded,
-        option: 'student',
+        option: "student",
       };
-      const mailSent = await emailQueue.add('sendMail', studentJobData, {
+      const mailSent = await emailQueue.add("sendMail", studentJobData, {
         attempts: 3,
         backoff: 10000,
         removeOnComplete: true,
@@ -1312,16 +1312,16 @@ const newSessionStudentsSubscription = async (): Promise<
         const parentJobData = {
           first_name:
             s.parentDetails?.parent_first_name +
-            ' ' +
+            " " +
             s.parentDetails?.parent_last_name,
           child_name:
             s.parentDetails?.child_first_name +
-            ' ' +
+            " " +
             s.parentDetails?.child_last_name,
           child_email: s.parentDetails?.child_email,
           email: s.parentDetails?.parent_email,
-          type: 'session-subscription',
-          option: 'parent',
+          type: "session-subscription",
+          option: "parent",
           school_name: schoolNameHandCoded,
           city: schoolCityHandCoded,
           state: schoolStateHandCoded,
@@ -1329,7 +1329,7 @@ const newSessionStudentsSubscription = async (): Promise<
           academic_session: activeSession.academic_session,
         };
 
-        const mailSent = await emailQueue.add('sendMail', parentJobData, {
+        const mailSent = await emailQueue.add("sendMail", parentJobData, {
           attempts: 3,
           backoff: 10000,
           removeOnComplete: true,
@@ -1345,14 +1345,14 @@ const newSessionStudentsSubscription = async (): Promise<
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
 
 const studentSessionSubscriptionUpdateByAdmin = async (
   payload: SessionSubscriptionType
-): Promise<Omit<UserDocument, 'password'>[]> => {
+): Promise<Omit<UserDocument, "password">[]> => {
   try {
     const { student_ids_array, academic_session_id, userRole } = payload;
 
@@ -1396,7 +1396,7 @@ const studentSessionSubscriptionUpdateByAdmin = async (
       const notValidNames = notValidStudents.map((a) => a.studentName);
       throw new AppError(
         `The students with the following names are not verified: ${notValidNames.join(
-          ', '
+          ", "
         )}`,
         400
       );
@@ -1406,7 +1406,7 @@ const studentSessionSubscriptionUpdateByAdmin = async (
       const notUpdatedNames = notUpdatedStudents.map((a) => a.studentName);
       throw new AppError(
         `The students with the following names have not updated their addresses and profile picture: ${notUpdatedNames.join(
-          ', '
+          ", "
         )}`,
         400
       );
@@ -1441,12 +1441,12 @@ const studentSessionSubscriptionUpdateByAdmin = async (
       return others;
     });
 
-    return sanitizedStudents as Omit<UserDocument, 'password'>[];
+    return sanitizedStudents as Omit<UserDocument, "password">[];
   } catch (error) {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1462,7 +1462,7 @@ const fetchStudentsThatSubscribedToNewSession = async (level: string) => {
     const students = await Promise.all(
       classExist.map(async (d) => {
         return await Student.find({
-          'current_class.class_id': d?._id,
+          "current_class.class_id": d?._id,
           new_session_subscription: true,
           active_class_enrolment: false,
         });
@@ -1479,7 +1479,7 @@ const fetchStudentsThatSubscribedToNewSession = async (level: string) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1504,7 +1504,7 @@ const fetchNewStudentsThatHasNoClassEnrolmentBefore = async (
     });
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -1517,7 +1517,7 @@ const fetchNewStudentsThatHasNoClassEnrolmentBefore = async (
     }
 
     if (!query) {
-      throw new AppError('Students not found.', 404);
+      throw new AppError("Students not found.", 404);
     }
     const count = await query.clone().countDocuments();
     let pages = 0;
@@ -1530,14 +1530,14 @@ const fetchNewStudentsThatHasNoClassEnrolmentBefore = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
 
     const students = await query;
 
     if (!students || students.length === 0) {
-      throw new AppError('Students not found', 404);
+      throw new AppError("Students not found", 404);
     }
 
     return { students, totalPages: pages, totalCount: count };
@@ -1545,7 +1545,7 @@ const fetchNewStudentsThatHasNoClassEnrolmentBefore = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1562,7 +1562,7 @@ const fetchStudentsThatAreYetToSubscribedToNewSession = async (
 
     if (!activeSessionExist) {
       throw new AppError(
-        'There is no active session found for the school. Please start a new session before proceeding.',
+        "There is no active session found for the school. Please start a new session before proceeding.",
         400
       );
     }
@@ -1579,7 +1579,7 @@ const fetchStudentsThatAreYetToSubscribedToNewSession = async (
     });
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -1592,7 +1592,7 @@ const fetchStudentsThatAreYetToSubscribedToNewSession = async (
     }
 
     if (!query) {
-      throw new AppError('Students not found', 404);
+      throw new AppError("Students not found", 404);
     }
 
     const count = await query.clone().countDocuments();
@@ -1606,7 +1606,7 @@ const fetchStudentsThatAreYetToSubscribedToNewSession = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
 
@@ -1619,7 +1619,7 @@ const fetchStudentsThatAreYetToSubscribedToNewSession = async (
 
     if (students.length === 0) {
       throw new AppError(
-        'There is no student that has not subscribed to a new session in the school.',
+        "There is no student that has not subscribed to a new session in the school.",
         400
       );
     }
@@ -1638,14 +1638,14 @@ const fetchStudentsThatAreYetToSubscribedToNewSession = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
 
 const studentSessionSubscriptionUpdateByStudentOrParent = async (
   payload: StudentSessionSubscriptionType
-): Promise<Omit<UserDocument, 'password'>> => {
+): Promise<Omit<UserDocument, "password">> => {
   try {
     const {
       student_id,
@@ -1678,11 +1678,11 @@ const studentSessionSubscriptionUpdateByStudentOrParent = async (
     }
 
     if (userRole && parent_id) {
-      if (userRole === 'parent') {
+      if (userRole === "parent") {
         const parentMatch = student.parent_id?.includes(parent_id);
         if (!parentMatch) {
           throw new AppError(
-            'You can only update a student that you are linked to as a parent.',
+            "You can only update a student that you are linked to as a parent.",
             400
           );
         }
@@ -1719,12 +1719,12 @@ const studentSessionSubscriptionUpdateByStudentOrParent = async (
 
     const { password, ...others } = studentObj.toJSON();
 
-    return others as Omit<UserDocument, 'password'>;
+    return others as Omit<UserDocument, "password">;
   } catch (error) {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };

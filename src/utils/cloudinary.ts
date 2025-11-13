@@ -2,10 +2,10 @@ import {
   v2 as cloudinary,
   UploadApiOptions,
   UploadApiResponse,
-} from 'cloudinary';
-import fs from 'fs';
-import { CloudinaryType, FilePath, FolderName } from '../constants/types';
-import dotenv from 'dotenv';
+} from "cloudinary";
+import fs from "fs";
+import { CloudinaryType, FilePath, FolderName } from "../constants/types";
+import dotenv from "dotenv";
 dotenv.config();
 
 cloudinary.config({
@@ -20,7 +20,7 @@ const cloudinaryUploads = async (
 ): Promise<CloudinaryType> => {
   return new Promise((resolve, reject) => {
     const options: UploadApiOptions = {
-      resource_type: 'auto',
+      resource_type: "auto",
       folder: folder,
     };
 
@@ -39,7 +39,7 @@ const cloudinaryUploads = async (
           });
         } else {
           reject(
-            new Error('Unknown error occurred during the upload process.')
+            new Error("Unknown error occurred during the upload process.")
           );
         }
       }

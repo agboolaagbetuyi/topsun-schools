@@ -22,7 +22,7 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.post("/logout", logoutUser);
 
-// router.post("/register", registerUser);
+// router.post('/register', registerUser);
 
 router.use(verifyAccessToken);
 router.post("/register", permission(["admin", "super_admin"]), registerUser);

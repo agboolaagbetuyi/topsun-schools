@@ -1221,7 +1221,7 @@
 // };
 
 ///////////////////////////////////////////////////////
-import mongoose, { Types } from 'mongoose';
+import mongoose, { Types } from "mongoose";
 import {
   ClassDocument,
   ClassSubjectTeacherChangeType,
@@ -1238,17 +1238,17 @@ import {
   UserDocument,
   UserReturn,
   UserWithoutPassword,
-} from '../constants/types';
-import Class from '../models/class.model';
-import Teacher from '../models/teachers.model';
-import { AppError } from '../utils/app.error';
-import { capitalizeFirstLetter, genderFunction } from '../utils/functions';
-import Subject from '../models/subject.model';
-import Session from '../models/session.model';
-import TeacherAssignment from '../models/teacher_assignment.model';
-import ClassEnrolment from '../models/classes_enrolment.model';
-import Result from '../models/result.model';
-import { SubjectResult } from '../models/subject_result.model';
+} from "../constants/types";
+import Class from "../models/class.model";
+import Teacher from "../models/teachers.model";
+import { AppError } from "../utils/app.error";
+import { capitalizeFirstLetter, genderFunction } from "../utils/functions";
+import Subject from "../models/subject.model";
+import Session from "../models/session.model";
+import TeacherAssignment from "../models/teacher_assignment.model";
+import ClassEnrolment from "../models/classes_enrolment.model";
+import Result from "../models/result.model";
+import { SubjectResult } from "../models/subject_result.model";
 
 const classTeacherAssignedEndpoint = async (
   payload: TeacherToSubjectType
@@ -1263,19 +1263,19 @@ const classTeacherAssignedEndpoint = async (
     }).session(session);
 
     if (!findTeacher) {
-      throw new AppError('Teacher not found.', 404);
+      throw new AppError("Teacher not found.", 404);
     }
 
     if (findTeacher.is_updated !== true) {
       throw new AppError(
-        'This teacher needs to be onboarded before being assigned as a class teacher.',
+        "This teacher needs to be onboarded before being assigned as a class teacher.",
         400
       );
     }
 
     if (findTeacher.class_managing) {
       throw new AppError(
-        'Teacher already assigned to a class and a teacher can only be assigned to one class.',
+        "Teacher already assigned to a class and a teacher can only be assigned to one class.",
         400
       );
     }
@@ -1285,11 +1285,11 @@ const classTeacherAssignedEndpoint = async (
     }).session(session);
 
     if (!info) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     if (info.class_teacher) {
-      throw new AppError('Class has a class teacher already.', 400);
+      throw new AppError("Class has a class teacher already.", 400);
     }
 
     const result = await Class.findByIdAndUpdate(
@@ -1297,11 +1297,11 @@ const classTeacherAssignedEndpoint = async (
       { class_teacher: teacher_id },
       { new: true }
     )
-      .populate('class_teacher', '-password')
+      .populate("class_teacher", "-password")
       .session(session);
 
     if (!result) {
-      throw new AppError('Unable to assign class teacher.', 400);
+      throw new AppError("Unable to assign class teacher.", 400);
     }
 
     findTeacher.class_managing = result._id;
@@ -1317,7 +1317,7 @@ const classTeacherAssignedEndpoint = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1339,7 +1339,7 @@ const assigningTeacherToSubject = async (
     }).session(session);
 
     if (!classInfo) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     const teacherInfo = await Teacher.findById({
@@ -1347,19 +1347,19 @@ const assigningTeacherToSubject = async (
     }).session(session);
 
     if (!teacherInfo) {
-      throw new AppError('Teacher not found.', 404);
+      throw new AppError("Teacher not found.", 404);
     }
 
     if (teacherInfo.is_updated !== true) {
       throw new AppError(
-        'This teacher needs to be onboarded before being assigned to teach any subject.',
+        "This teacher needs to be onboarded before being assigned to teach any subject.",
         400
       );
     }
 
     const possibleMiddleName = teacherInfo.middle_name
       ? `${teacherInfo.middle_name}`
-      : '';
+      : "";
 
     const middleName = capitalizeFirstLetter(possibleMiddleName);
     const firstName = capitalizeFirstLetter(teacherInfo.first_name);
@@ -1386,7 +1386,7 @@ const assigningTeacherToSubject = async (
     }).session(session);
 
     if (!subjectInfo) {
-      throw new AppError('Subject not found.', 404);
+      throw new AppError("Subject not found.", 404);
     }
 
     const checkSubject = teacherInfo.subjects_capable_of_teaching?.find(
@@ -1410,7 +1410,7 @@ const assigningTeacherToSubject = async (
       .some((subject) => subject.toString() === subjectInfo._id.toString());
 
     if (!isSubjectPartOfClass) {
-      throw new AppError('Subject not associated with this class.', 400);
+      throw new AppError("Subject not associated with this class.", 400);
     }
 
     const currentSession = await Session.findOne({
@@ -1418,18 +1418,18 @@ const assigningTeacherToSubject = async (
     });
 
     if (!currentSession) {
-      throw new AppError('No active session found.', 404);
+      throw new AppError("No active session found.", 404);
     }
 
     const activeTerm = currentSession.terms.find((term) => term.is_active);
 
     if (!activeTerm) {
-      throw new AppError('No active term found in this current session.', 404);
+      throw new AppError("No active term found in this current session.", 404);
     }
 
     const findTeacherAndSubject = await Class.findOne({
       _id: class_id,
-      'teacher_subject_assignments.subject': subjectInfo._id,
+      "teacher_subject_assignments.subject": subjectInfo._id,
     })
       .populate<{
         teacher_subject_assignments: {
@@ -1437,7 +1437,7 @@ const assigningTeacherToSubject = async (
           teacher: UserDocument;
         }[];
       }>(
-        'teacher_subject_assignments.subject teacher_subject_assignments.teacher'
+        "teacher_subject_assignments.subject teacher_subject_assignments.teacher"
       )
       .session(session);
 
@@ -1452,7 +1452,7 @@ const assigningTeacherToSubject = async (
         });
 
       if (classSubjectDetails) {
-        let msg = '';
+        let msg = "";
         if (classSubjectDetails?.teacher?._id.toString() === teacher_id) {
           msg = `This teacher has already being assigned to teach ${subject} in this class.`;
         } else {
@@ -1491,7 +1491,7 @@ const assigningTeacherToSubject = async (
     const classObj = {
       classDoc,
       teacherFullName,
-      subject: subject ? subject : '',
+      subject: subject ? subject : "",
     };
 
     await session.commitTransaction();
@@ -1504,7 +1504,7 @@ const assigningTeacherToSubject = async (
       throw new AppError(`${error.message}`, 400);
     } else {
       console.error(error);
-      throw new Error('Unable to assign teacher to subject,');
+      throw new Error("Unable to assign teacher to subject,");
     }
   }
 };
@@ -1517,12 +1517,12 @@ const getTeacherDetailsById = async (
       _id: teacher_id,
     })
       .populate(
-        'teaching_assignment.subject teaching_assignment.class_id subjects_capable_of_teaching class_managing'
+        "teaching_assignment.subject teaching_assignment.class_id subjects_capable_of_teaching class_managing"
       )
       .lean();
 
     if (!findTeacher) {
-      throw new AppError('Teacher not found.', 404);
+      throw new AppError("Teacher not found.", 404);
     }
 
     const { password, ...others } = findTeacher;
@@ -1532,7 +1532,7 @@ const getTeacherDetailsById = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1553,7 +1553,7 @@ const fetchTeachersBySubjectId = async (
     });
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -1566,7 +1566,7 @@ const fetchTeachersBySubjectId = async (
     }
 
     if (!query) {
-      throw new AppError('Teachers not found.', 404);
+      throw new AppError("Teachers not found.", 404);
     }
 
     const count = await query.clone().countDocuments();
@@ -1582,7 +1582,7 @@ const fetchTeachersBySubjectId = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
 
@@ -1594,7 +1594,7 @@ const fetchTeachersBySubjectId = async (
     const findTeachers = await query.sort({ createdAt: -1 });
 
     if (!findTeachers) {
-      throw new AppError('Teachers not found.', 404);
+      throw new AppError("Teachers not found.", 404);
     }
 
     const teachersArray = findTeachers.map((teacher) => {
@@ -1612,7 +1612,7 @@ const fetchTeachersBySubjectId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1628,11 +1628,11 @@ const fetchAllTeachers = async (
 }> => {
   try {
     let query = Teacher.find({}).populate(
-      'teaching_assignment.class_id teaching_assignment.subject subjects_capable_of_teaching'
+      "teaching_assignment.class_id teaching_assignment.subject subjects_capable_of_teaching"
     );
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -1646,7 +1646,7 @@ const fetchAllTeachers = async (
     }
 
     if (!query) {
-      throw new AppError('Teacher not found.', 404);
+      throw new AppError("Teacher not found.", 404);
     }
 
     const count = await query.clone().countDocuments();
@@ -1660,16 +1660,16 @@ const fetchAllTeachers = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
     }
 
     const findTeachers = await query
       .sort({ createdAt: -1 })
-      .populate('class_managing');
+      .populate("class_managing");
 
     if (!findTeachers || findTeachers.length === 0) {
-      throw new AppError('Teachers not found.', 404);
+      throw new AppError("Teachers not found.", 404);
     }
 
     const teachersArray = findTeachers.map((teacher) => {
@@ -1688,7 +1688,7 @@ const fetchAllTeachers = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1721,12 +1721,12 @@ const onboardTeacher = async (
     }).session(session);
 
     if (!teacher) {
-      throw new AppError('Teacher not found.', 404);
+      throw new AppError("Teacher not found.", 404);
     }
 
     if (teacher.is_verified !== true) {
       throw new AppError(
-        'Teacher must verify his or her email before such teacher can be onboarded.',
+        "Teacher must verify his or her email before such teacher can be onboarded.",
         404
       );
     }
@@ -1753,7 +1753,7 @@ const onboardTeacher = async (
 
     if (duplicateSubjects.length > 0) {
       throw new AppError(
-        `Subjects with IDs ${duplicateSubjects.join(', ')} already exist`,
+        `Subjects with IDs ${duplicateSubjects.join(", ")} already exist`,
         400
       );
     }
@@ -1771,11 +1771,11 @@ const onboardTeacher = async (
       { new: true }
     )
       .session(session)
-      .populate('subjects_capable_of_teaching');
+      .populate("subjects_capable_of_teaching");
     // .lean();
 
     if (!findAndUpdateTeacher) {
-      throw new AppError('Teacher not found or unable to update teacher.', 400);
+      throw new AppError("Teacher not found or unable to update teacher.", 400);
     }
 
     const findSubjectAndUpdate = await Promise.all(
@@ -1804,7 +1804,7 @@ const onboardTeacher = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -1818,7 +1818,7 @@ const classTeacherChange = async (payload: ClassTeacherChangeType) => {
     const classInfo = await Class.findById({
       _id: class_id,
     })
-      .populate('class_teacher', '-password')
+      .populate("class_teacher", "-password")
       .session(session);
 
     if (!classInfo) {
@@ -1829,7 +1829,7 @@ const classTeacherChange = async (payload: ClassTeacherChangeType) => {
     const teacherInfo = await Teacher.findById({
       _id: new_class_teacher_id,
     })
-      .populate('class_managing')
+      .populate("class_managing")
       .session(session);
 
     if (!teacherInfo) {
@@ -1878,7 +1878,7 @@ const classTeacherChange = async (payload: ClassTeacherChangeType) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1895,7 +1895,7 @@ const changingTeacherToSubject = async (
       _id: class_id,
     }).session(session);
     if (!classInfo) {
-      throw new AppError('Class not found.', 404);
+      throw new AppError("Class not found.", 404);
     }
 
     const teacherInfo = await Teacher.findById({
@@ -1903,19 +1903,19 @@ const changingTeacherToSubject = async (
     }).session(session);
 
     if (!teacherInfo) {
-      throw new AppError('Teacher not found.', 404);
+      throw new AppError("Teacher not found.", 404);
     }
 
     if (teacherInfo.is_updated !== true) {
       throw new AppError(
-        'This teacher needs to be onboarded before being assigned to teach any subject.',
+        "This teacher needs to be onboarded before being assigned to teach any subject.",
         400
       );
     }
 
     const possibleMiddleName = teacherInfo.middle_name
       ? `${teacherInfo.middle_name}`
-      : '';
+      : "";
 
     const middleName = capitalizeFirstLetter(possibleMiddleName);
     const firstName = capitalizeFirstLetter(teacherInfo.first_name);
@@ -1942,7 +1942,7 @@ const changingTeacherToSubject = async (
     }).session(session);
 
     if (!subjectInfo) {
-      throw new AppError('Subject not found.', 404);
+      throw new AppError("Subject not found.", 404);
     }
 
     const checkSubject = teacherInfo.subjects_capable_of_teaching?.find(
@@ -1966,15 +1966,15 @@ const changingTeacherToSubject = async (
       .some((subject) => subject.toString() === subjectInfo._id.toString());
 
     if (!isSubjectPartOfClass) {
-      throw new AppError('Subject not associated with this class.', 400);
+      throw new AppError("Subject not associated with this class.", 400);
     }
 
     const findTeacherAndSubject = await Class.findOne({
       _id: class_id,
-      'teacher_subject_assignments.subject': subjectInfo._id,
+      "teacher_subject_assignments.subject": subjectInfo._id,
     })
       .populate(
-        'teacher_subject_assignments.subject teacher_subject_assignments.teacher'
+        "teacher_subject_assignments.subject teacher_subject_assignments.teacher"
       )
       .session(session);
 
@@ -1983,8 +1983,8 @@ const changingTeacherToSubject = async (
         findTeacherAndSubject?.teacher_subject_assignments.find((item) => {
           if (
             item.subject &&
-            typeof item.subject === 'object' &&
-            '_id' in item.subject
+            typeof item.subject === "object" &&
+            "_id" in item.subject
           ) {
             return (
               (item.subject as any)._id.toString() ===
@@ -2057,7 +2057,7 @@ const changingTeacherToSubject = async (
     const classObj = {
       classDoc,
       teacherFullName,
-      subject: subject ? subject : '',
+      subject: subject ? subject : "",
     };
 
     await session.commitTransaction();
@@ -2070,7 +2070,7 @@ const changingTeacherToSubject = async (
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2092,7 +2092,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
       _id: class_id,
     })
       .populate(
-        'teacher_subject_assignments.teacher teacher_subject_assignments.subject'
+        "teacher_subject_assignments.teacher teacher_subject_assignments.subject"
       )
       .lean();
 
@@ -2108,12 +2108,12 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
       throw new AppError(`Subject with ID: ${subject_id} does not exist.`, 404);
     }
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       const findTeacher = await Teacher.findById({
         _id: userId,
       });
       if (!findTeacher) {
-        throw new AppError('Teacher not found.', 404);
+        throw new AppError("Teacher not found.", 404);
       }
 
       // Check if teacher is assigned
@@ -2160,7 +2160,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
         student: StudentDocument;
         subjects_offered: { _id: mongoose.Types.ObjectId }[];
       }[];
-    }>('students.student students.subjects_offered', '-password');
+    }>("students.student students.subjects_offered", "-password");
     // .lean();
 
     if (!classDetails || !classDetails.students) {
@@ -2242,7 +2242,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2255,10 +2255,10 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
 
     const userId = Object(user_id);
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       if (teacher_id !== userId.toString()) {
         throw new AppError(
-          'You can only view the class and subject that belong to you as a teacher.',
+          "You can only view the class and subject that belong to you as a teacher.",
           403
         );
       }
@@ -2271,7 +2271,7 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
         class_id: string;
         subject: SubjectDocument;
       }[];
-    }>('teaching_assignment.class_id teaching_assignment.subject');
+    }>("teaching_assignment.class_id teaching_assignment.subject");
 
     if (!teacher) {
       throw new AppError(`Teacher with ID: ${teacher_id} does not exist.`, 404);
@@ -2281,7 +2281,7 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
 
     if (!teacher.teaching_assignment) {
       throw new AppError(
-        'Teacher assignment does not exist for this teacher.',
+        "Teacher assignment does not exist for this teacher.",
         400
       );
     }
@@ -2294,7 +2294,7 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
       const { class_id, subject } = assignment;
 
       if (!subject || !subject._id) {
-        throw new AppError('Invalid subject data.', 400);
+        throw new AppError("Invalid subject data.", 400);
       }
 
       const classEnrolment = await ClassEnrolment.find({
@@ -2306,7 +2306,7 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
             student: object;
             subjects_offered: Types.ObjectId[];
           }[]
-        >('students.student')
+        >("students.student")
         .lean();
 
       const studentObj = classEnrolment.map((c) => c.students);
@@ -2341,7 +2341,7 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2362,7 +2362,7 @@ const fetchStudentsOfferingTeacherSubjectUsingClassId = async (
 
     let studentArray = [];
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       const teacher = await Teacher.findById({
         _id: userId,
       });
@@ -2383,7 +2383,7 @@ const fetchStudentsOfferingTeacherSubjectUsingClassId = async (
 
       if (!teacherSubject || !subjectExistInTeacher) {
         throw new AppError(
-          'You are not the teacher assigned to teach this subject in this class.',
+          "You are not the teacher assigned to teach this subject in this class.",
           403
         );
       }
@@ -2410,10 +2410,10 @@ const fetchStudentsOfferingTeacherSubjectUsingClassId = async (
       const classEnrolment = await ClassEnrolment.findOne({
         academic_session_id: activeSession._id,
         class: class_id,
-      }).populate('students.student', '-password');
+      }).populate("students.student", "-password");
 
       if (!classEnrolment) {
-        throw new AppError('No active class enrolment.', 404);
+        throw new AppError("No active class enrolment.", 404);
       }
 
       for (const student of classEnrolment?.students) {
@@ -2433,7 +2433,7 @@ const fetchStudentsOfferingTeacherSubjectUsingClassId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2452,7 +2452,7 @@ const fetchAllStudentsInClassByClassId = async (
       throw new AppError(`Class with ID: ${class_id} does not exist.`, 404);
     }
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       const teacher = await Teacher.findById({
         _id: userId,
       });
@@ -2480,7 +2480,7 @@ const fetchAllStudentsInClassByClassId = async (
     const latestClassEnrolment = await ClassEnrolment.findOne({
       class: classExist._id,
       academic_session_id: activeSession._id,
-    }).populate('students.student', '-password');
+    }).populate("students.student", "-password");
 
     if (!latestClassEnrolment) {
       throw new AppError(
@@ -2494,7 +2494,7 @@ const fetchAllStudentsInClassByClassId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2517,7 +2517,7 @@ const fetchStudentsInClassThatTeacherManages = async (
       throw new AppError(`Class with ID: ${class_id} does not exist.`, 404);
     }
 
-    if (userRole === 'teacher') {
+    if (userRole === "teacher") {
       const teacher = await Teacher.findById({
         _id: userId,
       });
@@ -2548,7 +2548,7 @@ const fetchStudentsInClassThatTeacherManages = async (
     const latestClassEnrolment = await ClassEnrolment.findOne({
       class: classExist._id,
       academic_session_id: activeSession._id,
-    }).populate('students.student', '-password');
+    }).populate("students.student", "-password");
 
     if (!latestClassEnrolment) {
       throw new AppError(
@@ -2588,7 +2588,7 @@ const fetchStudentsInClassThatTeacherManages = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -2606,7 +2606,7 @@ const fetchClassTeacherManagesByTeacherId = async (
     });
 
     if (!teacherExist) {
-      throw new AppError('Teacher not found.', 404);
+      throw new AppError("Teacher not found.", 404);
     }
 
     const myStatus = genderFunction(teacherExist);
@@ -2627,7 +2627,7 @@ const fetchClassTeacherManagesByTeacherId = async (
     });
 
     if (!classManaging) {
-      throw new AppError('Class managing not found.', 404);
+      throw new AppError("Class managing not found.", 404);
     }
 
     return classManaging;
@@ -2635,7 +2635,7 @@ const fetchClassTeacherManagesByTeacherId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };

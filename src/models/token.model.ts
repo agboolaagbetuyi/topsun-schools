@@ -1,8 +1,8 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 
 const adminTokenSchema = new mongoose.Schema(
   {
-    admin_id: { type: Schema.Types.ObjectId, ref: 'Admin' },
+    admin_id: { type: Schema.Types.ObjectId, ref: "Admin" },
     role: { type: String, required: true },
     purpose: { type: String, required: true },
     token: { type: String, required: true },
@@ -19,7 +19,7 @@ const adminTokenSchema = new mongoose.Schema(
 
 const superAdminTokenSchema = new mongoose.Schema(
   {
-    super_admin_id: { type: Schema.Types.ObjectId, ref: 'SuperAdmin' },
+    super_admin_id: { type: Schema.Types.ObjectId, ref: "SuperAdmin" },
     role: { type: String, required: true },
     purpose: { type: String, required: true },
     token: { type: String, required: true },
@@ -36,7 +36,7 @@ const superAdminTokenSchema = new mongoose.Schema(
 
 const nonTeachingTokenSchema = new mongoose.Schema(
   {
-    non_teaching_id: { type: Schema.Types.ObjectId, ref: 'NonTeaching' },
+    non_teaching_id: { type: Schema.Types.ObjectId, ref: "NonTeaching" },
     token: { type: String, required: true },
     purpose: { type: String, required: true },
     role: { type: String, required: true },
@@ -53,7 +53,7 @@ const nonTeachingTokenSchema = new mongoose.Schema(
 
 const oldStudentTokenSchema = new mongoose.Schema(
   {
-    old_student_id: { type: Schema.Types.ObjectId, ref: 'OldStudent' },
+    old_student_id: { type: Schema.Types.ObjectId, ref: "OldStudent" },
     token: { type: String, required: true },
     purpose: { type: String, required: true },
     role: { type: String, required: true },
@@ -70,7 +70,7 @@ const oldStudentTokenSchema = new mongoose.Schema(
 
 const parentTokenSchema = new mongoose.Schema(
   {
-    parent_id: { type: Schema.Types.ObjectId, ref: 'Parent' },
+    parent_id: { type: Schema.Types.ObjectId, ref: "Parent" },
     token: { type: String, required: true },
     purpose: { type: String, required: true },
     role: { type: String, required: true },
@@ -87,7 +87,7 @@ const parentTokenSchema = new mongoose.Schema(
 
 const studentTokenSchema = new mongoose.Schema(
   {
-    student_id: { type: Schema.Types.ObjectId, ref: 'Student' },
+    student_id: { type: Schema.Types.ObjectId, ref: "Student" },
     token: { type: String, required: true },
     purpose: { type: String, required: true },
     role: { type: String, required: true },
@@ -104,7 +104,7 @@ const studentTokenSchema = new mongoose.Schema(
 
 const teacherTokenSchema = new mongoose.Schema(
   {
-    teacher_id: { type: Schema.Types.ObjectId, ref: 'Teacher' },
+    teacher_id: { type: Schema.Types.ObjectId, ref: "Teacher" },
     token: { type: String, required: true },
     purpose: { type: String, required: true },
     role: { type: String, required: true },
@@ -119,22 +119,22 @@ const teacherTokenSchema = new mongoose.Schema(
   }
 );
 
-const AdminToken = mongoose.model('AdminToken', adminTokenSchema);
+const AdminToken = mongoose.model("AdminToken", adminTokenSchema);
 const SuperAdminToken = mongoose.model(
-  'SuperAdminToken',
+  "SuperAdminToken",
   superAdminTokenSchema
 );
 const NonTeachingToken = mongoose.model(
-  'NonTeachingToken',
+  "NonTeachingToken",
   nonTeachingTokenSchema
 );
 const OldStudentToken = mongoose.model(
-  'OldStudentToken',
+  "OldStudentToken",
   oldStudentTokenSchema
 );
-const ParentToken = mongoose.model('ParentToken', parentTokenSchema);
-const StudentToken = mongoose.model('StudentToken', studentTokenSchema);
-const TeacherToken = mongoose.model('TeacherToken', teacherTokenSchema);
+const ParentToken = mongoose.model("ParentToken", parentTokenSchema);
+const StudentToken = mongoose.model("StudentToken", studentTokenSchema);
+const TeacherToken = mongoose.model("TeacherToken", teacherTokenSchema);
 
 export {
   SuperAdminToken,

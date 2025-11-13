@@ -1,16 +1,16 @@
-import mongoose, { Schema } from 'mongoose';
-import { termEnum } from '../constants/enum';
+import mongoose, { Schema } from "mongoose";
+import { termEnum } from "../constants/enum";
 
 const teacherAssignmentSchema = new mongoose.Schema(
   {
-    teacher: { type: Schema.Types.ObjectId, ref: 'Teacher', required: true },
-    class: { type: Schema.Types.ObjectId, ref: 'Class', required: true },
-    subject: { type: Schema.Types.ObjectId, ref: 'Subject', required: true },
+    teacher: { type: Schema.Types.ObjectId, ref: "Teacher", required: true },
+    class: { type: Schema.Types.ObjectId, ref: "Class", required: true },
+    subject: { type: Schema.Types.ObjectId, ref: "Subject", required: true },
     term: { type: String, required: true, enum: termEnum },
     academic_session: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: 'Session',
+      ref: "Session",
     },
   },
   {
@@ -19,7 +19,7 @@ const teacherAssignmentSchema = new mongoose.Schema(
 );
 
 const TeacherAssignment = mongoose.model(
-  'TeacherAssignment',
+  "TeacherAssignment",
   teacherAssignmentSchema
 );
 export default TeacherAssignment;

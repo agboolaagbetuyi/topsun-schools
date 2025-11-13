@@ -232,7 +232,7 @@
 // };
 
 ///////////////////////////////////////////////
-import mongoose, { ObjectId, Types } from 'mongoose';
+import mongoose, { ObjectId, Types } from "mongoose";
 import {
   AccountType,
   FeePayloadType,
@@ -243,12 +243,12 @@ import {
   OptionalFeeProcessingType,
   OptionalFeeType,
   SchoolFeesDocument,
-} from '../constants/types';
-import Fee from '../models/fees.model';
-import Payment from '../models/payment.model';
-import Session from '../models/session.model';
-import { AppError } from '../utils/app.error';
-import { capitalizeFirstLetter, schoolClassLevels } from '../utils/functions';
+} from "../constants/types";
+import Fee from "../models/fees.model";
+import Payment from "../models/payment.model";
+import Session from "../models/session.model";
+import { AppError } from "../utils/app.error";
+import { capitalizeFirstLetter, schoolClassLevels } from "../utils/functions";
 import {
   createFeeDoc,
   fetchClassLevels,
@@ -256,20 +256,20 @@ import {
   mandatoryFeeProcessing,
   mySchoolClasses,
   optionalFeeProcessing,
-} from '../repository/fee.repository';
+} from "../repository/fee.repository";
 import {
   mandatoryFeeAdditionToPaymentDocuments,
   optionalFeeAdditionToPaymentDocuments,
-} from '../repository/payment.repository';
-import { maxSchoolAccountNumbers } from '../utils/code';
+} from "../repository/payment.repository";
+import { maxSchoolAccountNumbers } from "../utils/code";
 
 // this is for creating school fees
 const schoolFeesCreation = async (
-  fee_array: FeePayloadType[],
-  receiving_acc_id: string
+  fee_array: FeePayloadType[]
+  // receiving_acc_id: string
 ): Promise<SchoolFeesDocument[]> => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  // const session = await mongoose.startSession();
+  // session.startTransaction();
   try {
     // const receivingAccount = new mongoose.Types.ObjectId(receiving_acc_id);
 
@@ -302,7 +302,7 @@ const schoolFeesCreation = async (
     if (duplicateLevel.size > 0) {
       throw new AppError(
         `Duplicate level fee found for: ${Array.from(duplicateLevel).join(
-          ', '
+          ", "
         )}.`,
         400
       );
@@ -326,11 +326,12 @@ const schoolFeesCreation = async (
 
     const activeSession = await Session.findOne({
       is_active: true,
-    }).session(session);
+    });
+    // .session(session);
 
     if (!activeSession) {
       throw new AppError(
-        'You can only create school fees in an active session before starting a new term.',
+        "You can only create school fees in an active session before starting a new term.",
         400
       );
     }
@@ -339,33 +340,34 @@ const schoolFeesCreation = async (
       (term) => term.is_active === true
     );
 
-    let term: string = '';
+    let term: string = "";
 
     const terms = activeSession.terms.map((t) => t.name);
 
     if (terms.length === 0) {
-      term = 'first_term';
-    } else if (terms.length === 1 && terms.includes('first_term')) {
-      term = 'second_term';
+      term = "first_term";
+    } else if (terms.length === 1 && terms.includes("first_term")) {
+      term = "second_term";
     } else {
-      term = 'third_term';
+      term = "third_term";
     }
 
     const paymentDocExist = await Payment.findOne({
       session: activeSession._id,
       term: term,
-    }).session(session);
+    });
+    // .session(session);
 
     if (activeTerm) {
       throw new AppError(
-        'Fee documents can only be created when a term has ended.',
+        "Fee documents can only be created when a term has ended.",
         400
       );
     }
 
     if (paymentDocExist) {
       throw new AppError(
-        'You can only create school fees before creating payment document for the term.',
+        "You can only create school fees before creating payment document for the term.",
         400
       );
     }
@@ -377,7 +379,7 @@ const schoolFeesCreation = async (
             level: fee.class_level,
             academic_session_id: activeSession._id,
             term: term,
-          }).session(session);
+          });
         })
       );
 
@@ -388,30 +390,23 @@ const schoolFeesCreation = async (
 
     if (getFeeDocuments.length > 0) {
       throw new AppError(
-        'School fees has already been created for this term.',
+        "School fees has already been created for this term.",
         400
       );
     }
 
-    const feeCreated = await createFeeDoc(
-      fee_array,
-      term,
-      activeSession._id,
-      session
-    );
+    const feeCreated = await createFeeDoc(fee_array, term, activeSession._id);
 
-    await session.commitTransaction();
-    session.endSession();
+    // await session.commitTransaction();
+    // session.endSession();
 
     return feeCreated as unknown as SchoolFeesDocument[];
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
     if (error instanceof AppError) {
       throw new AppError(`${error.message}`, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -427,7 +422,7 @@ const fetchAllSchoolFeesPerTerm = async (
     });
 
     if (!response || response.length === 0) {
-      throw new AppError('No Fee found', 404);
+      throw new AppError("No Fee found", 404);
     }
 
     const responseResult = response.map(
@@ -439,7 +434,7 @@ const fetchAllSchoolFeesPerTerm = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -453,7 +448,7 @@ const fetchASchoolFee = async (
     });
 
     if (!response) {
-      throw new AppError('No Fee found', 404);
+      throw new AppError("No Fee found", 404);
     }
 
     const responseObj = response.toJSON();
@@ -463,7 +458,7 @@ const fetchASchoolFee = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -479,7 +474,7 @@ const fetchASchoolFeeByLevelAndTerm = async (
     });
 
     if (!response) {
-      throw new AppError('No Fee found', 404);
+      throw new AppError("No Fee found", 404);
     }
 
     const responseObj = response.toJSON();
@@ -489,7 +484,7 @@ const fetchASchoolFeeByLevelAndTerm = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -506,7 +501,7 @@ const optionalFeesCreation = async (
     const schoolClasses = await mySchoolClasses(session);
 
     if (!schoolClasses) {
-      throw new AppError('schools not found', 404);
+      throw new AppError("schools not found", 404);
     }
 
     const academicSession = schoolClasses.academicSession;
@@ -527,7 +522,7 @@ const optionalFeesCreation = async (
     if (duplicateClasses.size > 0) {
       throw new AppError(
         `Duplicate Classes found for: ${Array.from(duplicateClasses).join(
-          ', '
+          ", "
         )}.`,
         400
       );
@@ -535,21 +530,21 @@ const optionalFeesCreation = async (
 
     if (activeTerm) {
       throw new AppError(
-        'Optional fees can only be created before the creation of a new term.',
+        "Optional fees can only be created before the creation of a new term.",
         400
       );
     }
 
-    let term: string = '';
+    let term: string = "";
 
     const terms = academicSession.terms.map((t) => t.name);
 
     if (terms.length === 0) {
-      term = 'first_term';
-    } else if (terms.length === 1 && terms.includes('first_term')) {
-      term = 'second_term';
+      term = "first_term";
+    } else if (terms.length === 1 && terms.includes("first_term")) {
+      term = "second_term";
     } else {
-      term = 'third_term';
+      term = "third_term";
     }
 
     const cLevels = await schoolClassLevels(schoolClasses.schoolClasses);
@@ -563,7 +558,7 @@ const optionalFeesCreation = async (
 
     if (gLevels.length !== cLevels.length) {
       throw new AppError(
-        'Please create school fees for all levels before adding other fees.',
+        "Please create school fees for all levels before adding other fees.",
         400
       );
     }
@@ -606,7 +601,7 @@ const optionalFeesCreation = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -624,7 +619,7 @@ const optionalFeesAddition = async (
     const schoolClasses = await mySchoolClasses(session);
 
     if (!schoolClasses) {
-      throw new AppError('schools not found', 404);
+      throw new AppError("schools not found", 404);
     }
 
     const academicSession = schoolClasses.academicSession;
@@ -635,13 +630,13 @@ const optionalFeesAddition = async (
 
     if (!activeTerm) {
       throw new AppError(
-        'There is no active term. Please create one to proceed.',
+        "There is no active term. Please create one to proceed.",
         400
       );
     }
 
     if (activeTerm.name !== term) {
-      throw new AppError('Please choose an active term.', 400);
+      throw new AppError("Please choose an active term.", 400);
     }
 
     const cLevels = await schoolClassLevels(schoolClasses.schoolClasses);
@@ -655,7 +650,7 @@ const optionalFeesAddition = async (
 
     if (gLevels.length !== cLevels.length) {
       throw new AppError(
-        'Please create school fees for all levels before adding other fees.',
+        "Please create school fees for all levels before adding other fees.",
         400
       );
     }
@@ -667,7 +662,7 @@ const optionalFeesAddition = async (
 
     if (termPaymentDocExist.length === 0) {
       throw new AppError(
-        'Please create payment document for students before proceeding.',
+        "Please create payment document for students before proceeding.",
         400
       );
     }
@@ -729,7 +724,7 @@ const optionalFeesAddition = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -748,16 +743,16 @@ const mandatoryFeesCreation = async (
 
     const academicSession = schoolClasses.academicSession;
 
-    let term: string = '';
+    let term: string = "";
 
     const terms = academicSession.terms.map((t) => t.name);
 
     if (terms.length === 0) {
-      term = 'first_term';
-    } else if (terms.length === 1 && terms.includes('first_term')) {
-      term = 'second_term';
+      term = "first_term";
+    } else if (terms.length === 1 && terms.includes("first_term")) {
+      term = "second_term";
     } else {
-      term = 'third_term';
+      term = "third_term";
     }
 
     const activeTerm = academicSession.terms.find(
@@ -766,7 +761,7 @@ const mandatoryFeesCreation = async (
 
     if (activeTerm) {
       throw new AppError(
-        'Mandatory fees can only be created before the start of a new term.',
+        "Mandatory fees can only be created before the start of a new term.",
         400
       );
     }
@@ -784,7 +779,7 @@ const mandatoryFeesCreation = async (
 
     if (gLevels.length !== cLevels.length) {
       throw new AppError(
-        'Please create school fees for all levels before adding other fees.',
+        "Please create school fees for all levels before adding other fees.",
         400
       );
     }
@@ -796,7 +791,7 @@ const mandatoryFeesCreation = async (
 
     if (termPaymentDocExist.length > 0) {
       throw new AppError(
-        'Mandatory fees can only be created before payment document is created.',
+        "Mandatory fees can only be created before payment document is created.",
         400
       );
     }
@@ -877,7 +872,7 @@ const mandatoryFeesCreation = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -895,7 +890,7 @@ const mandatoryFeesAddition = async (
     const schoolClasses = await mySchoolClasses(session);
 
     if (!schoolClasses) {
-      throw new AppError('schools not found', 404);
+      throw new AppError("schools not found", 404);
     }
 
     const academicSession = schoolClasses.academicSession;
@@ -906,13 +901,13 @@ const mandatoryFeesAddition = async (
 
     if (!activeTerm) {
       throw new AppError(
-        'There is no active term. Please create one to proceed.',
+        "There is no active term. Please create one to proceed.",
         400
       );
     }
 
     if (activeTerm.name !== term) {
-      throw new AppError('The term you specify is not the active term.', 400);
+      throw new AppError("The term you specify is not the active term.", 400);
     }
 
     // Get all the levels in the school
@@ -928,7 +923,7 @@ const mandatoryFeesAddition = async (
 
     if (gLevels.length !== cLevels.length) {
       throw new AppError(
-        'Please create school fees for all levels before adding other fees.',
+        "Please create school fees for all levels before adding other fees.",
         400
       );
     }
@@ -981,7 +976,7 @@ const mandatoryFeesAddition = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1004,7 +999,7 @@ const fetchSchoolFees = async (
     // both are passed as query, i should filter based on that
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -1013,7 +1008,7 @@ const fetchSchoolFees = async (
           {
             mandatory_fees: {
               $elemMatch: {
-                $or: [{ fee_name: 'school_fees' }],
+                $or: [{ fee_name: "school_fees" }],
               },
             },
           },
@@ -1022,7 +1017,7 @@ const fetchSchoolFees = async (
     }
 
     if (!query) {
-      throw new AppError('Fees not found.', 404);
+      throw new AppError("Fees not found.", 404);
     }
 
     if (session && term) {
@@ -1045,7 +1040,7 @@ const fetchSchoolFees = async (
       pages = Math.ceil(count / limit);
 
       if (page > pages) {
-        throw new AppError('Page can not be found', 404);
+        throw new AppError("Page can not be found", 404);
       }
     }
 
@@ -1057,14 +1052,14 @@ const fetchSchoolFees = async (
     const response = await query.sort({ createdAt: -1 });
 
     if (!response || response.length === 0) {
-      throw new AppError('Fees not found.', 404);
+      throw new AppError("Fees not found.", 404);
     }
 
     const formattedSchoolFees = response.map((a) => {
       const docObject = a.toObject() as any;
       delete docObject.optional_fees;
       const school_fee = docObject.mandatory_fees.find(
-        (b: MandatoryFeeType) => b.fee_name === 'school_fee'
+        (b: MandatoryFeeType) => b.fee_name === "school_fee"
       );
       delete docObject.mandatory_fees;
       const obj = {
@@ -1086,7 +1081,7 @@ const fetchSchoolFees = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1106,7 +1101,7 @@ const fetchAllMandatoryFees = async (
     let query = Fee.find();
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -1115,7 +1110,7 @@ const fetchAllMandatoryFees = async (
           {
             mandatory_fees: {
               $elemMatch: {
-                $or: [{ fee_name: { $ne: 'school_fee' } }],
+                $or: [{ fee_name: { $ne: "school_fee" } }],
               },
             },
           },
@@ -1124,7 +1119,7 @@ const fetchAllMandatoryFees = async (
     }
 
     if (!query) {
-      throw new AppError('Fees not found.', 404);
+      throw new AppError("Fees not found.", 404);
     }
 
     if (session && term) {
@@ -1142,7 +1137,7 @@ const fetchAllMandatoryFees = async (
     const response = await query.sort({ createdAt: -1 });
 
     if (!response || response.length === 0) {
-      throw new AppError('Fees not found.', 404);
+      throw new AppError("Fees not found.", 404);
     }
 
     const formattedMandatoryFees = response
@@ -1150,7 +1145,7 @@ const fetchAllMandatoryFees = async (
         const docObject = a.toObject() as any;
         delete docObject.optional_fees;
         const otherMandatoryFees = docObject.mandatory_fees.filter(
-          (b: MandatoryFeeType) => b.fee_name !== 'school_fee'
+          (b: MandatoryFeeType) => b.fee_name !== "school_fee"
         );
 
         delete docObject.mandatory_fees;
@@ -1174,7 +1169,7 @@ const fetchAllMandatoryFees = async (
 
     if (page && limit) {
       if (page > totalPages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
 
       const offset = (page - 1) * limit;
@@ -1190,7 +1185,7 @@ const fetchAllMandatoryFees = async (
       };
     } else if (page) {
       if (page > totalPages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
 
       const offset = (page - 1) * 10;
@@ -1212,7 +1207,7 @@ const fetchAllMandatoryFees = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1232,7 +1227,7 @@ const fetchAllOptionalFees = async (
     let query = Fee.find();
 
     if (searchParams) {
-      const regex = new RegExp(searchParams, 'i');
+      const regex = new RegExp(searchParams, "i");
 
       query = query.where({
         $or: [
@@ -1250,7 +1245,7 @@ const fetchAllOptionalFees = async (
     }
 
     if (!query) {
-      throw new AppError('Fees not found.', 404);
+      throw new AppError("Fees not found.", 404);
     }
 
     if (session && term) {
@@ -1266,7 +1261,7 @@ const fetchAllOptionalFees = async (
     const response = await query.sort({ createdAt: -1 });
 
     if (!response || response.length === 0) {
-      throw new AppError('Fees not found.', 404);
+      throw new AppError("Fees not found.", 404);
     }
 
     const filteredResponse = response.filter(
@@ -1301,7 +1296,7 @@ const fetchAllOptionalFees = async (
 
     if (page && limit) {
       if (page > totalPages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
 
       const offset = (page - 1) * limit;
@@ -1314,7 +1309,7 @@ const fetchAllOptionalFees = async (
       };
     } else if (page) {
       if (page > totalPages) {
-        throw new AppError('Page can not be found.', 404);
+        throw new AppError("Page can not be found.", 404);
       }
 
       const offset = (page - 1) * 10;
@@ -1336,7 +1331,7 @@ const fetchAllOptionalFees = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1349,7 +1344,7 @@ const fetchTermFees = async (academic_session_id: string, term: string) => {
     });
 
     if (!result || result.length === 0) {
-      throw new AppError('School fees not found for this term.', 404);
+      throw new AppError("School fees not found for this term.", 404);
     }
 
     return result;
@@ -1357,7 +1352,7 @@ const fetchTermFees = async (academic_session_id: string, term: string) => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1373,7 +1368,7 @@ const fetchTermMandatoryFees = async (
     });
 
     if (!result || result.length === 0) {
-      throw new AppError('School fees not found for this term.', 404);
+      throw new AppError("School fees not found for this term.", 404);
     }
 
     const formattedMandatoryFees = result.map((a) => {
@@ -1387,7 +1382,7 @@ const fetchTermMandatoryFees = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -1403,7 +1398,7 @@ const fetchTermOptionalFees = async (
     });
 
     if (!result || result.length === 0) {
-      throw new AppError('School fees not found for this term.', 404);
+      throw new AppError("School fees not found for this term.", 404);
     }
 
     const formattedOptionalFees = result.map((a) => {
@@ -1417,7 +1412,7 @@ const fetchTermOptionalFees = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };

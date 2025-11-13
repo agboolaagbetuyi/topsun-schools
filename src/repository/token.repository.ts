@@ -1,12 +1,12 @@
-import mongoose, { Document, Model } from 'mongoose';
-import { verificationEnum } from '../constants/enum';
+import mongoose, { Document, Model } from "mongoose";
+import { verificationEnum } from "../constants/enum";
 import {
   RefreshTokenType,
   UserDocument,
   VerificationDocument,
   VerificationType,
   VerifyUserType,
-} from '../constants/types';
+} from "../constants/types";
 import {
   AdminToken,
   NonTeachingToken,
@@ -15,9 +15,9 @@ import {
   StudentToken,
   SuperAdminToken,
   TeacherToken,
-} from '../models/token.model';
-import { generateCode } from '../utils/code';
-import { RefreshToken } from '../models/refresh_token.model';
+} from "../models/token.model";
+import { generateCode } from "../utils/code";
+import { RefreshToken } from "../models/refresh_token.model";
 
 const generateAndStoreVerificationToken = async (
   payload: UserDocument,
@@ -34,13 +34,13 @@ const generateAndStoreVerificationToken = async (
   };
 
   const idFieldMapping: Record<string, string> = {
-    super_admin: 'super_admin_id',
-    admin: 'admin_id',
-    non_teaching: 'non_teaching_id',
-    old_student: 'old_student_id',
-    parent: 'parent_id',
-    student: 'student_id',
-    teacher: 'teacher_id',
+    super_admin: "super_admin_id",
+    admin: "admin_id",
+    non_teaching: "non_teaching_id",
+    old_student: "old_student_id",
+    parent: "parent_id",
+    student: "student_id",
+    teacher: "teacher_id",
   };
 
   const tokenModel = roleTokenModel[payload.role];
@@ -57,7 +57,7 @@ const generateAndStoreVerificationToken = async (
   const token = generateCode(6);
 
   if (!token) {
-    console.log('TOKEN NOT GENERATED.');
+    console.log("TOKEN NOT GENERATED.");
   }
 
   try {
@@ -70,8 +70,8 @@ const generateAndStoreVerificationToken = async (
 
     return await authToken.save();
   } catch (error) {
-    console.error('Error saving verification token:', error);
-    throw new Error('Failed to store verification token');
+    console.error("Error saving verification token:", error);
+    throw new Error("Failed to store verification token");
   }
 };
 
@@ -85,31 +85,31 @@ const getUserTokenDetails = async (
   }[] = [
     {
       model: SuperAdminToken as unknown as Model<VerificationDocument>,
-      field: 'token',
+      field: "token",
     },
     {
       model: AdminToken as unknown as Model<VerificationDocument>,
-      field: 'token',
+      field: "token",
     },
     {
       model: NonTeachingToken as unknown as Model<VerificationDocument>,
-      field: 'token',
+      field: "token",
     },
     {
       model: OldStudentToken as unknown as Model<VerificationDocument>,
-      field: 'token',
+      field: "token",
     },
     {
       model: ParentToken as unknown as Model<VerificationDocument>,
-      field: 'token',
+      field: "token",
     },
     {
       model: StudentToken as unknown as Model<VerificationDocument>,
-      field: 'token',
+      field: "token",
     },
     {
       model: TeacherToken as unknown as Model<VerificationDocument>,
-      field: 'token',
+      field: "token",
     },
   ];
 
@@ -143,31 +143,31 @@ const getUserTokenDetailsUsingUserId = async (
   }[] = [
     {
       model: SuperAdminToken as unknown as Model<VerificationDocument>,
-      field: 'super_admin_id',
+      field: "super_admin_id",
     },
     {
       model: AdminToken as unknown as Model<VerificationDocument>,
-      field: 'admin_id',
+      field: "admin_id",
     },
     {
       model: NonTeachingToken as unknown as Model<VerificationDocument>,
-      field: 'non_teaching_id',
+      field: "non_teaching_id",
     },
     {
       model: OldStudentToken as unknown as Model<VerificationDocument>,
-      field: 'old_student_id',
+      field: "old_student_id",
     },
     {
       model: ParentToken as unknown as Model<VerificationDocument>,
-      field: 'parent_id',
+      field: "parent_id",
     },
     {
       model: StudentToken as unknown as Model<VerificationDocument>,
-      field: 'student_id',
+      field: "student_id",
     },
     {
       model: TeacherToken as unknown as Model<VerificationDocument>,
-      field: 'teacher_id',
+      field: "teacher_id",
     },
   ];
 

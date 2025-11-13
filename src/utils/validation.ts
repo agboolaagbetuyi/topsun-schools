@@ -582,7 +582,7 @@
 
 ////////////////////////////////////////////////////
 
-import Joi, { any, boolean, extend, object } from 'joi';
+import Joi, { any, boolean, extend, object } from "joi";
 import {
   ComparePassType,
   CreateSubjectType,
@@ -612,8 +612,8 @@ import {
   CbtCutoffPayload,
   AssessmentDocumentType,
   NewDateTimetable,
-} from '../constants/types';
-import { JoiError } from './app.error';
+} from "../constants/types";
+import { JoiError } from "./app.error";
 
 const forbiddenCharsRegex = /^[^|!{}()&=[\]===><>]+$/;
 const forbiddenRegexForSubject = /^[^|!{}()&=[\]===><>.]+$/;
@@ -639,21 +639,21 @@ const joiValidation = <
 >(
   payload: T,
   validationType:
-    | 'register'
-    | 'login'
-    | 'reset-password'
-    | 'forgot-password'
-    | 'link-student'
-    | 'create-subject'
-    | 'create-class'
+    | "register"
+    | "login"
+    | "reset-password"
+    | "forgot-password"
+    | "link-student"
+    | "create-subject"
+    | "create-class"
 ): { success: boolean; value: T } => {
   let validationSchema;
 
   switch (validationType) {
-    case 'register':
+    case "register":
       validationSchema = Joi.object({
         first_name: commonRules.first_name,
-        middle_name: Joi.string().allow('').optional(),
+        middle_name: Joi.string().allow("").optional(),
         gender: Joi.string().required(),
         phone: commonRules.phone,
         last_name: Joi.string()
@@ -661,32 +661,32 @@ const joiValidation = <
           .required()
           .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
           .messages({
-            'string.empty': 'Last name is required',
-            'string.min': 'Last name length must be at least 3 characters long',
-            'string.pattern.base': 'Invalid characters in last name field',
+            "string.empty": "Last name is required",
+            "string.min": "Last name length must be at least 3 characters long",
+            "string.pattern.base": "Invalid characters in last name field",
           }),
         email: commonRules.email,
         password: commonRules.password,
         confirm_password: Joi.string()
-          .valid(Joi.ref('password'))
+          .valid(Joi.ref("password"))
           .required()
           .messages({
-            'any.only': 'Password and confirm password do not match',
+            "any.only": "Password and confirm password do not match",
           }),
       });
       break;
 
-    case 'link-student':
+    case "link-student":
       validationSchema = Joi.object({
         first_name: Joi.string()
           .min(3)
           .required()
           .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
           .messages({
-            'string.min':
-              'First name length must be at least 3 characters long',
-            'string.empty': 'First name is required',
-            'string.pattern.base': 'Invalid characters in first name field',
+            "string.min":
+              "First name length must be at least 3 characters long",
+            "string.empty": "First name is required",
+            "string.pattern.base": "Invalid characters in first name field",
           }),
 
         last_name: Joi.string()
@@ -694,22 +694,22 @@ const joiValidation = <
           .required()
           .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
           .messages({
-            'string.empty': 'Last name is required',
-            'string.min': 'Last name length must be at least 3 characters long',
-            'string.pattern.base': 'Invalid characters in last name field',
+            "string.empty": "Last name is required",
+            "string.min": "Last name length must be at least 3 characters long",
+            "string.pattern.base": "Invalid characters in last name field",
           }),
       });
       break;
-    case 'create-subject':
+    case "create-subject":
       validationSchema = Joi.object({
         name: Joi.string()
           .min(3)
           .required()
           .pattern(new RegExp(`^[^${forbiddenRegexForSubject.source}]*$`))
           .messages({
-            'string.empty': 'Name is required',
-            'string.min': 'Name length must be at least 3 characters long',
-            'string.pattern.base': 'Invalid characters in name field',
+            "string.empty": "Name is required",
+            "string.min": "Name length must be at least 3 characters long",
+            "string.pattern.base": "Invalid characters in name field",
           }),
 
         description: Joi.string()
@@ -717,24 +717,24 @@ const joiValidation = <
           .required()
           .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
           .messages({
-            'string.empty': 'Description is required',
-            'string.min':
-              'Description length must be at least 3 characters long',
-            'string.pattern.base': 'Invalid characters in description field',
+            "string.empty": "Description is required",
+            "string.min":
+              "Description length must be at least 3 characters long",
+            "string.pattern.base": "Invalid characters in description field",
           }),
       });
       break;
 
-    case 'create-class':
+    case "create-class":
       validationSchema = Joi.object({
         name: Joi.string()
           .min(3)
           .required()
           .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
           .messages({
-            'string.empty': 'Name is required',
-            'string.min': 'Name length must be at least 3 characters long',
-            'string.pattern.base': 'Invalid characters in name field',
+            "string.empty": "Name is required",
+            "string.min": "Name length must be at least 3 characters long",
+            "string.pattern.base": "Invalid characters in name field",
           }),
 
         level: Joi.string()
@@ -742,17 +742,17 @@ const joiValidation = <
           .required()
           .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
           .messages({
-            'string.empty': 'Level is required',
-            'string.min': 'Level length must be at least 2 characters long',
-            'string.pattern.base': 'Invalid characters in level field',
+            "string.empty": "Level is required",
+            "string.min": "Level length must be at least 2 characters long",
+            "string.pattern.base": "Invalid characters in level field",
           }),
 
         section: Joi.string()
           .required()
           .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
           .messages({
-            'string.empty': 'Section is required',
-            'string.pattern.base': 'Invalid characters in section field',
+            "string.empty": "Section is required",
+            "string.pattern.base": "Invalid characters in section field",
           }),
 
         description: Joi.string()
@@ -761,35 +761,35 @@ const joiValidation = <
           .required()
           .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
           .messages({
-            'string.empty': 'Description is required',
-            'string.min':
-              'Description length must be at least 3 characters long',
-            'string.pattern.base': 'Invalid characters in description field',
+            "string.empty": "Description is required",
+            "string.min":
+              "Description length must be at least 3 characters long",
+            "string.pattern.base": "Invalid characters in description field",
           }),
       });
       break;
 
-    case 'login':
+    case "login":
       validationSchema = Joi.object({
         email: commonRules.email,
         password: commonRules.password,
       });
       break;
 
-    case 'reset-password':
+    case "reset-password":
       validationSchema = Joi.object({
         password: commonRules.password,
         confirm_password: Joi.string()
-          .valid(Joi.ref('password'))
+          .valid(Joi.ref("password"))
           .required()
           .messages({
-            'string.empty': 'Confirm Password is required',
-            'any.only': 'Password and confirm password do not match',
+            "string.empty": "Confirm Password is required",
+            "any.only": "Password and confirm password do not match",
           }),
       });
       break;
 
-    case 'forgot-password':
+    case "forgot-password":
       validationSchema = Joi.object({
         email: commonRules.email,
       });
@@ -804,7 +804,7 @@ const joiValidation = <
       break;
 
     default:
-      throw new Error('Invalid validation type');
+      throw new Error("Invalid validation type");
   }
 
   const { error, value } = validationSchema.validate(payload);
@@ -829,7 +829,7 @@ const joiValidateContactUs = <T extends ContactUsType>(
     first_name: commonRules.first_name,
     email: commonRules.email,
     last_name: commonRules.last_name,
-    school_name: Joi.string().optional().allow(null, ''),
+    school_name: Joi.string().optional().allow(null, ""),
     message: Joi.string()
       .required()
       .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`)),
@@ -861,19 +861,19 @@ const parentValidation = <T extends ParentType>(
 
 const sessionValidation = <T extends string | TermDocument>(
   payload: T,
-  type: 'session' | 'term'
+  type: "session" | "term"
 ): { success: boolean; value: T } => {
   let validationSchema;
   switch (type) {
-    case 'session':
+    case "session":
       validationSchema = Joi.object({
         academic_session: Joi.string()
           .required()
           .pattern(academicSessionRegex)
           .messages({
-            'string.empty': 'Academic session is required',
-            'string.pattern.base':
-              'Invalid characters in academic session field',
+            "string.empty": "Academic session is required",
+            "string.pattern.base":
+              "Invalid characters in academic session field",
           }),
       });
 
@@ -889,30 +889,30 @@ const sessionValidation = <T extends string | TermDocument>(
       return { success: true, value: value.academic_session as T };
       break;
 
-    case 'term':
+    case "term":
       validationSchema = Joi.object({
         name: Joi.string()
           .required()
-          .valid('first_term', 'second_term', 'third_term')
+          .valid("first_term", "second_term", "third_term")
           .messages({
-            'string.empty': 'Term name is required',
-            'any.only':
+            "string.empty": "Term name is required",
+            "any.only":
               '"Name" must be one of the following "first term" or "second term" or"third term"',
           }),
 
         start_date: Joi.string().required().pattern(dateRegex).messages({
-          'string.empty': 'Start date is required',
-          'string.pattern.base': 'Start date must be in the format "DD-MM-YY"',
+          "string.empty": "Start date is required",
+          "string.pattern.base": 'Start date must be in the format "DD-MM-YY"',
         }),
 
         end_date: Joi.string().required().pattern(dateRegex).messages({
-          'string.empty': 'End date is required',
-          'string.pattern.base': 'End date must be in the format "DD-MM-YY"',
+          "string.empty": "End date is required",
+          "string.pattern.base": 'End date must be in the format "DD-MM-YY"',
         }),
       });
       break;
     default:
-      throw new Error('Invalid validation type');
+      throw new Error("Invalid validation type");
   }
 
   const { error, value } = validationSchema.validate(payload);
@@ -958,7 +958,7 @@ const superAdminValidation = <T extends ExcludeParentAndStudent>(
   const { error, value } = validationSchema.validate(payload);
 
   if (error) {
-    console.error('superAdminValidation error:', error.details[0].message);
+    console.error("superAdminValidation error:", error.details[0].message);
     return { success: false, error: error.details[0].message };
   }
 
@@ -993,8 +993,8 @@ const studentValidation = <T extends StudentValidationType>(
       .required()
       .pattern(academicSessionRegex)
       .messages({
-        'string.empty': 'Admission session is required',
-        'string.pattern.base': 'Invalid characters in admission session field',
+        "string.empty": "Admission session is required",
+        "string.pattern.base": "Invalid characters in admission session field",
       }),
   });
 
@@ -1015,9 +1015,9 @@ const teacherValidation = <T extends TeacherValidationType>(
       .required()
       .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
       .messages({
-        'string.min': 'First name length must be at least 3 characters long',
-        'string.empty': 'First name is required',
-        'string.pattern.base': 'Invalid characters in first name field',
+        "string.min": "First name length must be at least 3 characters long",
+        "string.empty": "First name is required",
+        "string.pattern.base": "Invalid characters in first name field",
       }),
 
     last_name: Joi.string()
@@ -1025,9 +1025,9 @@ const teacherValidation = <T extends TeacherValidationType>(
       .required()
       .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
       .messages({
-        'string.empty': 'Last name is required',
-        'string.min': 'Last name length must be at least 3 characters long',
-        'string.pattern.base': 'Invalid characters in last name field',
+        "string.empty": "Last name is required",
+        "string.min": "Last name length must be at least 3 characters long",
+        "string.pattern.base": "Invalid characters in last name field",
       }),
     middle_name: commonRules.middle_name,
   });
@@ -1041,29 +1041,29 @@ const teacherValidation = <T extends TeacherValidationType>(
 
 const commonRules = {
   phone: Joi.string().pattern(phoneNumberPattern).optional().messages({
-    'string.pattern.base': 'Please provide a valid phone number',
+    "string.pattern.base": "Please provide a valid phone number",
   }),
   first_name: Joi.string()
     .min(3)
     .required()
     .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
     .messages({
-      'string.min': 'First name length must be at least 3 characters long',
-      'string.empty': 'First name is required',
-      'string.pattern.base': 'Invalid characters in first name field',
+      "string.min": "First name length must be at least 3 characters long",
+      "string.empty": "First name is required",
+      "string.pattern.base": "Invalid characters in first name field",
     }),
   last_name: Joi.string()
     .min(3)
     .required()
     .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
     .messages({
-      'string.min': 'Last name length must be at least 3 characters long',
-      'string.empty': 'First name is required',
-      'string.pattern.base': 'Invalid characters in last name field',
+      "string.min": "Last name length must be at least 3 characters long",
+      "string.empty": "First name is required",
+      "string.pattern.base": "Invalid characters in last name field",
     }),
   email: Joi.string().email().required().messages({
-    'string.empty': 'Email is required',
-    'string.email': 'Please provide a valid email address',
+    "string.empty": "Email is required",
+    "string.email": "Please provide a valid email address",
   }),
   password: Joi.string()
     .min(8)
@@ -1071,34 +1071,34 @@ const commonRules = {
     .required()
     .pattern(passwordRegex)
     .messages({
-      'string.empty': 'Password is required',
-      'string.min': 'Password must be at least 8 characters long',
-      'string.max': 'Password can not be longer than 32 characters',
-      'string.pattern.base':
-        'Password must contain at least one lowercase, one uppercase, one number and one special character',
+      "string.empty": "Password is required",
+      "string.min": "Password must be at least 8 characters long",
+      "string.max": "Password can not be longer than 32 characters",
+      "string.pattern.base":
+        "Password must contain at least one lowercase, one uppercase, one number and one special character",
     }),
-  dob: Joi.date().less('now').iso().required().messages({
-    'date.less': 'Date of birth must be in the past',
-    'date.base': 'Date of birth must be a valid date',
-    'any.required': 'Date of birth is required',
+  dob: Joi.date().less("now").iso().required().messages({
+    "date.less": "Date of birth must be in the past",
+    "date.base": "Date of birth must be a valid date",
+    "any.required": "Date of birth is required",
   }),
   stringRequired: Joi.string()
     .pattern(/^[^{}<>[\]]*$/)
     .required()
     .messages({
-      'string.empty': '{#label} is required.',
-      'any.required': '{#label} is required',
+      "string.empty": "{#label} is required.",
+      "any.required": "{#label} is required",
     }),
   middle_name: Joi.string()
     .optional()
-    .allow(null, '')
+    .allow(null, "")
     .trim()
     .lowercase()
     .min(3)
     .pattern(new RegExp(`^[^${forbiddenCharsRegex.source}]*$`))
     .messages({
-      'string.min': 'Middle name length must be at least 3 characters long',
-      'string.pattern.base': 'Invalid characters in middle name field',
+      "string.min": "Middle name length must be at least 3 characters long",
+      "string.pattern.base": "Invalid characters in middle name field",
     }),
 
   both_trips: Joi.number().positive().required(),
@@ -1288,10 +1288,10 @@ const schoolCreationValidation = <T extends SchoolCreationValidationType>(
     state: commonRules.stringRequired,
     country: commonRules.stringRequired,
     phone: commonRules.phone,
-    email: Joi.string().email().optional().allow(null, '').messages({
-      'string.email': 'Please provide a valid email address',
+    email: Joi.string().email().optional().allow(null, "").messages({
+      "string.email": "Please provide a valid email address",
     }),
-    website: Joi.string().optional().allow(null, ''),
+    website: Joi.string().optional().allow(null, ""),
   }).unknown(true);
 
   const { error, value } = validationSchema.validate(payload);
@@ -1379,7 +1379,7 @@ const joiValidateExamInputFields = <T extends CbtAssessmentInputFieldsType>(
   payload: T
 ): { success: boolean; value?: any; error?: string } => {
   const validationSchema = Joi.object({
-    assessment_type: commonRules.stringRequired.label('assessment_type'),
+    assessment_type: commonRules.stringRequired.label("assessment_type"),
     min_obj_questions: Joi.number().required(),
     max_obj_questions: Joi.number().required(),
     expected_obj_number_of_options: Joi.number().required(),
@@ -1387,7 +1387,7 @@ const joiValidateExamInputFields = <T extends CbtAssessmentInputFieldsType>(
   });
 
   const { error, value } = validationSchema.validate(payload, {
-    errors: { wrap: { label: '' } },
+    errors: { wrap: { label: "" } },
   });
 
   if (error) {
@@ -1410,25 +1410,25 @@ const singleQuestionSchema = Joi.object({
     const normalizedCorrectAnswer = value.correct_answer.trim().toLowerCase();
 
     if (!normalizedOptions.includes(normalizedCorrectAnswer)) {
-      return helpers.error('any.invalidCorrectAnswer', {
+      return helpers.error("any.invalidCorrectAnswer", {
         qNum: value.question_number,
       });
     }
 
     const uniqueOptions = new Set(normalizedOptions);
     if (uniqueOptions.size !== normalizedOptions.length) {
-      return helpers.error('any.duplicateOptions', {
+      return helpers.error("any.duplicateOptions", {
         qNum: value.question_number,
       });
     }
     return value;
   })
   .messages({
-    'any.invalidCorrectAnswer':
-      'Question {{#qNum}} has an invalid correct answer not present in options.',
+    "any.invalidCorrectAnswer":
+      "Question {{#qNum}} has an invalid correct answer not present in options.",
 
-    'any.duplicateOptions':
-      'Question {{#qNum}} has duplicate options. Each option must be unique.',
+    "any.duplicateOptions":
+      "Question {{#qNum}} has duplicate options. Each option must be unique.",
   });
 
 const joiValidateQuestionArray = (
@@ -1465,9 +1465,9 @@ const joiValidateAssessmentDocumentArray = (
       );
 
       if (duplicates.length > 0) {
-        return helpers.error('any.invalid', {
+        return helpers.error("any.invalid", {
           message: `Duplicate level(s) found: ${[...new Set(duplicates)].join(
-            ', '
+            ", "
           )}`,
         });
       }

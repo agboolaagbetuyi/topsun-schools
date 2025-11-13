@@ -526,19 +526,19 @@
 // };
 
 ///////////////////////////////////////////////////////////
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   SessionDocument,
   TermCreationType,
   TermDocument,
-} from '../constants/types';
-import Session from '../models/session.model';
-import { AppError } from '../utils/app.error';
-import Student from '../models/students.model';
-import ClassEnrolment from '../models/classes_enrolment.model';
-import { calculateOutStandingPerTerm } from '../repository/student.repository';
-import Fee from '../models/fees.model';
-import CbtExam from '../models/cbt_exam.model';
+} from "../constants/types";
+import Session from "../models/session.model";
+import { AppError } from "../utils/app.error";
+import Student from "../models/students.model";
+import ClassEnrolment from "../models/classes_enrolment.model";
+import { calculateOutStandingPerTerm } from "../repository/student.repository";
+import Fee from "../models/fees.model";
+import CbtExam from "../models/cbt_exam.model";
 
 const createSession = async (): Promise<SessionDocument> => {
   const checkSession = await Session.findOne().sort({
@@ -553,7 +553,7 @@ const createSession = async (): Promise<SessionDocument> => {
 
   if (!checkSession) {
     const currentDate = new Date();
-    const splittedDate = currentDate.toISOString().split('-');
+    const splittedDate = currentDate.toISOString().split("-");
     if (Number(splittedDate[1]) >= 9) {
       academic_session = `${splittedDate[0]}-${Number(splittedDate[0]) + 1}`;
     } else if (Number(splittedDate[1]) < 9) {
@@ -562,15 +562,15 @@ const createSession = async (): Promise<SessionDocument> => {
   } else {
     if (activeSession || checkSession.is_active === true) {
       throw new AppError(
-        'A new session can only be created when there is no active session.',
+        "A new session can only be created when there is no active session.",
         400
       );
     }
-    const sessionArray = checkSession?.academic_session.split('-');
+    const sessionArray = checkSession?.academic_session.split("-");
 
     if (!sessionArray) {
       throw new AppError(
-        'this session does not have academic session field.',
+        "this session does not have academic session field.",
         400
       );
     }
@@ -599,12 +599,12 @@ const creatingNewTerm = async (
     }).session(session);
 
     if (!response) {
-      throw new AppError('Session can not be found', 404);
+      throw new AppError("Session can not be found", 404);
     }
 
     if (response.is_active !== true) {
       throw new AppError(
-        'You can only create term under an active session',
+        "You can only create term under an active session",
         404
       );
     }
@@ -615,7 +615,7 @@ const creatingNewTerm = async (
 
     if (response.terms.some((term) => term.is_active === true)) {
       throw new AppError(
-        'An active term needed to be ended before you can create new term.',
+        "An active term needed to be ended before you can create new term.",
         400
       );
     }
@@ -634,29 +634,29 @@ const creatingNewTerm = async (
     //   );
     // }
 
-    if (name === 'second_term') {
+    if (name === "second_term") {
       const firstTerm = response.terms.find(
-        (term) => term.name === 'first_term'
+        (term) => term.name === "first_term"
       );
       if (!firstTerm) {
         throw new AppError(
-          'You must create first term before you can create second term.',
+          "You must create first term before you can create second term.",
           400
         );
       }
     }
 
-    if (name === 'third_term') {
+    if (name === "third_term") {
       const firstTerm = response.terms.find(
-        (term) => term.name === 'first_term'
+        (term) => term.name === "first_term"
       );
       const secondTerm = response.terms.find(
-        (term) => term.name === 'second_term'
+        (term) => term.name === "second_term"
       );
 
       if (!firstTerm || !secondTerm) {
         throw new AppError(
-          'You must create first term and second term before you can create third term.',
+          "You must create first term and second term before you can create third term.",
           400
         );
       }
@@ -672,7 +672,7 @@ const creatingNewTerm = async (
     const newTerm = response?.terms?.find((term) => term?.name === name);
 
     if (!newTerm) {
-      throw new AppError('Failed to create the new term.', 400);
+      throw new AppError("Failed to create the new term.", 400);
     }
 
     await response.save({ session });
@@ -692,7 +692,7 @@ const creatingNewTerm = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -710,7 +710,7 @@ const termEndingInSessionUsingTermId = async (
     }).session(session);
 
     if (!response) {
-      throw new AppError('Session can not be found', 404);
+      throw new AppError("Session can not be found", 404);
     }
 
     const activeTerm = response.terms.find(
@@ -718,32 +718,32 @@ const termEndingInSessionUsingTermId = async (
     );
 
     if (!activeTerm) {
-      throw new AppError('This term is not active or has already ended.', 400);
+      throw new AppError("This term is not active or has already ended.", 400);
     }
 
     const currentTime = Date.now();
     if (activeTerm.is_active === false) {
       throw new AppError(
-        'This term is not active or has already been ended.',
+        "This term is not active or has already been ended.",
         400
       );
     }
 
     if (currentTime < new Date(activeTerm?.end_date).getTime()) {
       throw new AppError(
-        'Term can only be ended after the last day of the term.',
+        "Term can only be ended after the last day of the term.",
         400
       );
     }
 
     response = await Session.findOneAndUpdate(
-      { _id: session_id, 'terms._id': term_id },
-      { $set: { 'terms.$.is_active': false } },
+      { _id: session_id, "terms._id": term_id },
+      { $set: { "terms.$.is_active": false } },
       { new: true, session }
     );
 
     if (!response) {
-      throw new AppError('Unable to end term', 400);
+      throw new AppError("Unable to end term", 400);
     }
 
     await CbtExam.updateMany(
@@ -755,7 +755,7 @@ const termEndingInSessionUsingTermId = async (
       { session }
     );
 
-    if (activeTerm.name === 'third_term') {
+    if (activeTerm.name === "third_term") {
       response = await Session.findOneAndUpdate(
         { _id: session_id },
         { $set: { is_active: false } },
@@ -764,7 +764,7 @@ const termEndingInSessionUsingTermId = async (
 
       const allStudents = await Student.find().session(session);
       if (!allStudents) {
-        throw new AppError('Students not found.', 404);
+        throw new AppError("Students not found.", 404);
       }
 
       const bulkOps = allStudents.map((student) => ({
@@ -824,7 +824,7 @@ const termEndingInSessionUsingTermId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Someting happened');
+      throw new Error("Someting happened");
     }
   }
 };
@@ -837,7 +837,7 @@ const fetchSessionBySessionId = async (
   });
 
   if (!response) {
-    throw new AppError('Session can not be found', 404);
+    throw new AppError("Session can not be found", 404);
   }
 
   return response as SessionDocument;
@@ -850,7 +850,7 @@ const fetchActiveSession = async (): Promise<SessionDocument> => {
     });
 
     if (!activeSession) {
-      throw new AppError('There is no active session at the moment.', 404);
+      throw new AppError("There is no active session at the moment.", 404);
     }
 
     return activeSession as SessionDocument;
@@ -858,7 +858,7 @@ const fetchActiveSession = async (): Promise<SessionDocument> => {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -875,7 +875,7 @@ const fetchAllSessions = async (
   let query = Session.find();
 
   if (searchParams) {
-    const regex = new RegExp(searchParams, 'i');
+    const regex = new RegExp(searchParams, "i");
 
     query = query.where({
       $or: [{ academic_session: { $regex: regex } }],
@@ -883,7 +883,7 @@ const fetchAllSessions = async (
   }
 
   if (!query) {
-    throw new AppError('Session not found.', 404);
+    throw new AppError("Session not found.", 404);
   }
 
   const count = await query.clone().countDocuments();
@@ -898,12 +898,12 @@ const fetchAllSessions = async (
     pages = Math.ceil(count / limit);
 
     if (page > pages) {
-      throw new AppError('Page limit exceeded.', 400);
+      throw new AppError("Page limit exceeded.", 400);
     }
   }
   const response = await query;
   if (!response || response.length === 0) {
-    throw new AppError('Sessions not found.', 404);
+    throw new AppError("Sessions not found.", 404);
   }
 
   const session = response as SessionDocument[];
@@ -927,14 +927,14 @@ const sessionEndingBySessionId = async (
     }).session(session);
 
     if (!response) {
-      throw new AppError('Session can not be found', 404);
+      throw new AppError("Session can not be found", 404);
     }
 
     const activeTerm = response.terms.find((term) => term.is_active === true);
 
     if (activeTerm) {
       throw new AppError(
-        'Session can only end when first term, second term and third term has ended.',
+        "Session can only end when first term, second term and third term has ended.",
         400
       );
     } else {
@@ -953,7 +953,7 @@ const sessionEndingBySessionId = async (
 
       const allStudents = await Student.find().session(session);
       if (!allStudents) {
-        throw new AppError('Students not found.', 404);
+        throw new AppError("Students not found.", 404);
       }
 
       const bulkOps = allStudents.map((student) => ({
@@ -1004,7 +1004,7 @@ const sessionEndingBySessionId = async (
       session.endSession();
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1018,7 +1018,7 @@ const sessionDeletionUsingSessionId = async (
     });
 
     if (!response) {
-      throw new AppError('Session can not be deleted or found', 404);
+      throw new AppError("Session can not be deleted or found", 404);
     }
 
     return response as SessionDocument;
@@ -1026,7 +1026,7 @@ const sessionDeletionUsingSessionId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };
@@ -1041,7 +1041,7 @@ const termDeletionInSessionUsingTermId = async (
     });
 
     if (!response) {
-      throw new AppError('Session can not be found', 404);
+      throw new AppError("Session can not be found", 404);
     }
 
     const activeTerm = response.terms.find(
@@ -1049,7 +1049,7 @@ const termDeletionInSessionUsingTermId = async (
     );
 
     if (!activeTerm) {
-      throw new AppError('Term does not exist', 400);
+      throw new AppError("Term does not exist", 400);
     }
 
     const remainingTerms = response.terms.filter(
@@ -1069,7 +1069,7 @@ const termDeletionInSessionUsingTermId = async (
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened');
+      throw new Error("Something happened");
     }
   }
 };

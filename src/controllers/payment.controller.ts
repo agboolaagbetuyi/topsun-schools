@@ -714,7 +714,7 @@
 // };
 
 ////////////////////////////////////////////////////////////
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   addingFeeToStudentPaymentDocument,
   createSchoolFeePaymentDocumentForStudents,
@@ -730,11 +730,11 @@ import {
   approveStudentBankPayment,
   studentBankFeePayment,
   fetchAPaymentNeedingApprovalById,
-} from '../services/payment.service';
-import { AppError } from '../utils/app.error';
+} from "../services/payment.service";
+import { AppError } from "../utils/app.error";
 // import { company_subdomain } from '../utils/code';
-import { validatePriorityOrder } from '../utils/functions';
-import catchErrors from '../utils/tryCatch';
+import { validatePriorityOrder } from "../utils/functions";
+import catchErrors from "../utils/tryCatch";
 import {
   joiAccountArrayValidation,
   joiPriorityOrderValidation,
@@ -742,7 +742,7 @@ import {
   optionalFeesValidation,
   cashPaymentValidation,
   bankPaymentValidation,
-} from '../utils/validation';
+} from "../utils/validation";
 // import { saveLog } from '../logs/log.service';
 
 const createPaymentDocumentForAllStudent = catchErrors(async (req, res) => {
@@ -752,7 +752,7 @@ const createPaymentDocumentForAllStudent = catchErrors(async (req, res) => {
   const { session_id } = req.params;
 
   if (!session_id || !term) {
-    throw new AppError('Session ID and term must be provided.', 400);
+    throw new AppError("Session ID and term must be provided.", 400);
   }
 
   const result = await createSchoolFeePaymentDocumentForStudents(
@@ -761,7 +761,7 @@ const createPaymentDocumentForAllStudent = catchErrors(async (req, res) => {
   );
 
   if (!result) {
-    throw new AppError('Unable to process payment request.', 400);
+    throw new AppError("Unable to process payment request.", 400);
   }
 
   // NOTIFICATION MAIL AND IN-APP NOTIFICATION CAN BE SENT TO STUDENT AND PARENTS HERE
@@ -810,7 +810,7 @@ const addFeeToStudentPaymentDocument = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to proceed.`,
+      `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
       400
     );
   }
@@ -832,7 +832,7 @@ const addFeeToStudentPaymentDocument = catchErrors(async (req, res) => {
   const result = await addingFeeToStudentPaymentDocument(payload);
 
   if (!result) {
-    throw new AppError('Unable to create fees.', 400);
+    throw new AppError("Unable to create fees.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -872,7 +872,7 @@ const getAllStudentPaymentDocumentsByStudentId = catchErrors(
     const limit = req.query.limit ? Number(req.query.limit) : undefined;
 
     const searchQuery =
-      typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+      typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
     const { student_id } = req.params;
 
@@ -880,16 +880,16 @@ const getAllStudentPaymentDocumentsByStudentId = catchErrors(
     const userRole = req.user?.userRole;
 
     if (!userId || !userRole) {
-      throw new AppError('Please login to proceed.', 400);
+      throw new AppError("Please login to proceed.", 400);
     }
 
     if (!student_id) {
-      throw new AppError('Student ID is required.', 400);
+      throw new AppError("Student ID is required.", 400);
     }
 
-    if (userRole === 'student') {
+    if (userRole === "student") {
       if (userId.toString() !== student_id) {
-        throw new AppError('Please provide correct student ID.', 400);
+        throw new AppError("Please provide correct student ID.", 400);
       }
     }
 
@@ -906,7 +906,7 @@ const getAllStudentPaymentDocumentsByStudentId = catchErrors(
     );
 
     if (!result) {
-      throw new AppError('Unable to fetch all student payment documents.', 400);
+      throw new AppError("Unable to fetch all student payment documents.", 400);
     }
 
     // const duration = Date.now() - start;
@@ -931,7 +931,7 @@ const getAllStudentPaymentDocumentsByStudentId = catchErrors(
     // await saveLog(savelogPayload);
 
     return res.status(200).json({
-      message: 'Student payment documents fetched successfully.',
+      message: "Student payment documents fetched successfully.",
       success: true,
       status: 200,
       payment_history: result,
@@ -946,12 +946,12 @@ const getAllPaymentDocuments = catchErrors(async (req, res) => {
   const limit = req.query.limit ? Number(req.query.limit) : undefined;
 
   const searchQuery =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   const result = await fetchAllPaymentDocuments(page, limit, searchQuery);
 
   if (!result) {
-    throw new AppError('Unable to fetch all payment documents.', 400);
+    throw new AppError("Unable to fetch all payment documents.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -976,7 +976,7 @@ const getAllPaymentDocuments = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'All payment documents fetched successfully.',
+    message: "All payment documents fetched successfully.",
     status: 200,
     success: true,
     payments_history: result,
@@ -990,14 +990,14 @@ const getAllOutstandingPaymentDocumentsOfStudent = catchErrors(
     const { student_id } = req.params;
 
     if (!student_id) {
-      throw new AppError('Student ID not specified.', 400);
+      throw new AppError("Student ID not specified.", 400);
     }
 
     const result = await fetchStudentOutstandingPaymentDoc(student_id);
 
     if (!result) {
       throw new AppError(
-        'Unable to get student outstanding payment documents.',
+        "Unable to get student outstanding payment documents.",
         400
       );
     }
@@ -1024,7 +1024,7 @@ const getAllOutstandingPaymentDocumentsOfStudent = catchErrors(
     // await saveLog(savelogPayload);
 
     return res.status(200).json({
-      message: 'Student Outstanding Payment Documents fetched successfully.',
+      message: "Student Outstanding Payment Documents fetched successfully.",
       status: 200,
       success: true,
       student_outstanding_payment_documents: result,
@@ -1038,7 +1038,7 @@ const getCurrentTermPaymentDocuments = catchErrors(async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const searchQuery =
-    typeof req.query.searchParams === 'string' ? req.query.searchParams : '';
+    typeof req.query.searchParams === "string" ? req.query.searchParams : "";
 
   const result = await fetchCurrentTermPaymentDocuments(
     page,
@@ -1047,7 +1047,7 @@ const getCurrentTermPaymentDocuments = catchErrors(async (req, res) => {
   );
 
   if (!result) {
-    throw new AppError('Unable to fetch current term payment documents.', 400);
+    throw new AppError("Unable to fetch current term payment documents.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -1072,7 +1072,7 @@ const getCurrentTermPaymentDocuments = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Current term payment documents fetched successfully.',
+    message: "Current term payment documents fetched successfully.",
     success: true,
     status: 200,
     payment_documents: result,
@@ -1093,11 +1093,11 @@ const getPaymentTransactionHistoryByStudentId = catchErrors(
     const userRole = req.user?.userRole;
 
     if (!student_id) {
-      throw new AppError('Please provide a valid Student ID', 403);
+      throw new AppError("Please provide a valid Student ID", 403);
     }
 
     if (!userId || !userRole) {
-      throw new AppError('Please login as a user to proceed.', 400);
+      throw new AppError("Please login as a user to proceed.", 400);
     }
 
     const payload = {
@@ -1115,7 +1115,7 @@ const getPaymentTransactionHistoryByStudentId = catchErrors(
 
     if (!result) {
       throw new AppError(
-        'Unable to fetch payment transaction history for this student',
+        "Unable to fetch payment transaction history for this student",
         400
       );
     }
@@ -1142,7 +1142,7 @@ const getPaymentTransactionHistoryByStudentId = catchErrors(
     // await saveLog(savelogPayload);
 
     return res.status(200).json({
-      message: 'Payment transaction history fetched successfully.',
+      message: "Payment transaction history fetched successfully.",
       success: true,
       status: 200,
       payment_history: result,
@@ -1158,11 +1158,11 @@ const getPaymentDetailsByPaymentId = catchErrors(async (req, res) => {
   const userRole = req.user?.userRole;
 
   if (!payment_id) {
-    throw new AppError('Payment ID is required to proceed.', 400);
+    throw new AppError("Payment ID is required to proceed.", 400);
   }
 
   if (!userId || !userRole) {
-    throw new AppError('Please login to proceed.', 400);
+    throw new AppError("Please login to proceed.", 400);
   }
 
   const payload = {
@@ -1174,7 +1174,7 @@ const getPaymentDetailsByPaymentId = catchErrors(async (req, res) => {
   const result = await fetchPaymentDetailsByPaymentId(payload);
 
   if (!result) {
-    throw new AppError('Unable to fetch payment details.', 400);
+    throw new AppError("Unable to fetch payment details.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -1199,7 +1199,7 @@ const getPaymentDetailsByPaymentId = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Payment details fetched successfully.',
+    message: "Payment details fetched successfully.",
     success: true,
     status: 200,
     payment_details: result,
@@ -1213,13 +1213,13 @@ const getAPaymentDocumentOfStudentByStudentIdAndPaymentId = catchErrors(
     const { student_id, payment_id } = req.params;
 
     if (!student_id || !payment_id) {
-      throw new AppError('Student ID and Payment ID are required.', 400);
+      throw new AppError("Student ID and Payment ID are required.", 400);
     }
 
     const result = await fetchStudentSinglePaymentDoc(student_id, payment_id);
 
     if (!result) {
-      throw new AppError('Unable to get student payment document.', 400);
+      throw new AppError("Unable to get student payment document.", 400);
     }
 
     // const duration = Date.now() - start;
@@ -1244,7 +1244,7 @@ const getAPaymentDocumentOfStudentByStudentIdAndPaymentId = catchErrors(
     // await saveLog(savelogPayload);
 
     return res.status(200).json({
-      message: 'Payment document fetched successfully.',
+      message: "Payment document fetched successfully.",
       success: true,
       status: 200,
       payment_doc: result,
@@ -1267,7 +1267,7 @@ const getAllPaymentSummaryFailedAndSuccessful = catchErrors(
     // searchQuery
 
     if (!result) {
-      throw new AppError('Unable to fetch all payment summary.', 400);
+      throw new AppError("Unable to fetch all payment summary.", 400);
     }
 
     // const duration = Date.now() - start;
@@ -1292,7 +1292,7 @@ const getAllPaymentSummaryFailedAndSuccessful = catchErrors(
     // await saveLog(savelogPayload);
 
     return res.status(200).json({
-      message: 'Payment summary was fetched successfully.',
+      message: "Payment summary was fetched successfully.",
       success: true,
       status: 200,
       payment_summary: result,
@@ -1304,17 +1304,17 @@ const getAPaymentNeedingApprovalById = catchErrors(async (req, res) => {
   const { payment_id } = req.params;
 
   if (!payment_id) {
-    throw new AppError('Payment ID required.', 404);
+    throw new AppError("Payment ID required.", 404);
   }
 
   const result = await fetchAPaymentNeedingApprovalById(payment_id);
 
   if (!result) {
-    throw new AppError('Unable to fetch payment for approval.', 404);
+    throw new AppError("Unable to fetch payment for approval.", 404);
   }
 
   return res.status(200).json({
-    message: 'Payment fetched successfully.',
+    message: "Payment fetched successfully.",
     success: true,
     status: 200,
     payment: result,
@@ -1327,11 +1327,11 @@ const approveBankPaymentWithId = catchErrors(async (req, res) => {
   const bursar_id = req.user?.userId;
 
   if (!bursar_id) {
-    throw new AppError('Please login to continue.', 400);
+    throw new AppError("Please login to continue.", 400);
   }
 
   if (!payment_id) {
-    throw new AppError('Payment ID is required to proceed.', 400);
+    throw new AppError("Payment ID is required to proceed.", 400);
   }
 
   const payload = {
@@ -1353,11 +1353,11 @@ const approveBankPaymentWithId = catchErrors(async (req, res) => {
   };
   const result = await approveStudentBankPayment(paymentPayload);
   if (!result) {
-    throw new AppError('Unable to approve student bank payment.', 400);
+    throw new AppError("Unable to approve student bank payment.", 400);
   }
 
   return res.status(200).json({
-    message: 'Student payment was successfully approved.',
+    message: "Student payment was successfully approved.",
     status: 200,
     success: true,
     payment: result.receipt,
@@ -1393,7 +1393,7 @@ const makeBankPayment = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to proceed.`,
+      `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
       400
     );
   }
@@ -1412,7 +1412,7 @@ const makeBankPayment = catchErrors(async (req, res) => {
   const { success, value } = validateInput;
 
   if (!userId || !userRole) {
-    throw new AppError('Please login to continue.', 400);
+    throw new AppError("Please login to continue.", 400);
   }
 
   const paymentInput = {
@@ -1431,7 +1431,7 @@ const makeBankPayment = catchErrors(async (req, res) => {
   const result = await studentBankFeePayment(paymentInput);
 
   if (!result) {
-    throw new AppError('Unable to process payment request.', 400);
+    throw new AppError("Unable to process payment request.", 400);
   }
 
   return res.status(200).json({
@@ -1454,7 +1454,7 @@ const makeCashPayment = catchErrors(async (req, res) => {
     !payment_method
   ) {
     throw new AppError(
-      'Please provide student ID, payment method amount to be paid, class ID, session ID and term to proceed.',
+      "Please provide student ID, payment method amount to be paid, class ID, session ID and term to proceed.",
       400
     );
   }
@@ -1481,7 +1481,7 @@ const makeCashPayment = catchErrors(async (req, res) => {
 
   const result = await studentCashFeePayment(paymentInput);
   if (!result) {
-    throw new AppError('Unable to process payment request.', 400);
+    throw new AppError("Unable to process payment request.", 400);
   }
 
   return res.status(200).json({

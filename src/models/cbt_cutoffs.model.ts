@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { examStatusEnum } from '../constants/enum';
-import { CbtCutoffDocument } from '../constants/types';
+import mongoose from "mongoose";
+import { examStatusEnum } from "../constants/enum";
+import { CbtCutoffDocument } from "../constants/types";
 
 const cbtCutoffSchema = new mongoose.Schema<CbtCutoffDocument>(
   {
@@ -19,7 +19,7 @@ const cbtCutoffSchema = new mongoose.Schema<CbtCutoffDocument>(
 );
 
 const CbtCutoff = mongoose.model<CbtCutoffDocument>(
-  'CbtCutoff',
+  "CbtCutoff",
   cbtCutoffSchema
 );
 export default CbtCutoff;

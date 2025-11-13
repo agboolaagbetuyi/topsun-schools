@@ -1,6 +1,6 @@
-import mongoose, { Schema } from 'mongoose';
-import { UserDocument } from '../constants/types';
-import { rolesEnum } from '../constants/enum';
+import mongoose, { Schema } from "mongoose";
+import { UserDocument } from "../constants/types";
+import { rolesEnum } from "../constants/enum";
 
 const parentSchema = new mongoose.Schema<UserDocument>(
   {
@@ -17,7 +17,7 @@ const parentSchema = new mongoose.Schema<UserDocument>(
     children: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Student',
+        ref: "Student",
       },
     ],
   },
@@ -27,6 +27,6 @@ const parentSchema = new mongoose.Schema<UserDocument>(
 );
 
 parentSchema.index({ emai: 1 });
-const Parent = mongoose.model<UserDocument>('Parent', parentSchema);
+const Parent = mongoose.model<UserDocument>("Parent", parentSchema);
 
 export default Parent;

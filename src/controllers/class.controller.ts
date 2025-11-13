@@ -78,7 +78,7 @@
 // export { createAClass, getAllClasses, getAClassById };
 
 //////////////////////////////////////
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   classCreation,
   fetchAClassById,
@@ -86,10 +86,10 @@ import {
   subjectsAdditionToAClass,
   subjectsRemovalFromClass,
   fetchMySchoolClassLevel,
-} from '../services/class.service';
-import { AppError, JoiError } from '../utils/app.error';
-import catchErrors from '../utils/tryCatch';
-import { joiValidation } from '../utils/validation';
+} from "../services/class.service";
+import { AppError, JoiError } from "../utils/app.error";
+import catchErrors from "../utils/tryCatch";
+import { joiValidation } from "../utils/validation";
 // import { saveLog } from '../logs/log.service';
 
 // UPDATING CLASS TO ADD OR REMOVE SUBJECT FROM A CLASS WILL ONLY BE POSSIBLE WHEN THERE IS NO ACTIVE ENROLLMENT
@@ -111,10 +111,10 @@ const createAClass = catchErrors(async (req, res) => {
 
   const payload = { name, description, level, section };
 
-  const result = joiValidation(payload, 'create-class');
+  const result = joiValidation(payload, "create-class");
 
   if (!result) {
-    throw new JoiError('Error validating class creation');
+    throw new JoiError("Error validating class creation");
   }
 
   const { success, value } = result;
@@ -132,7 +132,7 @@ const createAClass = catchErrors(async (req, res) => {
   const info = await classCreation(param);
 
   if (!info) {
-    throw new AppError('Error creating class', 400);
+    throw new AppError("Error creating class", 400);
   }
 
   // const duration = Date.now() - start;
@@ -157,7 +157,7 @@ const createAClass = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(201).json({
-    message: 'Class created successfully',
+    message: "Class created successfully",
     success: true,
     status: 201,
     class: info,
@@ -170,7 +170,7 @@ const getAllClasses = catchErrors(async (req, res) => {
   const info = await fetchAllClasses();
 
   if (!info) {
-    throw new AppError('Error fetching classes', 400);
+    throw new AppError("Error fetching classes", 400);
   }
 
   // const duration = Date.now() - start;
@@ -196,7 +196,7 @@ const getAllClasses = catchErrors(async (req, res) => {
 
   return res.status(200).json({
     length: info.length,
-    message: 'Classes fetched successfully',
+    message: "Classes fetched successfully",
     success: true,
     status: 200,
     classes: info,
@@ -211,7 +211,7 @@ const getAClassById = catchErrors(async (req, res) => {
   const info = await fetchAClassById({ class_id });
 
   if (!info) {
-    throw new AppError('Error fetching classes', 400);
+    throw new AppError("Error fetching classes", 400);
   }
 
   // const duration = Date.now() - start;
@@ -236,7 +236,7 @@ const getAClassById = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Class fetched successfully',
+    message: "Class fetched successfully",
     success: true,
     status: 200,
     class: info,
@@ -250,12 +250,12 @@ const addSubjectsToAClass = catchErrors(async (req, res) => {
   const { class_id } = req.params;
 
   if (!class_id) {
-    throw new AppError('Class ID is required.', 400);
+    throw new AppError("Class ID is required.", 400);
   }
 
   if (!subject_ids_array || subject_ids_array.length === 0) {
     throw new AppError(
-      'Please select subjects that you want to add to this class.',
+      "Please select subjects that you want to add to this class.",
       400
     );
   }
@@ -268,7 +268,7 @@ const addSubjectsToAClass = catchErrors(async (req, res) => {
   const result = await subjectsAdditionToAClass(payload);
 
   if (!result) {
-    throw new AppError('Unable to add subjects to this class.', 400);
+    throw new AppError("Unable to add subjects to this class.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -293,7 +293,7 @@ const addSubjectsToAClass = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Subjects added to class successfully.',
+    message: "Subjects added to class successfully.",
     success: true,
     status: 200,
     class: result,
@@ -307,12 +307,12 @@ const removeSubjectsToAClass = catchErrors(async (req, res) => {
   const { class_id } = req.params;
 
   if (!class_id) {
-    throw new AppError('Class ID is required.', 400);
+    throw new AppError("Class ID is required.", 400);
   }
 
   if (!subject_ids_array || subject_ids_array.length === 0) {
     throw new AppError(
-      'Please select subjects that you want to remove to this class.',
+      "Please select subjects that you want to remove to this class.",
       400
     );
   }
@@ -325,7 +325,7 @@ const removeSubjectsToAClass = catchErrors(async (req, res) => {
   const result = await subjectsRemovalFromClass(payload);
 
   if (!result) {
-    throw new AppError('Unable to remove subjects from this class.', 400);
+    throw new AppError("Unable to remove subjects from this class.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -350,7 +350,7 @@ const removeSubjectsToAClass = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Subjects removed from class successfully.',
+    message: "Subjects removed from class successfully.",
     success: true,
     status: 200,
     class: result,
@@ -363,7 +363,7 @@ const getSchoolClassLevel = catchErrors(async (req, res) => {
   const result = await fetchMySchoolClassLevel();
 
   if (!result) {
-    throw new AppError('Unable to fetch class level.', 400);
+    throw new AppError("Unable to fetch class level.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -388,7 +388,7 @@ const getSchoolClassLevel = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Class level fetched successfully.',
+    message: "Class level fetched successfully.",
     success: true,
     status: 200,
     class_level: result,

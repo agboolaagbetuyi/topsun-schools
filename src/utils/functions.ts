@@ -316,7 +316,7 @@
 // ]
 
 ////////////////////////////////////////////////////////////
-import { subscriptionEnum } from '../constants/enum';
+import { subscriptionEnum } from "../constants/enum";
 import {
   ClassDocument,
   ClassPositionCalType,
@@ -328,10 +328,10 @@ import {
   ScoreAndGradingType,
   ScoreType,
   UserDocument,
-} from '../constants/types';
-import { AppError } from './app.error';
-import HashUtil from './crypto/sha256';
-import { emailQueue } from './queue';
+} from "../constants/types";
+import { AppError } from "./app.error";
+import HashUtil from "./crypto/sha256";
+import { emailQueue } from "./queue";
 
 const capitalizeFirstLetter = (payload: string) => {
   const value = payload.charAt(0).toUpperCase() + payload.slice(1);
@@ -342,11 +342,11 @@ const capitalizeFirstLetter = (payload: string) => {
 const sendingEmailToQueue = async (
   payload: EmailQueue,
   type:
-    | 'email-verification'
-    | 'school-creation'
-    | 'forgot-password'
-    | 'child-linkage'
-    | 'session-subscription'
+    | "email-verification"
+    | "school-creation"
+    | "forgot-password"
+    | "child-linkage"
+    | "session-subscription"
 ) => {
   try {
     const name = capitalizeFirstLetter(payload.first_name);
@@ -370,7 +370,7 @@ const sendingEmailToQueue = async (
       message,
     };
 
-    const mailSent = await emailQueue.add('sendEmail', jobData, {
+    const mailSent = await emailQueue.add("sendEmail", jobData, {
       attempts: 3,
       backoff: 10000,
       removeOnComplete: true,
@@ -382,7 +382,7 @@ const sendingEmailToQueue = async (
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -390,11 +390,11 @@ const sendingEmailToQueue = async (
 const sendingCompanyEmailToQueue = async (
   payload: CompanyEmailQueue,
   type:
-    | 'email-verification'
-    | 'school-creation'
-    | 'forgot-password'
-    | 'child-linkage'
-    | 'session-subscription'
+    | "email-verification"
+    | "school-creation"
+    | "forgot-password"
+    | "child-linkage"
+    | "session-subscription"
 ) => {
   try {
     const name = capitalizeFirstLetter(payload.first_name);
@@ -406,7 +406,7 @@ const sendingCompanyEmailToQueue = async (
       type: type,
     };
 
-    const mailSent = await emailQueue.add('sendEmail', jobData, {
+    const mailSent = await emailQueue.add("sendEmail", jobData, {
       attempts: 3,
       backoff: 10000,
       removeOnComplete: true,
@@ -418,7 +418,7 @@ const sendingCompanyEmailToQueue = async (
       throw new AppError(error.message, error.statusCode);
     } else {
       console.error(error);
-      throw new Error('Something went wrong');
+      throw new Error("Something went wrong");
     }
   }
 };
@@ -465,15 +465,15 @@ const calculateSubjectSumAndGrade = async (
     }
 
     return {
-      grade: 'F',
-      remark: 'Fail',
+      grade: "F",
+      remark: "Fail",
       total: result,
     };
   } catch (error) {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {
-      throw new Error('Something happened.');
+      throw new Error("Something happened.");
     }
   }
 };
@@ -482,34 +482,34 @@ const validateGradingArray = (
   gradingArray: { value: number; grade: string; remark: string }[]
 ) => {
   if (!gradingArray || gradingArray.length !== 5) {
-    throw new Error('Grading levels must be 5 in numbers.');
+    throw new Error("Grading levels must be 5 in numbers.");
   }
 
   // Ensure values are sorted in descending order
   for (let i = 0; i < gradingArray.length - 1; i++) {
     if (gradingArray[i].value <= gradingArray[i + 1].value) {
-      throw new Error('Grading values must be in descending order.');
+      throw new Error("Grading values must be in descending order.");
     }
   }
 
   // Ensure grades are unique
   const gradeSet = new Set(gradingArray.map((item) => item.grade));
   if (gradeSet.size !== gradingArray.length) {
-    throw new Error('Grades must be unique.');
+    throw new Error("Grades must be unique.");
   }
 
   return true;
 };
 
 const genderFunction = (user: UserDocument) => {
-  let title = '';
-  let rep = '';
-  if (user.gender === 'male') {
-    title = 'Mr';
-    rep = 'he';
-  } else if (user.gender === 'female') {
-    title = 'Mrs';
-    rep = 'she';
+  let title = "";
+  let rep = "";
+  if (user.gender === "male") {
+    title = "Mr";
+    rep = "he";
+  } else if (user.gender === "female") {
+    title = "Mrs";
+    rep = "she";
   }
 
   return { title, rep };
@@ -519,7 +519,7 @@ const validatePriorityOrder = (
   priorityOrder: { fee_name: string; priority_number: number }[]
 ) => {
   if (!priorityOrder || priorityOrder.length === 0) {
-    throw new Error('Priority order cannot be empty.');
+    throw new Error("Priority order cannot be empty.");
   }
 
   // Ensure priority_numbers follow the sequence 1, 2, 3, ..., n
@@ -537,7 +537,7 @@ const validatePriorityOrder = (
 };
 
 const getPositionWithSuffix = (position: number): string => {
-  const suffixes = ['th', 'st', 'nd', 'rd'];
+  const suffixes = ["th", "st", "nd", "rd"];
   const v = position % 100;
   const suffix = suffixes[(v - 20) % 100] || suffixes[v] || suffixes[0];
   return `${position}${suffix}`;
@@ -602,14 +602,24 @@ const classPositionCalculation = (
   return students;
 };
 
+function getMinMax(nums: number[]) {
+  if (!Array.isArray(nums) || nums.length === 0) {
+    throw new AppError("Please provide a non-empty array of numbers.", 400);
+  }
+
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  return { lowest: min, highest: max };
+}
+
 const extractSubdomain = (host: string): string | null => {
   if (!host) {
     return null;
   }
 
-  const cleanedHost = host.toLowerCase().split(':')[0];
-  const prodBase = 'klazikschools.com';
-  const localBase = 'localhost';
+  const cleanedHost = host.toLowerCase().split(":")[0];
+  const prodBase = "klazikschools.com";
+  const localBase = "localhost";
 
   if (cleanedHost === prodBase || cleanedHost === localBase) {
     return null;
@@ -617,14 +627,14 @@ const extractSubdomain = (host: string): string | null => {
 
   let subdomainPart: string | null = null;
   if (cleanedHost.endsWith(prodBase)) {
-    subdomainPart = cleanedHost.replace(`.${prodBase}`, '');
+    subdomainPart = cleanedHost.replace(`.${prodBase}`, "");
   } else if (cleanedHost.endsWith(localBase)) {
-    subdomainPart = cleanedHost.replace(`.${localBase}`, '');
+    subdomainPart = cleanedHost.replace(`.${localBase}`, "");
   }
 
   if (!subdomainPart) return null;
 
-  const segments = subdomainPart.split('.').filter(Boolean);
+  const segments = subdomainPart.split(".").filter(Boolean);
 
   if (segments.length === 0) return null;
 
@@ -632,29 +642,29 @@ const extractSubdomain = (host: string): string | null => {
 };
 
 const schoolSubscriptionPlan = subscriptionEnum[1];
-const schoolNameHandCoded = 'Born to Win';
-const schoolCityHandCoded = 'Ado-Ekiti';
-const schoolStateHandCoded = 'Ekiti State';
-const schoolCountryHandCoded = 'Nigeria';
+const schoolNameHandCoded = "Born to Win";
+const schoolCityHandCoded = "Ado-Ekiti";
+const schoolStateHandCoded = "Ekiti State";
+const schoolCountryHandCoded = "Nigeria";
 // const schoolSubscriptionPlan = 'essential';
 const formatDate = (date = new Date()) => {
-  const f_date = new Intl.DateTimeFormat('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
+  const f_date = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
   }).formatToParts(date);
 
-  const time = date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
+  const time = date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: true,
   });
 
-  const weekDay = f_date.find((p) => p.type === 'weekday')?.value;
-  const month = f_date.find((p) => p.type === 'month')?.value;
-  const day = f_date.find((p) => p.type === 'day')?.value;
-  const year = f_date.find((p) => p.type === 'year')?.value;
+  const weekDay = f_date.find((p) => p.type === "weekday")?.value;
+  const month = f_date.find((p) => p.type === "month")?.value;
+  const day = f_date.find((p) => p.type === "day")?.value;
+  const year = f_date.find((p) => p.type === "year")?.value;
 
   const dateFormatted = `${weekDay},${month} ${day}, ${year}, ${time}`;
 
@@ -672,8 +682,8 @@ const normalizeQuestions = (
   }));
 };
 
-const mySchoolName = 'Topsun';
-const mySchoolDomain = 'https://topsun.vercel.app';
+const mySchoolName = "Topsun";
+const mySchoolDomain = "https://topsun.vercel.app";
 
 const canonicalize = (obj: Record<string, any>) => {
   return JSON.stringify(
@@ -687,14 +697,15 @@ const canonicalize = (obj: Record<string, any>) => {
 };
 
 const normalizeAmount = (amount: string | number) => {
-  if (typeof amount === 'number') {
+  if (typeof amount === "number") {
     return amount;
   } else {
-    return parseFloat(amount.replace(/,/g, ''));
+    return parseFloat(amount.replace(/,/g, ""));
   }
 };
 
 export {
+  getMinMax,
   normalizeAmount,
   canonicalize,
   mySchoolName,

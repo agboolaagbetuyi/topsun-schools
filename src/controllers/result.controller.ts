@@ -531,7 +531,7 @@
 // };
 
 /////////////////////////////////////////////////////////
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import {
   fetchAllScoresPerSubject,
   fetchAllStudentResultsInClassForActiveTermByClassId,
@@ -549,10 +549,10 @@ import {
   calculatePositionOfStudentsInClass,
   recordManyStudentExamScores,
   fetchLevelResultSetting,
-} from '../services/result.service';
-import { AppError } from '../utils/app.error';
-import { validateGradingArray } from '../utils/functions';
-import catchErrors from '../utils/tryCatch';
+} from "../services/result.service";
+import { AppError } from "../utils/app.error";
+import { validateGradingArray } from "../utils/functions";
+import catchErrors from "../utils/tryCatch";
 // import { saveLog } from '../logs/log.service';
 
 // const createResultSettingInASchool = catchErrors(async (req, res) => {
@@ -606,7 +606,7 @@ const getResultSetting = catchErrors(async (req, res) => {
   const result = await fetchResultSetting();
 
   if (!result) {
-    throw new AppError('Unable to fetch result setting.', 400);
+    throw new AppError("Unable to fetch result setting.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -631,7 +631,7 @@ const getResultSetting = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Result settings fetched successfully.',
+    message: "Result settings fetched successfully.",
     success: true,
     status: 200,
     result_setting: result,
@@ -658,17 +658,17 @@ const recordStudentScorePerTerm = catchErrors(async (req, res) => {
 
   if (!teacherId) {
     throw new AppError(
-      'It is only a teacher that can record test or exam. You need to login as a teacher.',
+      "It is only a teacher that can record test or exam. You need to login as a teacher.",
       400
     );
   }
 
   if (teacherId.toString() !== teacher_id.toString()) {
-    throw new AppError('You are not the teacher taking this course.', 400);
+    throw new AppError("You are not the teacher taking this course.", 400);
   }
 
-  if (!role || role !== 'teacher') {
-    throw new AppError('Only teacher can record test or exam.', 400);
+  if (!role || role !== "teacher") {
+    throw new AppError("Only teacher can record test or exam.", 400);
   }
 
   const requiredFields = {
@@ -688,7 +688,7 @@ const recordStudentScorePerTerm = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to proceed.`,
+      `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
       400
     );
   }
@@ -759,22 +759,22 @@ const recordAllStudentsScoresPerTerm = catchErrors(async (req, res) => {
 
   if (!teacherId) {
     throw new AppError(
-      'It is only a teacher that can record test or exam. You need to login as a teacher.',
+      "It is only a teacher that can record test or exam. You need to login as a teacher.",
       400
     );
   }
 
-  if (!role || role !== 'teacher') {
-    throw new AppError('Only teacher can record test or exam.', 400);
+  if (!role || role !== "teacher") {
+    throw new AppError("Only teacher can record test or exam.", 400);
   }
 
   if (teacherId.toString() !== teacher_id.toString()) {
-    throw new AppError('You are not the teacher taking this course.', 400);
+    throw new AppError("You are not the teacher taking this course.", 400);
   }
 
   if (result_objs.length === 0) {
     throw new AppError(
-      'Please provide student IDs and their respective score to proceed.',
+      "Please provide student IDs and their respective score to proceed.",
       400
     );
   }
@@ -794,7 +794,7 @@ const recordAllStudentsScoresPerTerm = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to continue.`,
+      `Please provide ${missingField[0].replace("_", " ")} to continue.`,
       400
     );
   }
@@ -817,29 +817,29 @@ const recordAllStudentsScoresPerTerm = catchErrors(async (req, res) => {
   }
 
   const successfulResponse = result.successfulRecords.filter(
-    (r) => r.status === 'fulfilled'
+    (r) => r.status === "fulfilled"
   );
   const response = successfulResponse.map((r) => r.student_id);
 
   const failureResponse = result.successfulRecords.filter(
-    (r) => r.status !== 'fulfilled'
+    (r) => r.status !== "fulfilled"
   );
 
   const failedIds = failureResponse.map((r) => r.student_id);
 
-  let returnMsg = '';
-  let returnSMsg = '';
-  let returnFMsg = '';
+  let returnMsg = "";
+  let returnSMsg = "";
+  let returnFMsg = "";
 
   if (response.length > 0) {
     returnSMsg = `Scores for Students with the following IDs: ${response.join(
-      ','
+      ","
     )} were recorded successfully.`;
   }
 
   if (failedIds.length > 0) {
     returnFMsg = `Scores for Students with the following IDs: ${failedIds.join(
-      ','
+      ","
     )} failed.`;
   }
 
@@ -893,22 +893,22 @@ const recordAllStudentsExamScoresPerTerm = catchErrors(async (req, res) => {
 
   if (!teacherId) {
     throw new AppError(
-      'It is only a teacher that can record test or exam. You need to login as a teacher.',
+      "It is only a teacher that can record test or exam. You need to login as a teacher.",
       400
     );
   }
 
-  if (!role || role !== 'teacher') {
-    throw new AppError('Only teacher can record test or exam.', 400);
+  if (!role || role !== "teacher") {
+    throw new AppError("Only teacher can record test or exam.", 400);
   }
 
   if (teacherId.toString() !== teacher_id.toString()) {
-    throw new AppError('You are not the teacher taking this course.', 400);
+    throw new AppError("You are not the teacher taking this course.", 400);
   }
 
   if (result_objs.length === 0) {
     throw new AppError(
-      'Please provide student IDs and their respective score to proceed.',
+      "Please provide student IDs and their respective score to proceed.",
       400
     );
   }
@@ -928,7 +928,7 @@ const recordAllStudentsExamScoresPerTerm = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to continue.`,
+      `Please provide ${missingField[0].replace("_", " ")} to continue.`,
       400
     );
   }
@@ -972,7 +972,7 @@ const recordAllStudentsExamScoresPerTerm = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Exam scores recorded successfully',
+    message: "Exam scores recorded successfully",
     success: true,
     status: 201,
     Records: result,
@@ -989,7 +989,7 @@ const getAllSubjectResultOfStudentsInClass = catchErrors(async (req, res) => {
 
   if (!class_id || !academic_session_id || !subject_id || !term) {
     throw new AppError(
-      'Please provide all these parameters to proceed: class id, academic session id, subject id, and term.',
+      "Please provide all these parameters to proceed: class id, academic session id, subject id, and term.",
       400
     );
   }
@@ -999,14 +999,14 @@ const getAllSubjectResultOfStudentsInClass = catchErrors(async (req, res) => {
     academic_session_id,
     subject_id,
     term,
-    userId: userRole === 'teacher' ? userId : undefined,
-    userRole: userRole === 'teacher' ? userRole : undefined,
+    userId: userRole === "teacher" ? userId : undefined,
+    userRole: userRole === "teacher" ? userRole : undefined,
   };
   const results = await fetchAllScoresPerSubject(payload);
 
   if (!results) {
     throw new AppError(
-      'Unable to fetch students document for the subject.',
+      "Unable to fetch students document for the subject.",
       400
     );
   }
@@ -1033,7 +1033,7 @@ const getAllSubjectResultOfStudentsInClass = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Subject result successfully fetched.',
+    message: "Subject result successfully fetched.",
     status: 200,
     success: true,
     results,
@@ -1057,13 +1057,13 @@ const getStudentSubjectResultInAClass = catchErrors(async (req, res) => {
     !student_id
   ) {
     throw new AppError(
-      'Please provide all these parameters to proceed: student id class id, academic session id, subject id, and term.',
+      "Please provide all these parameters to proceed: student id class id, academic session id, subject id, and term.",
       400
     );
   }
 
   if (!userId || !userRole) {
-    throw new AppError('Please login to continue.', 400);
+    throw new AppError("Please login to continue.", 400);
   }
 
   const payload = {
@@ -1080,7 +1080,7 @@ const getStudentSubjectResultInAClass = catchErrors(async (req, res) => {
 
   if (!result) {
     throw new AppError(
-      'Unable to fetch student subject result for the term.',
+      "Unable to fetch student subject result for the term.",
       400
     );
   }
@@ -1107,7 +1107,7 @@ const getStudentSubjectResultInAClass = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Student subject result was successfully fetched.',
+    message: "Student subject result was successfully fetched.",
     success: true,
     status: 200,
     student_result: result,
@@ -1130,13 +1130,13 @@ const getStudentTermResult = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to proceed.`,
+      `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
       400
     );
   }
 
   if (!userId || !userRole) {
-    throw new AppError('Please login to continue.', 400);
+    throw new AppError("Please login to continue.", 400);
   }
 
   const payload = {
@@ -1150,7 +1150,7 @@ const getStudentTermResult = catchErrors(async (req, res) => {
   const result = await fetchStudentTermResult(payload);
 
   if (!result) {
-    throw new AppError('Unable to fetch student result for the term.', 400);
+    throw new AppError("Unable to fetch student result for the term.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -1175,7 +1175,7 @@ const getStudentTermResult = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Student result for the term fetched successfully.',
+    message: "Student result for the term fetched successfully.",
     success: true,
     status: 200,
     student_result: result,
@@ -1198,13 +1198,13 @@ const getStudentSessionResults = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to proceed.`,
+      `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
       400
     );
   }
 
   if (!userId || !userRole) {
-    throw new AppError('Please login to continue.', 400);
+    throw new AppError("Please login to continue.", 400);
   }
 
   const payload = {
@@ -1217,7 +1217,7 @@ const getStudentSessionResults = catchErrors(async (req, res) => {
   const result = await fetchStudentSessionResults(payload);
 
   if (!result) {
-    throw new AppError('Unable to fetch student result for the term.', 400);
+    throw new AppError("Unable to fetch student result for the term.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -1242,7 +1242,7 @@ const getStudentSessionResults = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Student result for the session fetched successfully.',
+    message: "Student result for the session fetched successfully.",
     success: true,
     status: 200,
     student_result: result,
@@ -1260,13 +1260,13 @@ const getAllStudentResultsInClassForActiveTermByClassId = catchErrors(
 
     if (!class_id || !term || !academic_session_id) {
       throw new AppError(
-        'Please provide class id, academic session id and term to proceed.',
+        "Please provide class id, academic session id and term to proceed.",
         400
       );
     }
 
     if (!userId || !userRole) {
-      throw new AppError('Please login to proceed.', 400);
+      throw new AppError("Please login to proceed.", 400);
     }
 
     const payload = {
@@ -1283,7 +1283,7 @@ const getAllStudentResultsInClassForActiveTermByClassId = catchErrors(
 
     if (!result) {
       throw new AppError(
-        'Unable to fetch all student results in the class for the term.',
+        "Unable to fetch all student results in the class for the term.",
         404
       );
     }
@@ -1310,7 +1310,7 @@ const getAllStudentResultsInClassForActiveTermByClassId = catchErrors(
     // await saveLog(savelogPayload);
 
     return res.status(200).json({
-      message: 'Students results fetched successfully',
+      message: "Students results fetched successfully",
       success: true,
       status: 200,
       students_results: result,
@@ -1324,7 +1324,7 @@ const getAllResultsOfAStudent = catchErrors(async (req, res) => {
   const { student_id } = req.params;
 
   if (!student_id) {
-    throw new AppError('Student ID is required.', 400);
+    throw new AppError("Student ID is required.", 400);
   }
 
   const payload = {
@@ -1334,7 +1334,7 @@ const getAllResultsOfAStudent = catchErrors(async (req, res) => {
   const result = await fetchAllResultsOfAStudent(payload);
 
   if (!result) {
-    throw new AppError('Unable to fetch student results.', 400);
+    throw new AppError("Unable to fetch student results.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -1359,7 +1359,7 @@ const getAllResultsOfAStudent = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Student results fetched successfully.',
+    message: "Student results fetched successfully.",
     status: 200,
     success: true,
     results: result,
@@ -1372,11 +1372,11 @@ const getStudentResultByResultId = catchErrors(async (req, res) => {
   const { student_id, result_id } = req.params;
 
   if (!result_id) {
-    throw new AppError('Result ID is required.', 400);
+    throw new AppError("Result ID is required.", 400);
   }
 
   if (!student_id) {
-    throw new AppError('Student ID is required.', 400);
+    throw new AppError("Student ID is required.", 400);
   }
 
   const payload = {
@@ -1408,7 +1408,7 @@ const getStudentResultByResultId = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Student result fetched successfully.',
+    message: "Student result fetched successfully.",
     success: true,
     status: 200,
     result,
@@ -1433,22 +1433,22 @@ const recordAllStudentsLastTermCumPerTerm = catchErrors(async (req, res) => {
 
   if (!teacherId) {
     throw new AppError(
-      'It is only a teacher that can record test or exam. You need to login as a teacher.',
+      "It is only a teacher that can record test or exam. You need to login as a teacher.",
       400
     );
   }
 
-  if (!role || role !== 'teacher') {
-    throw new AppError('Only teacher can record test or exam.', 400);
+  if (!role || role !== "teacher") {
+    throw new AppError("Only teacher can record test or exam.", 400);
   }
 
   if (teacherId.toString() !== teacher_id.toString()) {
-    throw new AppError('You are not the teacher taking this course.', 400);
+    throw new AppError("You are not the teacher taking this course.", 400);
   }
 
   if (last_term_cumulative_objs.length === 0) {
     throw new AppError(
-      'Please provide student IDs and their respective last term cumulative to proceed.',
+      "Please provide student IDs and their respective last term cumulative to proceed.",
       400
     );
   }
@@ -1467,7 +1467,7 @@ const recordAllStudentsLastTermCumPerTerm = catchErrors(async (req, res) => {
 
   if (missingField) {
     throw new AppError(
-      `Please provide ${missingField[0].replace('_', ' ')} to continue.`,
+      `Please provide ${missingField[0].replace("_", " ")} to continue.`,
       400
     );
   }
@@ -1489,29 +1489,29 @@ const recordAllStudentsLastTermCumPerTerm = catchErrors(async (req, res) => {
   }
 
   const successfulResponse = result.successfulRecords.filter(
-    (r) => r.status === 'fulfilled'
+    (r) => r.status === "fulfilled"
   );
   const response = successfulResponse.map((r) => r.student_id);
 
   const failureResponse = result.successfulRecords.filter(
-    (r) => r.status !== 'fulfilled'
+    (r) => r.status !== "fulfilled"
   );
 
   const failedIds = failureResponse.map((r) => r.student_id);
 
-  let returnMsg = '';
-  let returnSMsg = '';
-  let returnFMsg = '';
+  let returnMsg = "";
+  let returnSMsg = "";
+  let returnFMsg = "";
 
   if (response.length > 0) {
     returnSMsg = `Scores for Students with the following IDs: ${response.join(
-      ','
+      ","
     )} were recorded successfully.`;
   }
 
   if (failedIds.length > 0) {
     returnFMsg = `Scores for Students with the following IDs: ${failedIds.join(
-      ','
+      ","
     )} failed.`;
   }
 
@@ -1554,24 +1554,24 @@ const subjectPositionGradingInClass = catchErrors(async (req, res) => {
   const userRole = req.user?.userRole;
 
   if (!class_enrolment_id) {
-    throw new AppError('Please provide a class enrolment ID to proceed.', 400);
+    throw new AppError("Please provide a class enrolment ID to proceed.", 400);
   }
 
   if (!subject_id) {
-    throw new AppError('Please provide a subject ID to proceed.', 400);
+    throw new AppError("Please provide a subject ID to proceed.", 400);
   }
 
   const teacherId = req.user?.userId;
 
   if (!teacherId) {
     throw new AppError(
-      'It is only a teacher that can record test or exam. You need to login as a teacher.',
+      "It is only a teacher that can record test or exam. You need to login as a teacher.",
       400
     );
   }
 
-  if (!userRole || userRole !== 'teacher') {
-    throw new AppError('Only teacher can record test or exam.', 400);
+  if (!userRole || userRole !== "teacher") {
+    throw new AppError("Only teacher can record test or exam.", 400);
   }
 
   const payload = {
@@ -1584,7 +1584,7 @@ const subjectPositionGradingInClass = catchErrors(async (req, res) => {
   const result = await studentsSubjectPositionInClass(payload);
 
   if (!result) {
-    throw new AppError('Unable to grade student for this subject.', 400);
+    throw new AppError("Unable to grade student for this subject.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -1609,7 +1609,7 @@ const subjectPositionGradingInClass = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Subject position successfully done for this class.',
+    message: "Subject position successfully done for this class.",
     success: true,
     status: 200,
     result,
@@ -1625,11 +1625,11 @@ const calculateStudentsClassPosition = catchErrors(async (req, res) => {
   const userRole = req.user?.userRole;
 
   if (!class_id) {
-    throw new AppError('Please provide a class ID to proceed.', 400);
+    throw new AppError("Please provide a class ID to proceed.", 400);
   }
 
   if (!userRole || !userId) {
-    throw new AppError('Please login to continue', 400);
+    throw new AppError("Please login to continue", 400);
   }
 
   const payload = {
@@ -1640,7 +1640,7 @@ const calculateStudentsClassPosition = catchErrors(async (req, res) => {
 
   const result = await calculatePositionOfStudentsInClass(payload);
   if (!result) {
-    throw new AppError('Unable to calculate class position of students.', 400);
+    throw new AppError("Unable to calculate class position of students.", 400);
   }
 
   // const duration = Date.now() - start;
@@ -1665,7 +1665,7 @@ const calculateStudentsClassPosition = catchErrors(async (req, res) => {
   // await saveLog(savelogPayload);
 
   return res.status(200).json({
-    message: 'Class position calculated successfully.',
+    message: "Class position calculated successfully.",
     success: true,
     status: 200,
     students_result: result,
@@ -1676,11 +1676,11 @@ const getResultSettings = catchErrors(async (req, res) => {
   const result = await fetchResultSetting();
 
   if (!result) {
-    throw new AppError('Unable to fetch result setting.', 400);
+    throw new AppError("Unable to fetch result setting.", 400);
   }
 
   return res.status(200).json({
-    message: 'Result settings fetched successfully.',
+    message: "Result settings fetched successfully.",
     success: true,
     status: 200,
     result_settings: result,
@@ -1691,17 +1691,17 @@ const getLevelResultSetting = catchErrors(async (req, res) => {
   const level = req.params.level;
 
   if (!level) {
-    throw new AppError('Level is required.', 400);
+    throw new AppError("Level is required.", 400);
   }
 
   const result = await fetchLevelResultSetting(level);
 
   if (!result) {
-    throw new AppError('Unable to fetch result setting.', 400);
+    throw new AppError("Unable to fetch result setting.", 400);
   }
 
   return res.status(200).json({
-    message: 'Result settings fetched successfully.',
+    message: "Result settings fetched successfully.",
     success: true,
     status: 200,
     result_setting: result,
