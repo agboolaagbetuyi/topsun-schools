@@ -531,27 +531,25 @@
 // };
 
 /////////////////////////////////////////////////////////
-import mongoose from "mongoose";
 import {
+  calculatePositionOfStudentsInClass,
+  // resultSettingCreation,
+  fetchAllResultsOfAStudent,
   fetchAllScoresPerSubject,
   fetchAllStudentResultsInClassForActiveTermByClassId,
+  fetchLevelResultSetting,
   fetchResultSetting,
+  fetchStudentResultByResultId,
   fetchStudentSessionResults,
   fetchStudentSubjectResultInAClass,
   fetchStudentTermResult,
+  recordManyStudentCumScores,
+  recordManyStudentExamScores,
   recordManyStudentScores,
   recordStudentScore,
-  // resultSettingCreation,
-  fetchAllResultsOfAStudent,
-  fetchStudentResultByResultId,
-  recordManyStudentCumScores,
   studentsSubjectPositionInClass,
-  calculatePositionOfStudentsInClass,
-  recordManyStudentExamScores,
-  fetchLevelResultSetting,
 } from "../services/result.service";
 import { AppError } from "../utils/app.error";
-import { validateGradingArray } from "../utils/functions";
 import catchErrors from "../utils/tryCatch";
 // import { saveLog } from '../logs/log.service';
 
@@ -1709,22 +1707,22 @@ const getLevelResultSetting = catchErrors(async (req, res) => {
 });
 
 export {
-  getLevelResultSetting,
-  getResultSettings,
-  recordStudentScorePerTerm,
-  recordAllStudentsScoresPerTerm,
+  calculateStudentsClassPosition,
+  getAllResultsOfAStudent,
+  getAllStudentResultsInClassForActiveTermByClassId,
   getAllSubjectResultOfStudentsInClass,
+  getLevelResultSetting,
+  getResultSetting,
+  getResultSettings,
+  getStudentResultByResultId,
+  getStudentSessionResults,
   getStudentSubjectResultInAClass,
   getStudentTermResult,
-  getStudentSessionResults,
-  getAllStudentResultsInClassForActiveTermByClassId,
   recordAllStudentsExamScoresPerTerm,
   recordAllStudentsLastTermCumPerTerm,
-  getStudentResultByResultId,
-  getAllResultsOfAStudent,
-  getResultSetting,
+  recordAllStudentsScoresPerTerm,
+  recordStudentScorePerTerm,
   // createResultSetting,
   //////////////////////////////////////////
   subjectPositionGradingInClass,
-  calculateStudentsClassPosition,
 };

@@ -919,55 +919,51 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 import mongoose from "mongoose";
 import {
+  AllStudentResultsPayloadType,
+  ClassResultsType,
+  ExamScoreType,
+  MultipleExamScoreParamType,
+  MultipleLastCumParamType,
+  MultipleScoreParamType,
   // ResultSettingComponentType,
   // GradingAndRemarkType,
   ScoreParamType,
-  ResultDocument,
-  MultipleScoreParamType,
   ScorePayload,
-  StudentPopulatedType,
+  SessionDocument,
   SingleStudentScorePayload,
-  SubjectPopulatedType,
-  StudentResultTermType,
-  StudentResultSessionType,
-  AllStudentResultsPayloadType,
-  ClassResultsType,
-  MultipleLastCumParamType,
-  StudentSubjectPositionType,
-  UserDocument,
   StudentClassPayloadType,
+  StudentPopulatedType,
   StudentResultPopulatedType,
+  StudentResultSessionType,
+  StudentResultTermType,
+  StudentSubjectPositionType,
+  SubjectPopulatedType,
+  SubjectPositionJobData,
+  SubjectResultDocument,
   SubjectResultType,
   TermResult,
-  SchoolType,
-  SessionDocument,
-  MultipleExamScoreParamType,
-  SubjectResultDocument,
-  ExamScoreType,
-  SubjectPositionJobData,
+  UserDocument,
 } from "../constants/types";
+import CbtResult from "../models/cbt_result.model";
 import Class from "../models/class.model";
 import ClassEnrolment from "../models/classes_enrolment.model";
 import Result from "../models/result.model";
 import ResultSetting from "../models/result_setting.model";
-import Subject from "../models/subject.model";
-import Teacher from "../models/teachers.model";
-import { recordScore, recordCumScore } from "../repository/result.repository";
-import { AppError } from "../utils/app.error";
-import { getAStudentById } from "../repository/student.repository";
 import Session from "../models/session.model";
-import { getTeacherById } from "../repository/teacher.repository";
 import Student from "../models/students.model";
+import Subject from "../models/subject.model";
+import { SubjectResult } from "../models/subject_result.model";
+import Teacher from "../models/teachers.model";
+import { recordCumScore, recordScore } from "../repository/result.repository";
+import { getAStudentById } from "../repository/student.repository";
+import { getTeacherById } from "../repository/teacher.repository";
+import { AppError } from "../utils/app.error";
 import {
   assignPositions,
   classPositionCalculation,
   getMinMax,
-  schoolSubscriptionPlan,
 } from "../utils/functions";
-import { examKeyEnum, subscriptionEnum } from "../constants/enum";
 import { studentResultQueue } from "../utils/queue";
-import { SubjectResult } from "../models/subject_result.model";
-import CbtResult from "../models/cbt_result.model";
 
 // MAKE PROVISION FOR CUMMULATIVE. THEN IF FIRST TERM,
 // CUMMULATIVE SPACE SHOULD TAKE TOTAL AND WHEN IT IS SECOND TERM,
@@ -1118,13 +1114,12 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
           const currentTermResult = result.term_results.find(
             (t) => t.term === term
           );
-          const lastScore = currentTermResult?.scores.at(-1);
           return {
             status: "fulfilled",
             student_id: student.student_id,
             result,
-            score: lastScore?.score,
-            score_name: lastScore?.score_name,
+            score: student.score,
+            score_name: score_name,
           };
         })
         .catch((err) => {
@@ -1137,12 +1132,16 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
               status: "skipped",
               student_id: student.student_id,
               reason: err.message,
+              score_name: score_name,
+              score: student.score,
             };
           }
           return {
             status: "rejected",
             student_id: student.student_id,
             reason: err.message || "Unknown error",
+            score_name: score_name,
+            score: student.score,
           };
         })
     );
@@ -1153,7 +1152,7 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
     const skippedRecords = results.filter((r) => r.status === "skipped");
     const failedRecords = results.filter((r) => r.status === "rejected");
 
-    if (successfulRecords.length > 0) {
+    if (results.length > 0) {
       const jobs = results.map((record) => {
         const r = record as {
           // status: 'fulfilled';
@@ -2654,20 +2653,20 @@ const calculatePositionOfStudentsInClass = async (
 };
 
 export {
-  fetchLevelResultSetting,
   calculatePositionOfStudentsInClass,
-  studentsSubjectPositionInClass,
-  recordManyStudentCumScores,
   fetchAllResultsOfAStudent,
-  fetchStudentResultByResultId,
-  fetchResultSetting,
-  fetchAllStudentResultsInClassForActiveTermByClassId,
-  fetchStudentSessionResults,
-  fetchStudentTermResult,
   fetchAllScoresPerSubject,
-  recordManyStudentScores,
+  fetchAllStudentResultsInClassForActiveTermByClassId,
+  fetchLevelResultSetting,
+  fetchResultSetting,
+  fetchStudentResultByResultId,
+  fetchStudentSessionResults,
+  fetchStudentSubjectResultInAClass,
+  fetchStudentTermResult,
+  recordManyStudentCumScores,
   recordManyStudentExamScores,
+  recordManyStudentScores,
   // resultSettingCreation,
   recordStudentScore,
-  fetchStudentSubjectResultInAClass,
+  studentsSubjectPositionInClass,
 };
