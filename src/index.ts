@@ -46,6 +46,8 @@ const httpServer = createServer(app);
 const allowedOrigins: string[] = [
   process.env.FRONTEND_URL || "",
   "https://topsun.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:5173",
 ];
 
 const corsOptions: CorsOptions = {
