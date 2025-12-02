@@ -547,10 +547,12 @@ import {
   recordManyStudentExamScores,
   recordManyStudentScores,
   recordStudentScore,
+  studentEffectiveAreasForActiveTermRecording,
   studentsSubjectPositionInClass,
 } from "../services/result.service";
 import { AppError } from "../utils/app.error";
 import catchErrors from "../utils/tryCatch";
+import { joiValidateEffectiveAreasSchema } from "../utils/validation";
 // import { saveLog } from '../logs/log.service';
 
 // const createResultSettingInASchool = catchErrors(async (req, res) => {
@@ -1413,6 +1415,135 @@ const getStudentResultByResultId = catchErrors(async (req, res) => {
   });
 });
 
+const recordStudentEffectiveAreasForActiveTerm = catchErrors(
+  async (req, res) => {
+    // const start = Date.now();
+
+    const { student_id, result_id } = req.params;
+    const {
+      punctuality,
+      neatness,
+      politeness,
+      honesty,
+      relationshipWithOthers,
+      leadership,
+      emotionalStability,
+      health,
+      attitudeToSchoolWork,
+      attentiveness,
+      perseverance,
+    } = req.body;
+
+    const requiredFields = {
+      punctuality,
+      neatness,
+      politeness,
+      honesty,
+      relationshipWithOthers,
+      leadership,
+      emotionalStability,
+      health,
+      attitudeToSchoolWork,
+      attentiveness,
+      perseverance,
+    };
+
+    const missingField = Object.entries(requiredFields).find(
+      ([key, value]) => !value
+    );
+
+    if (missingField) {
+      throw new AppError(
+        `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
+        400
+      );
+    }
+
+    if (!result_id) {
+      throw new AppError("Result ID is required.", 400);
+    }
+
+    if (!student_id) {
+      throw new AppError("Student ID is required.", 400);
+    }
+
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      throw new AppError("Please login to continue.", 400);
+    }
+
+    const input = {
+      punctuality: punctuality.trim().toUpperCase(),
+      neatness: neatness.trim().toUpperCase(),
+      politeness: politeness.trim().toUpperCase(),
+      honesty: honesty.trim().toUpperCase(),
+      relationshipWithOthers: relationshipWithOthers.trim().toUpperCase(),
+      leadership: leadership.trim().toUpperCase(),
+      emotionalStability: emotionalStability.trim().toUpperCase(),
+      health: health.trim().toUpperCase(),
+      attitudeToSchoolWork: attitudeToSchoolWork.trim().toUpperCase(),
+      attentiveness: attentiveness.trim().toUpperCase(),
+      perseverance: perseverance.trim().toUpperCase(),
+    };
+
+    const validateInput = joiValidateEffectiveAreasSchema(input);
+
+    if (validateInput.error) {
+      throw new AppError(validateInput.error, 400);
+    }
+
+    const { value } = validateInput;
+
+    const payload = {
+      student_id,
+      result_id,
+      userId,
+      punctuality: value.punctuality,
+      neatness: value.neatness,
+      politeness: value.politeness,
+      honesty: value.honesty,
+      relationshipWithOthers: value.relationshipWithOthers,
+      leadership: value.leadership,
+      emotionalStability: value.emotionalStability,
+      health: value.health,
+      attitudeToSchoolWork: value.attitudeToSchoolWork,
+      attentiveness: value.attentiveness,
+      perseverance: value.perseverance,
+    };
+
+    const result = await studentEffectiveAreasForActiveTermRecording(payload);
+
+    // const duration = Date.now() - start;
+
+    // const savelogPayload = {
+    //   level: 'info',
+    //   message: 'Student result fetched successfully.',
+    //   service: 'klazik schools',
+    //   method: req.method,
+    //   route: req.originalUrl,
+    //   status_code: 200,
+    //   user_id: req.user?.userId,
+    //   user_role: req.user?.userRole,
+    //   ip: req.ip || 'unknown',
+    //   duration_ms: duration,
+    //   stack: undefined,
+    //   school_id: req.user?.school_id
+    //     ? new mongoose.Types.ObjectId(req.user.school_id)
+    //     : undefined,
+    // };
+
+    // await saveLog(savelogPayload);
+
+    return res.status(200).json({
+      message: "Student result updated successfully.",
+      success: true,
+      status: 200,
+      result,
+    });
+  }
+);
+
 const recordAllStudentsLastTermCumPerTerm = catchErrors(async (req, res) => {
   // const start = Date.now();
 
@@ -1721,6 +1852,7 @@ export {
   recordAllStudentsExamScoresPerTerm,
   recordAllStudentsLastTermCumPerTerm,
   recordAllStudentsScoresPerTerm,
+  recordStudentEffectiveAreasForActiveTerm,
   recordStudentScorePerTerm,
   // createResultSetting,
   //////////////////////////////////////////

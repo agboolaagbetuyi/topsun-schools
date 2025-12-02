@@ -921,6 +921,7 @@ import mongoose from "mongoose";
 import {
   AllStudentResultsPayloadType,
   ClassResultsType,
+  EffectiveAreasPayloadType,
   ExamScoreType,
   MultipleExamScoreParamType,
   MultipleLastCumParamType,
@@ -2194,6 +2195,123 @@ const fetchStudentResultByResultId = async (
   }
 };
 
+const studentEffectiveAreasForActiveTermRecording = async (
+  payload: EffectiveAreasPayloadType
+) => {
+  try {
+    const {
+      student_id,
+      result_id,
+      punctuality,
+      userId,
+      neatness,
+      politeness,
+      honesty,
+      relationshipWithOthers,
+      leadership,
+      emotionalStability,
+      health,
+      attitudeToSchoolWork,
+      attentiveness,
+      perseverance,
+    } = payload;
+
+    const student = Object(student_id);
+    const result = Object(result_id);
+
+    const teacher = await Teacher.findById({
+      _id: userId,
+    });
+
+    if (!teacher) {
+      throw new AppError("This teacher does not exist.", 404);
+    }
+
+    const studentResult = await Result.findOne(
+      {
+        student: student,
+        "term_results._id": result,
+      }
+      // {
+      //   term_results: { $elemMatch: { _id: result } },
+      // }
+    );
+
+    if (!studentResult || !studentResult.term_results.length) {
+      throw new AppError("Specific term result not found.", 404);
+    }
+
+    if (!teacher.class_managing) {
+      throw new AppError("You are not assigned to manage any class yet.", 400);
+    }
+
+    if (teacher.class_managing.toString() !== studentResult?.class.toString()) {
+      throw new AppError("You are not the class teacher of this class.", 400);
+    }
+
+    const termResult = studentResult.term_results.find(
+      (a) => a._id?.toString() === result.toString()
+    );
+
+    const sessionExist = await Session.findById({
+      _id: studentResult.academic_session_id,
+    });
+
+    if (!sessionExist) {
+      throw new AppError("Academic Session not found.", 404);
+    }
+
+    const getTerm = sessionExist.terms.find((t) => t.name === termResult?.term);
+
+    if (getTerm?.is_active !== true) {
+      throw new AppError(
+        "You can only perform this operation for the result of an active term.",
+        400
+      );
+    }
+
+    if (!termResult) {
+      throw new AppError("No result found for this term.", 404);
+    }
+
+    if (
+      !termResult.punctuality ||
+      !termResult.neatness ||
+      !termResult.politeness ||
+      !termResult.honesty ||
+      !termResult.relationshipWithOthers ||
+      !termResult.leadership ||
+      !termResult.emotionalStability ||
+      !termResult.health ||
+      !termResult.attitudeToSchoolWork ||
+      !termResult.attentiveness ||
+      !termResult.perseverance
+    ) {
+      termResult.punctuality = punctuality;
+      termResult.neatness = neatness;
+      termResult.politeness = politeness;
+      termResult.honesty = honesty;
+      termResult.relationshipWithOthers = relationshipWithOthers;
+      termResult.leadership = leadership;
+      termResult.emotionalStability = emotionalStability;
+      termResult.health = health;
+      termResult.attitudeToSchoolWork = attitudeToSchoolWork;
+      termResult.attentiveness = attentiveness;
+      termResult.perseverance = perseverance;
+    }
+
+    await studentResult.save();
+
+    return studentResult;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw new AppError(error.message, error.statusCode);
+    } else {
+      throw new Error("Something happened");
+    }
+  }
+};
+
 const studentsSubjectPositionInClass = async (
   payload: StudentSubjectPositionType
 ) => {
@@ -2668,5 +2786,6 @@ export {
   recordManyStudentScores,
   // resultSettingCreation,
   recordStudentScore,
+  studentEffectiveAreasForActiveTermRecording,
   studentsSubjectPositionInClass,
 };

@@ -127,7 +127,6 @@ io.on("connection", (socket) => {
 });
 
 httpServer.listen(port, () => {
-  // console.log(`Bull Board is running at http://localhost:${port}/admin/queues`);
   console.log(`Listening on port ${port}`);
 });
 
