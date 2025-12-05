@@ -250,6 +250,7 @@ import { createBullBoard } from "@bull-board/api";
 import {
   processCbtAssessmentResultSubmission,
   processCbtAssessmentSubmission,
+  processStudentCbtExamResultUpdateManually,
   processStudentExamResultUpdate,
   processStudentResultUpdate,
   processStudentSubjectPositionUpdate,
@@ -369,6 +370,11 @@ const resultWorker = new Worker<
         break;
       case "update-student-exam":
         await processStudentExamResultUpdate(job.data as CbtAssessmentJobData);
+        break;
+      case "update-student-cbt":
+        await processStudentCbtExamResultUpdateManually(
+          job.data as CbtAssessmentJobData
+        );
         break;
       case "subject-position":
         await processStudentSubjectPositionUpdate(
