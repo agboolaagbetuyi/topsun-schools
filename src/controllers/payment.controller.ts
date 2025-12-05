@@ -226,7 +226,6 @@
 //     userRole === 'parent' ? req.user?.userId.toString() : undefined;
 
 //   if (userRole === 'parent' && !parent_id) {
-//     console.error('Parent ID not found');
 //     throw new AppError('Parent ID not found.', 400);
 //   }
 
