@@ -8,6 +8,7 @@ import {
   getResultSettings,
   getStudentResultByResultId,
   getStudentSessionResults,
+  getStudentSpecificResult,
   getStudentSubjectResultInAClass,
   getStudentTermResult,
   manualCbtRecordingPerStudentPerTerm,
@@ -18,6 +19,8 @@ import {
   // getResultSetting,
   recordStudentScorePerTerm,
   subjectPositionGradingInClass,
+  subjectResultTotalCalculation,
+  updateStudentsSubjectScoreInAClass,
 } from "../controllers/result.controller";
 import { permission } from "../middleware/authorization";
 import { verifyAccessToken } from "../middleware/jwtAuth";
@@ -56,6 +59,12 @@ router.get(
   permission(["teacher", "admin", "super_admin", "student", "parent"]),
   getStudentResultByResultId
   // populate subject and subject teacher
+);
+
+router.get(
+  "/get-student-result/:student_id/:session_id/:term",
+  permission(["teacher", "admin", "super_admin", "student", "parent"]),
+  getStudentSpecificResult
 );
 
 router.put(
@@ -121,9 +130,21 @@ router.put(
 );
 
 router.put(
+  "/calculate-subject-result-total/:class_enrolment_id/:class_id/:subject_id/:session_id",
+  permission(["teacher"]),
+  subjectResultTotalCalculation
+);
+
+router.put(
   "/students-class-position/:class_id",
   permission(["teacher"]),
   calculateStudentsClassPosition
+);
+
+router.put(
+  "/update-score",
+  permission(["super_admin"]),
+  updateStudentsSubjectScoreInAClass
 );
 
 router.get(

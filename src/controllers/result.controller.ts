@@ -542,15 +542,18 @@ import {
   fetchResultSetting,
   fetchStudentResultByResultId,
   fetchStudentSessionResults,
+  fetchStudentSpecificResult,
   fetchStudentSubjectResultInAClass,
   fetchStudentTermResult,
   recordManyStudentCbtExamScoresManually,
   recordManyStudentCumScores,
   recordManyStudentExamScores,
   recordManyStudentScores,
+  recordManyStudentSubjectResultTotal,
   recordStudentScore,
   studentEffectiveAreasForActiveTermRecording,
   studentsSubjectPositionInClass,
+  studentsSubjectScoreInAClassUpdating,
 } from "../services/result.service";
 import { AppError } from "../utils/app.error";
 import catchErrors from "../utils/tryCatch";
@@ -950,6 +953,129 @@ const recordAllStudentsScoresPerTerm = catchErrors(async (req, res) => {
     returnSMsg = `Scores for Students with the following IDs: ${response.join(
       ","
     )} were recorded successfully.`;
+  }
+
+  if (failedIds.length > 0) {
+    returnFMsg = `Scores for Students with the following IDs: ${failedIds.join(
+      ","
+    )} failed.`;
+  }
+
+  returnMsg = `${returnSMsg} ${returnFMsg}`;
+
+  // const duration = Date.now() - start;
+
+  // const savelogPayload = {
+  //   level: 'info',
+  //   message: returnMsg,
+  //   service: 'klazik schools',
+  //   method: req.method,
+  //   route: req.originalUrl,
+  //   status_code: 200,
+  //   user_id: req.user?.userId,
+  //   user_role: req.user?.userRole,
+  //   ip: req.ip || 'unknown',
+  //   duration_ms: duration,
+  //   stack: undefined,
+  //   school_id: req.user?.school_id
+  //     ? new mongoose.Types.ObjectId(req.user.school_id)
+  //     : undefined,
+  // };
+
+  // await saveLog(savelogPayload);
+
+  return res.status(200).json({
+    message: returnMsg,
+    success: true,
+    status: 201,
+    Records: result.successfulRecords,
+  });
+});
+
+const updateStudentsSubjectScoreInAClass = catchErrors(async (req, res) => {
+  // const start = Date.now();
+
+  const {
+    term,
+    session_id,
+    teacher_id,
+    subject_id,
+    result_objs,
+    score_name,
+    class_enrolment_id,
+    class_id,
+  } = req.body;
+
+  const userId = req.user?.userId;
+
+  if (!userId) {
+    throw new AppError("You need to login to proceed.", 400);
+  }
+
+  if (result_objs.length === 0) {
+    throw new AppError(
+      "Please provide student IDs and their respective score to proceed.",
+      400
+    );
+  }
+
+  const requiredFields = {
+    term,
+    teacher_id,
+    session_id,
+    subject_id,
+    score_name,
+    class_enrolment_id,
+    class_id,
+  };
+  const missingField = Object.entries(requiredFields).find(
+    ([key, value]) => !value
+  );
+
+  if (missingField) {
+    throw new AppError(
+      `Please provide ${missingField[0].replace("_", " ")} to continue.`,
+      400
+    );
+  }
+
+  const payload = {
+    term,
+    session_id,
+    teacher_id,
+    userId,
+    result_objs,
+    subject_id,
+    score_name,
+    class_enrolment_id,
+    class_id,
+  };
+
+  const result = await studentsSubjectScoreInAClassUpdating(payload);
+
+  if (!result) {
+    throw new AppError(`Unable to update score for ${score_name}.`, 400);
+  }
+
+  const successfulResponse = result.successfulRecords.filter(
+    (r) => r.status === "fulfilled"
+  );
+  const response = successfulResponse.map((r) => r.student_id);
+
+  const failureResponse = result.successfulRecords.filter(
+    (r) => r.status !== "fulfilled"
+  );
+
+  const failedIds = failureResponse.map((r) => r.student_id);
+
+  let returnMsg = "";
+  let returnSMsg = "";
+  let returnFMsg = "";
+
+  if (response.length > 0) {
+    returnSMsg = `Scores for Students with the following IDs: ${response.join(
+      ","
+    )} were updated successfully.`;
   }
 
   if (failedIds.length > 0) {
@@ -1530,6 +1656,68 @@ const getStudentResultByResultId = catchErrors(async (req, res) => {
   });
 });
 
+const getStudentSpecificResult = catchErrors(async (req, res) => {
+  // const start = Date.now();
+
+  const { student_id, session_id, term } = req.params;
+
+  if (!session_id) {
+    throw new AppError("Session is required.", 400);
+  }
+
+  if (!student_id) {
+    throw new AppError("Student ID is required.", 400);
+  }
+
+  if (!term) {
+    throw new AppError("Term is required.", 400);
+  }
+
+  const user = req.user;
+
+  if (!user) {
+    throw new AppError("Please login to continue.", 400);
+  }
+
+  const payload = {
+    student_id,
+    session_id,
+    term,
+    userRole: user?.userRole,
+    userId: user?.userId,
+  };
+
+  const result = await fetchStudentSpecificResult(payload);
+
+  // const duration = Date.now() - start;
+
+  // const savelogPayload = {
+  //   level: 'info',
+  //   message: 'Student result fetched successfully.',
+  //   service: 'klazik schools',
+  //   method: req.method,
+  //   route: req.originalUrl,
+  //   status_code: 200,
+  //   user_id: req.user?.userId,
+  //   user_role: req.user?.userRole,
+  //   ip: req.ip || 'unknown',
+  //   duration_ms: duration,
+  //   stack: undefined,
+  //   school_id: req.user?.school_id
+  //     ? new mongoose.Types.ObjectId(req.user.school_id)
+  //     : undefined,
+  // };
+
+  // await saveLog(savelogPayload);
+
+  return res.status(200).json({
+    message: "Subject results total calculated successfully.",
+    success: true,
+    status: 200,
+    result,
+  });
+});
+
 const recordStudentEffectiveAreasForActiveTerm = catchErrors(
   async (req, res) => {
     // const start = Date.now();
@@ -1860,6 +2048,86 @@ const subjectPositionGradingInClass = catchErrors(async (req, res) => {
   });
 });
 
+const subjectResultTotalCalculation = catchErrors(async (req, res) => {
+  // const start = Date.now();
+
+  const { class_enrolment_id, subject_id, class_id, session_id } = req.params;
+
+  const userRole = req.user?.userRole;
+
+  if (!class_enrolment_id) {
+    throw new AppError("Please provide a class enrolment ID to proceed.", 400);
+  }
+
+  if (!subject_id) {
+    throw new AppError("Please provide a subject ID to proceed.", 400);
+  }
+
+  if (!class_id) {
+    throw new AppError("Please provide a class ID to proceed.", 400);
+  }
+
+  if (!session_id) {
+    throw new AppError("Please provide a session ID to proceed.", 400);
+  }
+
+  const teacherId = req.user?.userId;
+
+  if (!teacherId) {
+    throw new AppError(
+      "It is only a teacher that can record test or exam. You need to login as a teacher.",
+      400
+    );
+  }
+
+  if (!userRole || userRole !== "teacher") {
+    throw new AppError("Only teacher can record test or exam.", 400);
+  }
+
+  const payload = {
+    class_enrolment_id,
+    subject_id,
+    userId: teacherId,
+    userRole,
+    class_id,
+    session_id,
+  };
+
+  const result = await recordManyStudentSubjectResultTotal(payload);
+
+  if (!result) {
+    throw new AppError("Unable to grade student for this subject.", 400);
+  }
+
+  // const duration = Date.now() - start;
+
+  // const savelogPayload = {
+  //   level: 'info',
+  //   message: 'Subject position successfully done for this class.',
+  //   service: 'klazik schools',
+  //   method: req.method,
+  //   route: req.originalUrl,
+  //   status_code: 200,
+  //   user_id: req.user?.userId,
+  //   user_role: req.user?.userRole,
+  //   ip: req.ip || 'unknown',
+  //   duration_ms: duration,
+  //   stack: undefined,
+  //   school_id: req.user?.school_id
+  //     ? new mongoose.Types.ObjectId(req.user.school_id)
+  //     : undefined,
+  // };
+
+  // await saveLog(savelogPayload);
+
+  return res.status(200).json({
+    message: "Subject position successfully done for this class.",
+    success: true,
+    status: 200,
+    result,
+  });
+});
+
 const calculateStudentsClassPosition = catchErrors(async (req, res) => {
   // const start = Date.now();
 
@@ -1962,6 +2230,7 @@ export {
   getResultSettings,
   getStudentResultByResultId,
   getStudentSessionResults,
+  getStudentSpecificResult,
   getStudentSubjectResultInAClass,
   getStudentTermResult,
   manualCbtRecordingPerStudentPerTerm,
@@ -1973,4 +2242,6 @@ export {
   // createResultSetting,
   //////////////////////////////////////////
   subjectPositionGradingInClass,
+  subjectResultTotalCalculation,
+  updateStudentsSubjectScoreInAClass,
 };
