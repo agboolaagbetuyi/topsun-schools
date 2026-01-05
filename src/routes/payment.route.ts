@@ -1,26 +1,27 @@
 import express from "express";
 import {
-  createPaymentDocumentForAllStudent,
-  getAllStudentPaymentDocumentsByStudentId,
+  addFeeToStudentPaymentDocument,
   approveBankPaymentWithId,
-  getAllPaymentDocuments,
-  getAllOutstandingPaymentDocumentsOfStudent,
-  getCurrentTermPaymentDocuments,
-  getPaymentTransactionHistoryByStudentId,
-  getPaymentDetailsByPaymentId,
+  createPaymentDocumentForAllStudent,
+  declineBankPaymentWithId,
   getAPaymentDocumentOfStudentByStudentIdAndPaymentId,
-  getAllPaymentSummaryFailedAndSuccessful,
   getAPaymentNeedingApprovalById,
-  getAllPaymentsNeedingApproval,
+  getAllOutstandingPaymentDocumentsOfStudent,
+  getAllPaymentDocuments,
+  getAllPaymentSummaryFailedAndSuccessful,
+  getAllPaymentSummaryFailedAndSuccessfulWithLookup,
   getAllPaymentsApprovedByBursarId,
+  getAllPaymentsNeedingApproval,
+  getAllStudentPaymentDocumentsByStudentId,
+  getCurrentTermPaymentDocuments,
+  getPaymentDetailsByPaymentId,
+  getPaymentTransactionHistoryByStudentId,
   makeBankPayment,
   makeCashPayment,
-  addFeeToStudentPaymentDocument,
-
-  ////////////////////////////////////
 } from "../controllers/payment.controller";
-import { verifyAccessToken } from "../middleware/jwtAuth";
 import { permission } from "../middleware/authorization";
+import { verifyAccessToken } from "../middleware/jwtAuth";
+import uploadFile from "../middleware/multer";
 
 const router = express.Router();
 
@@ -97,7 +98,7 @@ router.get(
 
 router.get(
   "/get-all-payments-needing-approval",
-  permission(["super_admin", "admin"]),
+  permission(["super_admin", "admin", "student"]),
   getAllPaymentsNeedingApproval
 );
 
@@ -105,6 +106,12 @@ router.get(
   "/get-all-payment-summary-fail-and-success",
   permission(["super_admin", "admin"]),
   getAllPaymentSummaryFailedAndSuccessful
+);
+
+router.get(
+  "/get-all-payment-summary-fail-and-success-with-search",
+  permission(["super_admin", "admin"]),
+  getAllPaymentSummaryFailedAndSuccessfulWithLookup
 );
 
 router.get(
@@ -125,9 +132,16 @@ router.put(
   approveBankPaymentWithId
 );
 
+router.delete(
+  "/decline-bank-payment/:student_id/:payment_id",
+  permission(["super_admin", "admin"]),
+  declineBankPaymentWithId
+);
+
 router.post(
   "/make-bank-payment/:session_id/:student_id",
   permission(["parent", "student"]),
+  uploadFile.single("image"),
   makeBankPayment
 );
 

@@ -4,12 +4,11 @@ import { AnswerSubmissionType, SubmissionDocument } from "../constants/types";
 const answerSchema = new mongoose.Schema<AnswerSubmissionType>({
   question_number: { type: Number, required: true },
   text_response: { type: String },
-  attachments: [
-    {
-      url: { type: String },
-      public_url: { type: String },
-    },
-  ], // image URLs, PDFs, etc.
+  attachment: {
+    url: { type: String },
+    public_url: { type: String },
+  },
+
   mark: { type: Number },
 });
 
@@ -25,6 +24,12 @@ const submissionSchema = new mongoose.Schema<SubmissionDocument>(
       ref: "Student",
       required: true,
     },
+    subject_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
+      required: true,
+    },
+
     answers: [answerSchema],
     total_score: { type: Number },
     graded: { type: Boolean, default: false },

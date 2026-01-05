@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { examKeyEnum } from "../constants/enum";
+import { examKeyEnum, termEnum } from "../constants/enum";
 import {
   CbtAssessmentEndedType,
   CbtAssessmentJobData,
@@ -27,6 +27,7 @@ import ResultSetting from "../models/result_setting.model";
 import Session from "../models/session.model";
 import Student from "../models/students.model";
 import { SubjectResult } from "../models/subject_result.model";
+import Teacher from "../models/teachers.model";
 import { subjectCbtObjCbtAssessmentSubmission } from "../services/cbt.service";
 import { AppError } from "../utils/app.error";
 // import { studentResultQueue } from '../utils/queue';
@@ -68,7 +69,53 @@ const createResult = async (payload: ResultCreationType) => {
       student: student_id,
       class: class_id,
       academic_session_id: academic_session_id,
-      term_results: [],
+      term_results: [
+        {
+          term: termEnum[0],
+          punctuality: "",
+          neatness: "",
+          politeness: "",
+          honesty: "",
+          relationshipWithOthers: "",
+          leadership: "",
+          emotionalStability: "",
+          health: "",
+          attitudeToSchoolWork: "",
+          attentiveness: "",
+          perseverance: "",
+          subject_results: [],
+        },
+        {
+          term: termEnum[1],
+          punctuality: "",
+          neatness: "",
+          politeness: "",
+          honesty: "",
+          relationshipWithOthers: "",
+          leadership: "",
+          emotionalStability: "",
+          health: "",
+          attitudeToSchoolWork: "",
+          attentiveness: "",
+          perseverance: "",
+          subject_results: [],
+        },
+        {
+          term: termEnum[2],
+          punctuality: "",
+          neatness: "",
+          politeness: "",
+          honesty: "",
+          relationshipWithOthers: "",
+          leadership: "",
+          emotionalStability: "",
+          health: "",
+          attitudeToSchoolWork: "",
+          attentiveness: "",
+          perseverance: "",
+          subject_results: [],
+        },
+      ],
       final_cumulative_score: 0,
       final_status: null,
       position: null,
@@ -81,6 +128,7 @@ const createResult = async (payload: ResultCreationType) => {
       );
     }
 
+    console.log("result:", result);
     return result;
   } catch (error) {
     if (error instanceof AppError) {
@@ -388,6 +436,8 @@ const updateScore = async (
       is_active: true,
     });
 
+    console.log("sessionActive:", sessionActive);
+
     if (!sessionActive) {
       throw new AppError("Session not found or it is not active.", 404);
     }
@@ -401,6 +451,8 @@ const updateScore = async (
     const classExist = await Class.findById({
       _id: classId,
     });
+
+    console.log("classExist:", classExist);
 
     if (!classExist) {
       throw new AppError("Class not found.", 404);
@@ -419,9 +471,13 @@ const updateScore = async (
       ...resultSettings.components,
     ];
 
+    console.log("allComponentsArray:", allComponentsArray);
+
     const validComponent = allComponentsArray.find(
       (comp) => comp.name === score_name
     );
+
+    console.log("validComponent:", validComponent);
 
     if (!validComponent) {
       throw new AppError(`Invalid score type: ${score_name}.`, 400);
@@ -434,13 +490,29 @@ const updateScore = async (
       );
     }
 
+    const teacherExist = await Teacher.findById({
+      _id: teacherId,
+    });
+
+    console.log("teacherExist:", teacherExist);
+
+    if (!teacherExist || teacherExist === null || teacherExist === undefined) {
+      throw new AppError("This teacher is not found.", 404);
+    }
+
     const subjectTeacher = classExist.teacher_subject_assignments.find(
       (p) =>
-        p?.subject?.toString() === subject_id &&
-        p?.teacher?.toString() === teacher_id
+        p?.subject?.toString() === subjectId.toString() &&
+        p?.teacher?.toString() === teacherExist._id.toString()
     );
 
-    if (!subjectTeacher) {
+    console.log("subjectTeacher:", subjectTeacher);
+
+    if (
+      !subjectTeacher ||
+      subjectTeacher === undefined ||
+      subjectTeacher === null
+    ) {
       throw new AppError(
         "The teacher selected is not the teacher assigned to teach this subject.",
         400
@@ -450,6 +522,8 @@ const updateScore = async (
     const classEnrolmentExist = await ClassEnrolment.findById({
       _id: classEnrolmentId,
     });
+
+    console.log("classEnrolmentExist:", classEnrolmentExist);
 
     if (!classEnrolmentExist) {
       throw new AppError("Class enrolment not found.", 404);
@@ -467,9 +541,13 @@ const updateScore = async (
       throw new AppError("Subject result not found.", 400);
     }
 
+    console.log("studentSubjectResult:", studentSubjectResult);
+
     const actualTermResult = studentSubjectResult.term_results.find(
       (a) => a.term === term.trim()
     );
+
+    console.log("actualTermResult:", actualTermResult);
 
     if (!actualTermResult) {
       throw new AppError(
@@ -528,8 +606,10 @@ const updateScore = async (
       }
     }
 
+    console.log("studentSubjectResult:", studentSubjectResult);
     studentSubjectResult.markModified("term_results");
     await studentSubjectResult.save();
+    console.log("studentSubjectResult:", studentSubjectResult);
 
     return studentSubjectResult as SubjectResultDocument;
   } catch (error) {

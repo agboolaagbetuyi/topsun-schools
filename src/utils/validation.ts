@@ -585,6 +585,7 @@
 import Joi from "joi";
 import {
   AdmissionValidationType,
+  AnswerSubmissionObject,
   AssessmentDocumentType,
   BankApprovalType,
   BankPaymentType,
@@ -599,6 +600,7 @@ import {
   CreateSubjectType,
   EffectiveAreasValidationType,
   ExcludeParentAndStudent,
+  JoiValidateAssignmentSubmissionType,
   LinkStudentType,
   NegotiatedFeesType,
   NewDateTimetable,
@@ -1158,7 +1160,7 @@ const bankApprovalValidation = <T extends BankApprovalType>(
   const validationSchema = Joi.object({
     bank_name: commonRules.bank_name,
     amount_paid: commonRules.amount_paying,
-    transaction_id: commonRules.teller_number,
+    // transaction_id: commonRules.teller_number,
   });
 
   const { error, value } = validationSchema.validate(payload);
@@ -1179,7 +1181,7 @@ const bankPaymentValidation = <T extends BankPaymentType>(
     amount_paying: commonRules.amount_paying,
     class_id: commonRules.class_id,
     bank_name: commonRules.bank_name,
-    teller_number: commonRules.teller_number,
+    // teller_number: commonRules.teller_number,
   });
 
   const { error, value } = validationSchema.validate(payload);
@@ -1448,6 +1450,64 @@ const joiValidateQuestionArray = (
   return { success: true, value };
 };
 
+const singleAnswerSchema = Joi.object({
+  question_number: Joi.number().required(),
+  text_response: Joi.string().allow("").trim(),
+  attachment: Joi.string().trim().allow(""),
+})
+  .custom((value, helpers) => {
+    const hasText = value.text_response && value.text_response.trim() !== "";
+    const hasAttachments =
+      Array.isArray(value.attachments) && value.attachments.length > 0;
+
+    if (!hasText && !hasAttachments) {
+      return helpers.error("any.emptyAnswer", {
+        qNum: value.question_number,
+      });
+    }
+    return value;
+  })
+  .messages({
+    "any.emptyAnswer":
+      "Question {{#qNum}} must have either a text response or at least one attachment.",
+  });
+
+const joiValidateAssignmentSubmission = (
+  payload: JoiValidateAssignmentSubmissionType
+): {
+  success: boolean;
+  value?: any;
+  error?: string;
+} => {
+  const schema = Joi.object({
+    answers_array: Joi.array().items(singleAnswerSchema).min(1).required(),
+  })
+    .custom((value, helpers) => {
+      const questionNumbers = value.answers_array.map(
+        (a: AnswerSubmissionObject) => a.question_number
+      );
+      const uniqueSet = new Set(questionNumbers);
+
+      if (uniqueSet.size !== questionNumbers.length) {
+        return helpers.error("any.duplicateQuestions");
+      }
+
+      return value;
+    })
+    .messages({
+      "any.duplicateQuestions":
+        "Duplicate question numbers found. Each question must be answered once.",
+    });
+
+  const { error, value } = schema.validate(payload);
+
+  if (error) {
+    return { success: false, error: error.details[0].message };
+  }
+
+  return { success: true, value };
+};
+
 const joiValidateAssessmentDocumentArray = (
   payload: AssessmentDocumentType[]
 ): {
@@ -1692,6 +1752,7 @@ export {
   joiBusFeeValidation,
   joiPriorityOrderValidation,
   joiValidateAssessmentDocumentArray,
+  joiValidateAssignmentSubmission,
   joiValidateClassLevelArray,
   joiValidateContactUs,
   joiValidateCutoffs,

@@ -1,14 +1,30 @@
+import mongoose from "mongoose";
 import {
   AssignmentCreationPayloadType,
+  AssignmentMarkingPayloadType,
+  AssignmentSubmissionType,
+  FindOneAssignmentPayload,
   GetAllSubjectPayloadType,
   GetAssignmentPayloadType,
+  GetAssignmentSubmissionPayloadType,
+  StudentSubjectAssignmentSubmissionsType,
+  SubjectAssignmentSubmissionsType,
+  SubmissionDocument,
 } from "../constants/types";
 import Assignment from "../models/assignment.model";
+import AssignmentSubmission from "../models/assignment_submission.model";
 import Class from "../models/class.model";
 import ClassEnrolment from "../models/classes_enrolment.model";
 import Session from "../models/session.model";
+import Student from "../models/students.model";
 import Subject from "../models/subject.model";
 import Teacher from "../models/teachers.model";
+import {
+  findAssignmentById,
+  findAssignmentSubmissionById,
+  findOneAssignmentSubmission,
+} from "../repository/assignment.repository";
+import { getAStudentById } from "../repository/student.repository";
 import { AppError } from "../utils/app.error";
 
 const assignmentCreation = async (payload: AssignmentCreationPayloadType) => {
@@ -211,6 +227,87 @@ const fetchAssignmentById = async (payload: GetAssignmentPayloadType) => {
   }
 };
 
+const fetchSubjectAssignmentSubmissionById = async (
+  payload: GetAssignmentSubmissionPayloadType
+) => {
+  try {
+    const { assignment_submission_id, userId, userRole } = payload;
+
+    const assignmentId = Object(assignment_submission_id);
+
+    const submissionExist = await AssignmentSubmission.findById({
+      _id: assignmentId,
+    });
+
+    if (!submissionExist) {
+      throw new AppError("Assignment submission not found.", 404);
+    }
+
+    const assignmentExist = await Assignment.findById({
+      _id: submissionExist.assignment_id,
+    });
+
+    if (!assignmentExist) {
+      throw new AppError("Assignment not found.", 404);
+    }
+
+    if (userRole === "teacher") {
+      // Check if the teacher is the one taking the subject in the class
+      const classDetails = await Class.findById({
+        _id: assignmentExist.class,
+      });
+
+      if (!classDetails) {
+        throw new AppError("Class does not exist for this assignment.", 404);
+      }
+
+      const subjectTeacher = classDetails.teacher_subject_assignments.find(
+        (a) =>
+          a.subject.toString() === assignmentExist.subject_id.toString() &&
+          a.teacher.toString() === userId.toString()
+      );
+
+      if (!subjectTeacher) {
+        throw new AppError(
+          "You are not the teacher assigned to teach this subject.",
+          400
+        );
+      }
+    } else if (userRole === "student") {
+      // check if the student is enrolled to take the subject in the class this session
+      const classEnrolmentExist = await ClassEnrolment.findById({
+        _id: assignmentExist.class_enrolment,
+      });
+
+      if (!classEnrolmentExist) {
+        throw new AppError(`There is no enrolment found for class.`, 404);
+      }
+
+      const offeredSubject = classEnrolmentExist.students.find(
+        (a) =>
+          a.student.toString() === userId.toString() &&
+          a.subjects_offered.includes(assignmentExist.subject_id)
+      );
+
+      if (!offeredSubject) {
+        throw new AppError(
+          "You are not enrolled to study this subject in this session.",
+          400
+        );
+      }
+    }
+
+    return submissionExist;
+  } catch (error) {
+    console.log("error in main catch:", error);
+    if (error instanceof AppError) {
+      throw new AppError(error.message, error.statusCode);
+    } else {
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
 const fetchAllSubjectAssignmentsInClass = async (
   payload: GetAllSubjectPayloadType,
   page?: number,
@@ -224,21 +321,27 @@ const fetchAllSubjectAssignmentsInClass = async (
     const sessionId = Object(session_id);
     const subjectId = Object(subject_id);
 
-    const classEnrolmentExist = await ClassEnrolment.findOne({
-      class: classId,
-      academic_session_id: sessionId,
-    });
+    const [classEnrolmentExist, classExist, subjectExist] = await Promise.all([
+      ClassEnrolment.findOne({
+        class: classId,
+        academic_session_id: sessionId,
+      }),
+      Class.findById({
+        _id: classId,
+      }),
+      Subject.findById({ _id: subjectId }),
+    ]);
 
     if (!classEnrolmentExist) {
       throw new AppError(`There is no enrolment found for class.`, 404);
     }
 
-    const classExist = await Class.findById({
-      _id: classId,
-    });
-
     if (!classExist) {
       throw new AppError("Class does not exist for this assignment.", 404);
+    }
+
+    if (!subjectExist) {
+      throw new AppError("subject not found.", 404);
     }
 
     if (userRole === "teacher") {
@@ -258,7 +361,10 @@ const fetchAllSubjectAssignmentsInClass = async (
       const offeredSubject = classEnrolmentExist.students.find(
         (a) =>
           a.student.toString() === userId.toString() &&
-          a.subjects_offered.includes(subjectId)
+          a.subjects_offered.some(
+            (subId: mongoose.Types.ObjectId) =>
+              subId.toString() === subjectExist._id.toString()
+          )
       );
 
       if (!offeredSubject) {
@@ -267,12 +373,6 @@ const fetchAllSubjectAssignmentsInClass = async (
           400
         );
       }
-    }
-
-    const subjectExist = await Subject.findById({ _id: subjectId });
-
-    if (!subjectExist) {
-      throw new AppError("subject not found.", 404);
     }
 
     const sessionExist = await Session.findById(sessionId);
@@ -326,8 +426,367 @@ const fetchAllSubjectAssignmentsInClass = async (
   }
 };
 
+const fetchSubjectAssignmentSubmissions = async (
+  payload: SubjectAssignmentSubmissionsType
+): Promise<{
+  submissions: SubmissionDocument[];
+  totalCount: number;
+  totalPages: number;
+}> => {
+  try {
+    const { userId, assignment_id, page, limit, searchParams } = payload;
+
+    const assignmentId = Object(assignment_id);
+
+    const teacherExist = await Teacher.findById({
+      _id: userId,
+    });
+
+    if (!teacherExist) {
+      throw new AppError("Teacher not found.", 404);
+    }
+
+    const assignmentExist = await Assignment.findById({
+      _id: assignmentId,
+    });
+
+    if (!assignmentExist) {
+      throw new AppError("Assignment not found.", 404);
+    }
+
+    let query = AssignmentSubmission.find({
+      assignment_id: assignmentExist._id,
+    });
+
+    if (searchParams?.trim()) {
+      const regex = new RegExp(searchParams, "i");
+
+      query = query.where({
+        $or: [{ "answers.text_response": { $regex: regex } }],
+      });
+    }
+
+    const count = await query.clone().countDocuments();
+    let pages = 1;
+
+    if (page && limit && count !== 0) {
+      const offset = (page - 1) * limit;
+      query = query.skip(offset).limit(limit);
+      pages = Math.ceil(count / limit);
+
+      if (page > pages) {
+        throw new AppError("Page can not be found.", 404);
+      }
+    }
+
+    const submissions = await query
+      .sort({ createdAt: -1 })
+      .populate([{ path: "student_id", select: "first_name last_name" }]);
+
+    if (!submissions || submissions.length === 0) {
+      throw new AppError("Submissions not found.", 404);
+    }
+
+    const classExist = await Class.findById({
+      _id: assignmentExist.class,
+    });
+
+    if (!classExist) {
+      throw new AppError("Class not found.", 404);
+    }
+
+    const actualSubjectTeacher = classExist.teacher_subject_assignments.find(
+      (a) =>
+        a.teacher.toString() === teacherExist._id.toString() &&
+        a.subject.toString() === assignmentExist.subject_id.toString()
+    );
+
+    if (!actualSubjectTeacher) {
+      throw new AppError(
+        "This is not the teacher assigned to teach this subject in this class.",
+        400
+      );
+    }
+
+    return {
+      submissions,
+      totalCount: count,
+      totalPages: pages,
+    };
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw new AppError(error.message, error.statusCode);
+    } else {
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+const fetchAllMySubjectAssignmentSubmissionsInASession = async (
+  payload: StudentSubjectAssignmentSubmissionsType
+): Promise<{
+  submissions: SubmissionDocument[];
+  totalCount: number;
+  totalPages: number;
+}> => {
+  try {
+    const { userId, subject_id, page, limit, searchParams } = payload;
+
+    const subjectId = Object(subject_id);
+
+    const studentExist = await Student.findById({
+      _id: userId,
+    });
+
+    if (!studentExist) {
+      throw new AppError("Student not found.", 404);
+    }
+
+    const subjectExist = await Subject.findById({
+      _id: subjectId,
+    });
+
+    if (!subjectExist) {
+      throw new AppError("Subject not found.", 404);
+    }
+
+    let query = AssignmentSubmission.find({
+      student_id: studentExist._id,
+      subject_id: subjectExist._id,
+    });
+
+    if (searchParams?.trim()) {
+      const regex = new RegExp(searchParams, "i");
+
+      query = query.where({
+        $or: [{ "answers.text_response": { $regex: regex } }],
+      });
+    }
+
+    const count = await query.clone().countDocuments();
+    let pages = 1;
+
+    if (page && limit && count !== 0) {
+      const offset = (page - 1) * limit;
+      query = query.skip(offset).limit(limit);
+      pages = Math.ceil(count / limit);
+
+      if (page > pages) {
+        throw new AppError("Page can not be found.", 404);
+      }
+    }
+
+    const submissions = await query
+      .sort({ createdAt: -1 })
+      .populate([{ path: "student_id", select: "first_name last_name" }]);
+
+    if (!submissions || submissions.length === 0) {
+      throw new AppError("Submissions not found.", 404);
+    }
+
+    return {
+      submissions,
+      totalCount: count,
+      totalPages: pages,
+    };
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw new AppError(error.message, error.statusCode);
+    } else {
+      throw new Error("Something went wrong");
+    }
+  }
+};
+
+const assignmentSubmission = async (payload: AssignmentSubmissionType) => {
+  try {
+    const { userId, assignment_id, answers_array } = payload;
+
+    const assignmentId = new mongoose.Types.ObjectId(assignment_id);
+
+    const assignmentExist = await findAssignmentById(assignmentId);
+
+    if (!assignmentExist) {
+      throw new AppError(
+        `Assignment with ${assignment_id} does not exist.`,
+        404
+      );
+    }
+
+    const studentExist = await Student.findById({
+      _id: userId,
+    });
+
+    if (!studentExist) {
+      throw new AppError(`Student not found.`, 404);
+    }
+
+    const classEnrolmentExist = await ClassEnrolment.findById({
+      _id: assignmentExist.class_enrolment,
+    });
+
+    if (!classEnrolmentExist) {
+      throw new AppError("Class Enrollment not found.", 404);
+    }
+
+    const actualStudentInEnrolment = classEnrolmentExist.students.find(
+      (a) =>
+        a.student.toString() === studentExist._id.toString() &&
+        a.subjects_offered.includes(assignmentExist.subject_id)
+    );
+
+    if (!actualStudentInEnrolment) {
+      throw new AppError(
+        `This student is not enrolled to take this subject in this class.`,
+        400
+      );
+    }
+
+    const input: FindOneAssignmentPayload = {
+      student_id: studentExist._id,
+      subject_id: assignmentExist.subject_id,
+      assignment_id: assignmentExist._id as mongoose.Types.ObjectId,
+    };
+
+    const hasSubmitted = await findOneAssignmentSubmission(input);
+
+    if (hasSubmitted) {
+      throw new AppError("You have already submitted this assignment.", 400);
+    }
+
+    const newSubmission = new AssignmentSubmission({
+      assignment_id: assignmentExist._id,
+      student_id: studentExist._id,
+      subject_id: assignmentExist.subject_id,
+      answers: answers_array,
+    });
+
+    assignmentExist.students_that_submits.push(studentExist._id);
+    await assignmentExist.save();
+    await newSubmission.save();
+
+    return newSubmission;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw new AppError(error.message, error.statusCode);
+    }
+    throw new Error("Something went wrong.");
+  }
+};
+
+const assignmentMarking = async (payload: AssignmentMarkingPayloadType) => {
+  try {
+    const { assignment_submission_id, student_id, submission_doc, userId } =
+      payload;
+
+    const atLeastOneMarked = submission_doc.answers.some(
+      (a) => a.mark !== undefined
+    );
+
+    if (atLeastOneMarked) {
+      const missingMark = submission_doc.answers.find(
+        (a) => a.mark === undefined
+      );
+
+      if (missingMark) {
+        throw new AppError(
+          `All questions must be marked. Missing mark for question ${missingMark.question_number}.`,
+          400
+        );
+      }
+
+      const calTotal = submission_doc.answers.reduce(
+        (a, b) => a + (b.mark ?? 0),
+        0
+      );
+
+      if (calTotal !== submission_doc.total_score) {
+        throw new AppError(
+          "Total sum does not tally with summation of the question marks.",
+          400
+        );
+      }
+    }
+
+    const input = {
+      student_id,
+    };
+
+    const studentExist = await getAStudentById(input);
+
+    if (!studentExist) {
+      throw new AppError("Student not found.", 404);
+    }
+
+    const assignmentSubmissionId = new mongoose.Types.ObjectId(
+      assignment_submission_id
+    );
+
+    const assignmentSubmissionExist = await findAssignmentSubmissionById(
+      assignmentSubmissionId
+    );
+
+    if (!assignmentSubmissionExist) {
+      throw new AppError("Submission not found.", 404);
+    }
+
+    if (assignmentSubmissionExist.graded === true) {
+      throw new AppError(
+        "This submission has been marked by the teacher.",
+        400
+      );
+    }
+
+    const assignmentExist = await findAssignmentById(
+      assignmentSubmissionExist.assignment_id
+    );
+
+    if (!assignmentExist) {
+      throw new AppError("Assignment not found.", 404);
+    }
+
+    const classExist = await Class.findById(assignmentExist.class);
+
+    if (!classExist) {
+      throw new AppError("Class not found.", 404);
+    }
+
+    const subjectTeacher = classExist.teacher_subject_assignments.find(
+      (a) =>
+        a.subject.toString() === assignmentExist.subject_id.toString() &&
+        a.teacher.toString() === userId.toString()
+    );
+
+    if (!subjectTeacher) {
+      throw new AppError(
+        "You are the teacher assigned to teach this subject.",
+        400
+      );
+    }
+
+    assignmentSubmissionExist.answers = submission_doc.answers;
+    assignmentSubmissionExist.graded = true;
+    assignmentSubmissionExist.total_score = submission_doc.total_score;
+
+    assignmentSubmissionExist.markModified("answers");
+    await assignmentSubmissionExist.save();
+
+    return assignmentSubmissionExist;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw new AppError(error.message, error.statusCode);
+    }
+    throw new Error("Something went wrong.");
+  }
+};
+
 export {
   assignmentCreation,
+  assignmentMarking,
+  assignmentSubmission,
+  fetchAllMySubjectAssignmentSubmissionsInASession,
   fetchAllSubjectAssignmentsInClass,
   fetchAssignmentById,
+  fetchSubjectAssignmentSubmissionById,
+  fetchSubjectAssignmentSubmissions,
 };

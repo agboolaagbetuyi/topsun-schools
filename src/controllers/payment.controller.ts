@@ -718,9 +718,11 @@ import {
   addingFeeToStudentPaymentDocument,
   approveStudentBankPayment,
   createSchoolFeePaymentDocumentForStudents,
+  declineStudentBankPayment,
   fetchAPaymentNeedingApprovalById,
   fetchAllPaymentDocuments,
   fetchAllPaymentSummaryFailedAndSuccessful,
+  fetchAllPaymentSummaryFailedAndSuccessfulWithLookup,
   fetchAllPaymentsApprovedByBursarId,
   fetchAllPaymentsNeedingApproval,
   fetchAllStudentPaymentDocumentsByStudentId,
@@ -1101,7 +1103,7 @@ const getPaymentTransactionHistoryByStudentId = catchErrors(
     const payload = {
       student_id,
       userRole,
-      userId: Object(userId),
+      userId: userId,
     };
 
     const result = await fetchPaymentTransactionHistoryByStudentId(
@@ -1150,7 +1152,6 @@ const getPaymentTransactionHistoryByStudentId = catchErrors(
 
 const getPaymentDetailsByPaymentId = catchErrors(async (req, res) => {
   // const start = Date.now();
-
   const { payment_id } = req.params;
   const userId = req.user?.userId;
   const userRole = req.user?.userRole;
@@ -1207,7 +1208,6 @@ const getPaymentDetailsByPaymentId = catchErrors(async (req, res) => {
 const getAPaymentDocumentOfStudentByStudentIdAndPaymentId = catchErrors(
   async (req, res) => {
     // const start = Date.now();
-
     const { student_id, payment_id } = req.params;
 
     if (!student_id || !payment_id) {
@@ -1298,6 +1298,56 @@ const getAllPaymentSummaryFailedAndSuccessful = catchErrors(
   }
 );
 
+const getAllPaymentSummaryFailedAndSuccessfulWithLookup = catchErrors(
+  async (req, res) => {
+    // const start = Date.now();
+
+    const page = req.query.page ? Number(req.query.page) : undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const searchQuery =
+      typeof req.query.searchParams === "string" ? req.query.searchParams : "";
+
+    console.log("searchQuery:", searchQuery);
+    const result = await fetchAllPaymentSummaryFailedAndSuccessfulWithLookup(
+      page,
+      limit,
+      searchQuery
+    );
+
+    if (!result) {
+      throw new AppError("Unable to fetch all payment summary.", 400);
+    }
+
+    // const duration = Date.now() - start;
+
+    // const savelogPayload = {
+    //   level: 'info',
+    //   message: 'Payment summary was fetched successfully.',
+    //   service: 'klazik schools',
+    //   method: req.method,
+    //   route: req.originalUrl,
+    //   status_code: 200,
+    //   user_id: req.user?.userId,
+    //   user_role: req.user?.userRole,
+    //   ip: req.ip || 'unknown',
+    //   duration_ms: duration,
+    //   stack: undefined,
+    //   school_id: req.user?.school_id
+    //     ? new mongoose.Types.ObjectId(req.user.school_id)
+    //     : undefined,
+    // };
+
+    // await saveLog(savelogPayload);
+
+    return res.status(200).json({
+      message: "Payment summary was fetched successfully.",
+      success: true,
+      status: 200,
+      payment_summary: result,
+    });
+  }
+);
+
 const getAPaymentNeedingApprovalById = catchErrors(async (req, res) => {
   const { payment_id } = req.params;
 
@@ -1321,10 +1371,11 @@ const getAPaymentNeedingApprovalById = catchErrors(async (req, res) => {
 
 const approveBankPaymentWithId = catchErrors(async (req, res) => {
   const { payment_id } = req.params;
-  const { amount_paid, transaction_id, bank_name } = req.body;
+  const { amount_paid, bank_name } = req.body;
   const bursar_id = req.user?.userId;
+  const bursarRole = req.user?.userRole;
 
-  if (!bursar_id) {
+  if (!bursar_id || !bursarRole) {
     throw new AppError("Please login to continue.", 400);
   }
 
@@ -1334,7 +1385,6 @@ const approveBankPaymentWithId = catchErrors(async (req, res) => {
 
   const payload = {
     amount_paid,
-    transaction_id,
     bank_name,
   };
 
@@ -1343,11 +1393,12 @@ const approveBankPaymentWithId = catchErrors(async (req, res) => {
   const { success, value } = validateInput;
 
   const paymentPayload = {
-    transaction_id: value.transaction_id,
+    // transaction_id: value.transaction_id,
     bank_name: value.bank_name,
     payment_id,
     bursar_id,
     amount_paid,
+    bursarRole,
   };
   const result = await approveStudentBankPayment(paymentPayload);
   if (!result) {
@@ -1362,6 +1413,38 @@ const approveBankPaymentWithId = catchErrors(async (req, res) => {
   });
 });
 
+const declineBankPaymentWithId = catchErrors(async (req, res) => {
+  const { student_id, payment_id } = req.params;
+  const bursar_id = req.user?.userId;
+  const bursarRole = req.user?.userRole;
+
+  if (!bursar_id || !bursarRole) {
+    throw new AppError("Please login to continue.", 400);
+  }
+
+  if (!payment_id) {
+    throw new AppError("Payment ID is required to proceed.", 400);
+  }
+
+  const payload = {
+    student_id,
+    payment_id,
+    bursar_id,
+    bursarRole,
+  };
+
+  const result = await declineStudentBankPayment(payload);
+  if (!result) {
+    throw new AppError("Unable to decline student bank payment.", 400);
+  }
+
+  return res.status(200).json({
+    message: "Student payment was successfully declined.",
+    status: 200,
+    success: true,
+  });
+});
+
 const makeBankPayment = catchErrors(async (req, res) => {
   const { student_id, session_id } = req.params;
   const {
@@ -1369,7 +1452,7 @@ const makeBankPayment = catchErrors(async (req, res) => {
     amount_paying,
     class_id,
     payment_method,
-    teller_number,
+    // teller_number,
     bank_name,
   } = req.body;
 
@@ -1382,7 +1465,7 @@ const makeBankPayment = catchErrors(async (req, res) => {
     term,
     amount_paying,
     class_id,
-    teller_number,
+    // teller_number,
     bank_name,
   };
   const missingField = Object.entries(requiredFields).find(
@@ -1401,7 +1484,7 @@ const makeBankPayment = catchErrors(async (req, res) => {
     term,
     amount_paying,
     class_id,
-    teller_number,
+    // teller_number,
     bank_name,
   };
 
@@ -1419,14 +1502,18 @@ const makeBankPayment = catchErrors(async (req, res) => {
     term: value.term,
     amount_paying: value.amount_paying,
     class_id: value.class_id,
-    teller_number: value.teller_number,
+    // teller_number: value.teller_number,
     bank_name: value.bank_name,
     userId,
     payment_method: payment_method,
     userRole,
   };
 
-  const result = await studentBankFeePayment(paymentInput);
+  // console.log('req.file:', req.file);
+  // console.log('req.body:', req.body);
+  // console.log('req.files:', req.files);
+
+  const result = await studentBankFeePayment(req, paymentInput, res);
 
   if (!result) {
     throw new AppError("Unable to process payment request.", 400);
@@ -1468,6 +1555,13 @@ const makeCashPayment = catchErrors(async (req, res) => {
 
   const { success, value } = validateInput;
 
+  const bursar_id = req.user?.userId;
+  const bursarRole = req.user?.userRole;
+
+  if (!bursarRole || !bursar_id) {
+    throw new AppError("Please login to continue.", 400);
+  }
+
   const paymentInput = {
     student_id: value.student_id,
     session_id: value.session_id,
@@ -1475,6 +1569,8 @@ const makeCashPayment = catchErrors(async (req, res) => {
     amount_paying: value.amount_paying,
     class_id: value.class_id,
     payment_method,
+    bursar_id,
+    bursarRole,
   };
 
   const result = await studentCashFeePayment(paymentInput);
@@ -1557,11 +1653,13 @@ export {
   ////////////////////////////////////////////////////
   approveBankPaymentWithId,
   createPaymentDocumentForAllStudent,
+  declineBankPaymentWithId,
   getAPaymentDocumentOfStudentByStudentIdAndPaymentId,
   getAPaymentNeedingApprovalById,
   getAllOutstandingPaymentDocumentsOfStudent,
   getAllPaymentDocuments,
   getAllPaymentSummaryFailedAndSuccessful,
+  getAllPaymentSummaryFailedAndSuccessfulWithLookup,
   getAllPaymentsApprovedByBursarId,
   getAllPaymentsNeedingApproval,
   getAllStudentPaymentDocumentsByStudentId,

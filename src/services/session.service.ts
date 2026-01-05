@@ -538,6 +538,7 @@ import ClassEnrolment from "../models/classes_enrolment.model";
 import Session from "../models/session.model";
 import Student from "../models/students.model";
 import TermSettings from "../models/term_settings.model";
+import { calculateOutStandingPerTerm } from "../repository/student.repository";
 import { AppError } from "../utils/app.error";
 
 const createSession = async (): Promise<SessionDocument> => {
@@ -594,8 +595,10 @@ const creatingNewTerm = async (
   try {
     const { session_id, name, start_date, end_date } = payload;
 
+    const sessionId = new mongoose.Types.ObjectId(session_id);
+
     const response = await Session.findById({
-      _id: session_id,
+      _id: sessionId,
     }).session(session);
 
     if (!response) {
@@ -704,8 +707,11 @@ const termEndingInSessionUsingTermId = async (
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
+    const sessionId = new mongoose.Types.ObjectId(session_id);
+    const termId = new mongoose.Types.ObjectId(term_id);
+
     let response = await Session.findOne({
-      _id: session_id,
+      _id: sessionId,
       is_active: true,
     }).session(session);
 
@@ -714,8 +720,10 @@ const termEndingInSessionUsingTermId = async (
     }
 
     const activeTerm = response.terms.find(
-      (term) => term._id?.toString() === term_id
+      (term) => term._id?.toString() === termId.toString()
     );
+
+    console.log("activeTerm:", activeTerm);
 
     if (!activeTerm) {
       throw new AppError("This term is not active or has already ended.", 400);
@@ -734,7 +742,22 @@ const termEndingInSessionUsingTermId = async (
       );
     }
 
-    if (!activeTerm.date_of_resumption || !activeTerm.date_of_vacation) {
+    const actualTermSettings = await TermSettings.findOne({
+      session: response._id,
+      term: activeTerm.name,
+    });
+
+    if (!actualTermSettings) {
+      throw new AppError(
+        "Vacation and New resumption dates has not been recorded.",
+        400
+      );
+    }
+
+    if (
+      !actualTermSettings.date_of_resumption ||
+      !actualTermSettings.date_of_vacation
+    ) {
       throw new AppError(
         "Please give us the vacation date and new term resumption date before ending the term.",
         400
@@ -814,12 +837,11 @@ const termEndingInSessionUsingTermId = async (
     };
 
     // CALCULATE TERM OUTSTANDING PAYMENT HERE
-    // await calculateOutStandingPerTerm(
-    //   session,
-    //   session_id,
-    //   responseObject.term_name,
-    //   school
-    // );
+    await calculateOutStandingPerTerm(
+      session,
+      session_id,
+      responseObject.term_name
+    );
 
     // NOTIFICATION MAIL AND IN-APP NOTIFICATION CAN BE SENT TO STUDENT AND PARENTS HERE
 
@@ -841,8 +863,10 @@ const termEndingInSessionUsingTermId = async (
 const fetchSessionBySessionId = async (
   session_id: string
 ): Promise<SessionDocument> => {
+  const sessionId = new mongoose.Types.ObjectId(session_id);
+
   const response = await Session.findById({
-    _id: session_id,
+    _id: sessionId,
   });
 
   if (!response) {
@@ -930,8 +954,9 @@ const sessionEndingBySessionId = async (
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
+    const sessionId = new mongoose.Types.ObjectId(session_id);
     let response = await Session.findOne({
-      _id: session_id,
+      _id: sessionId,
       is_active: true,
     }).session(session);
 
@@ -949,7 +974,7 @@ const sessionEndingBySessionId = async (
     } else {
       response = await Session.findByIdAndUpdate(
         {
-          _id: session_id,
+          _id: sessionId,
         },
         {
           $set: { is_active: false },

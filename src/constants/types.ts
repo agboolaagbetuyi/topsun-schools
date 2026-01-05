@@ -196,7 +196,7 @@ type AddressValidationType = {
 
 type BankPaymentType = CashPaymentType & {
   bank_name: string;
-  teller_number: number;
+  // teller_number: number;
 };
 
 type NegotiatedFeesType = {
@@ -206,7 +206,7 @@ type NegotiatedFeesType = {
 
 type BankApprovalType = {
   amount_paid: number;
-  transaction_id: string;
+  // transaction_id: string;
   bank_name: string;
 };
 
@@ -389,12 +389,6 @@ type UserInJwt = {
   exp: number;
 };
 
-type ResultSettingComponentType = {
-  name: string;
-  percentage: number;
-  column: number;
-};
-
 // type ExamComponentType = {
 //   exam_name: string;
 //   component: {
@@ -423,13 +417,18 @@ type ExamComponentType = {
 
 type ResultSettingDocument = {
   _id: mongoose.Types.ObjectId;
-  // school: mongoose.Types.ObjectId;
   components: ResultSettingComponentType[];
   exam_components: ExamComponentType;
   grading_and_remark: GradingAndRemarkType[];
   level: string;
   allow_cbt: boolean;
   exam_split: boolean;
+};
+
+type ResultSettingComponentType = {
+  name: string;
+  percentage: number;
+  column: number;
 };
 
 type ScoreType = {
@@ -692,8 +691,6 @@ type ClassEnrolmentDocument = {
   is_active: boolean;
   all_subjects_offered_in_the_class: mongoose.Types.ObjectId[];
   status: string;
-  // compulsory_subjects: object[];
-  // optional_subjects: object[];
   performance: PerformanceType[];
   test_scores: PerformanceType[];
   exam_scores: PerformanceType[];
@@ -726,12 +723,16 @@ type StudentUpdateType = {
 };
 
 type PaymentSummaryType = {
+  _id?: mongoose.Types.ObjectId;
   amount_paid: number;
   date_paid: Date;
   payment_method: string;
-  transaction_id: string;
+  // transaction_id: string;
   status: string;
+  bank_name?: string;
+  approved_by_model: string;
   staff_who_approve?: mongoose.Types.ObjectId;
+  staff_who_disapprove?: mongoose.Types.ObjectId;
   // fees_payment_breakdown: FeeBreakdownType[];
 };
 
@@ -753,6 +754,7 @@ type PaymentDocument = Document & {
   is_submit_response: boolean;
   remaining_amount: number;
   payment_summary: PaymentSummaryType[];
+  declined_payment_summary: PaymentSummaryType[];
   waiting_for_confirmation: mongoose.Types.DocumentArray<WaitingForConfirmationType>;
 };
 
@@ -966,9 +968,18 @@ type StudentPaymentHistoryType = JwtUserObjType & {
 
 type PaymentHistoryDataType = {
   _id: mongoose.Types.ObjectId;
-  // payment_summary: PaymentSummaryType[];
-  // waiting_for_confirmation: WaitingForConfirmationType[];
   transaction_history: WaitingForConfirmationType[];
+};
+
+type PaymentHistoryDataTypeFlat = WaitingForConfirmationType & {
+  student: {
+    first_name: string;
+    last_name: string;
+  };
+  class: {
+    name: string;
+    level: string;
+  };
 };
 
 type PaymentDataType = JwtUserObjType & {
@@ -1903,7 +1914,7 @@ type AssignmentCreationPayloadType = {
 type QuestionObject = {
   question_number: number;
   question_text: string;
-  // attachments: {
+  // attachment: {
   //   url: string;
   //   public_url: string;
   // }
@@ -1918,24 +1929,27 @@ type AssignmentDocument = Document & {
   subject: string;
   term: string;
   class: mongoose.Types.ObjectId;
+  students_that_submits: mongoose.Types.ObjectId[];
   subject_id: mongoose.Types.ObjectId;
   class_enrolment: mongoose.Types.ObjectId;
   teacher_id: mongoose.Types.ObjectId;
-  attachments?: string[]; // file URLs (optional)
+  session_id: mongoose.Types.ObjectId;
+  attachment?: string; // file URLs (optional)
 };
 
 type AnswerSubmissionType = {
   question_number: number;
   text_response: string;
-  attachments: {
+  attachment: {
     url: string;
     public_url: string;
-  }[];
-  mark: number;
+  };
+  mark?: number;
 };
 type SubmissionDocument = Document & {
   assignment_id: mongoose.Types.ObjectId;
   student_id: mongoose.Types.ObjectId;
+  subject_id: mongoose.Types.ObjectId;
   answers: AnswerSubmissionType[];
   text_response?: string;
   attachments?: string[];
@@ -1951,31 +1965,51 @@ type StudentFeePaymentType = {
   staff_who_approve?: mongoose.Types.ObjectId;
   term: string;
   amount_paying: number;
-  teller_number?: string;
+  // teller_number?: string;
   bank_name?: string;
   payment_method: string;
+  payment_id?: mongoose.Types.ObjectId;
   userId?: mongoose.Types.ObjectId;
   userRole?: string;
 };
 
+type StudentFeePaymentTypeWithBursarRole = StudentFeePaymentType & {
+  bursarRole: string;
+};
+
 type ApproveStudentPayloadType = {
   amount_paid: number;
-  transaction_id: string;
+  // transaction_id: string;
   bank_name: string;
   payment_id: string;
   bursar_id: mongoose.Types.ObjectId;
+  bursarRole: string;
 };
 
 type WaitingForConfirmationType = {
   amount_paid: number;
   date_paid: Date;
   payment_method: string;
-  transaction_id: string;
+  // transaction_id: string;
   bank_name: string;
+  payment_evidence_image: {
+    url: string;
+    public_url: string;
+  };
   // fees_payment_breakdown: FeeBreakdownType[];
   status: string;
   staff_who_approve?: mongoose.Types.ObjectId;
-  _id?: mongoose.Types.ObjectId;
+  approved_by_model: string;
+  _id: mongoose.Types.ObjectId;
+};
+
+type AggregatedPayment = {
+  _id: mongoose.Types.ObjectId;
+  payment_summary: WaitingForConfirmationType[];
+  waiting_for_confirmation: WaitingForConfirmationType[];
+  transaction_history: WaitingForConfirmationType[];
+  student: UserDocument;
+  class: ClassDocument;
 };
 
 type ChangeSubjectStartTimeType = {
@@ -1991,7 +2025,9 @@ type EndSubjectInATimetableType = {
 
 type EffectiveAreasPayloadType = EffectiveAreasValidationType & {
   student_id: string;
-  result_id: string;
+  // result_id: string;
+  session_id: string;
+  term: string;
   userId: mongoose.Types.ObjectId;
 };
 
@@ -2046,12 +2082,77 @@ type GetAssignmentPayloadType = {
   userRole: string;
 };
 
+type GetAssignmentSubmissionPayloadType = {
+  assignment_submission_id: string;
+  userId: mongoose.Types.ObjectId;
+  userRole: string;
+};
+
 type GetAllSubjectPayloadType = {
   subject_id: string;
   session_id: string;
   class_id: string;
   userRole: string;
   userId: mongoose.Types.ObjectId;
+};
+
+type EnrolledStudentSubjects = {
+  session_id: string;
+  class_id: string;
+  userId: mongoose.Types.ObjectId;
+};
+
+type AnswerSubmissionObject = {
+  question_number: number;
+  text_response: string;
+  attachment?: string;
+  mark?: number;
+};
+
+type JoiValidateAssignmentSubmissionType = {
+  answers_array: AnswerSubmissionObject[];
+};
+
+type AssignmentSubmissionType = {
+  assignment_id: string;
+  answers_array: AnswerSubmissionObject[];
+  userId: mongoose.Types.ObjectId;
+};
+
+type SubjectAssignmentSubmissionsType = {
+  userId: mongoose.Types.ObjectId;
+  assignment_id: string;
+  page?: number;
+  limit?: number;
+  searchParams?: string;
+};
+
+type StudentSubjectAssignmentSubmissionsType = {
+  userId: mongoose.Types.ObjectId;
+  subject_id: string;
+  page?: number;
+  limit?: number;
+  searchParams?: string;
+};
+
+type FindOneAssignmentPayload = {
+  assignment_id: mongoose.Types.ObjectId;
+  student_id: mongoose.Types.ObjectId;
+  subject_id: mongoose.Types.ObjectId;
+};
+
+type AssignmentMarkingPayloadType = {
+  assignment_submission_id: string;
+  student_id: string;
+  submission_doc: SubmissionDocument;
+  userId: mongoose.Types.ObjectId;
+};
+
+type DeclineStudentPayloadType = {
+  payment_id: string;
+  student_id: string;
+  bursarRole: string;
+  bursar_id: mongoose.Types.ObjectId;
 };
 
 export {
@@ -2065,12 +2166,16 @@ export {
   AddingNegotiatedChargesType,
   AddressValidationType,
   AdmissionValidationType,
+  AggregatedPayment,
   AllStudentResultsPayloadType,
+  AnswerSubmissionObject,
   AnswerSubmissionType,
   ApproveStudentPayloadType,
   AssessmentDocumentType,
   AssignmentCreationPayloadType,
   AssignmentDocument,
+  AssignmentMarkingPayloadType,
+  AssignmentSubmissionType,
   AsyncHandler,
   AttendanceDocument,
   AttendanceMarkingType,
@@ -2126,12 +2231,14 @@ export {
   CumScoreParamType,
   CustomerCreationPayloadType,
   CutoffMinutesCreationPayload,
+  DeclineStudentPayloadType,
   EffectiveAreasPayloadType,
   EffectiveAreasValidationType,
   EmailJobData,
   EmailQueue,
   EmailType,
   EndSubjectInATimetableType,
+  EnrolledStudentSubjects,
   ExamComponentType,
   ExamScoreType,
   ExcludeParentAndStudent,
@@ -2139,10 +2246,12 @@ export {
   FeePayloadType,
   FetchAttendanceType,
   FilePath,
+  FindOneAssignmentPayload,
   FolderName,
   GenerateBankReferenceType,
   GetAllSubjectPayloadType,
   GetAssignmentPayloadType,
+  GetAssignmentSubmissionPayloadType,
   GetClassCbtAssessmentTimetablePayloadType,
   GetClassPayloadType,
   GetClassStudentsType,
@@ -2150,6 +2259,7 @@ export {
   GetTeacherByIdType,
   GradingAndRemarkType,
   ImageType,
+  JoiValidateAssignmentSubmissionType,
   LinkStudentType,
   LogDocument,
   LoginResponseType,
@@ -2183,10 +2293,12 @@ export {
   PaymentDataType,
   PaymentDocument,
   PaymentHistoryDataType,
+  PaymentHistoryDataTypeFlat,
   PaymentPayloadMandatoryFeeType,
   PaymentPayloadOptionalFeeType,
   PaymentPayloadType,
   PaymentPriorityType,
+  PaymentSummaryType,
   PaystackPayloadType,
   PaystackSchoolPaymentType,
   RefreshTokenType,
@@ -2220,6 +2332,7 @@ export {
   StudentDocument,
   StudentEnrolmentType,
   StudentFeePaymentType,
+  StudentFeePaymentTypeWithBursarRole,
   StudentLinkingType,
   StudentNotificationType,
   StudentPaymentHistoryType,
@@ -2231,6 +2344,7 @@ export {
   StudentSchoolBusSubType,
   StudentSessionSubscriptionType,
   StudentSpecificResultPayloadType,
+  StudentSubjectAssignmentSubmissionsType,
   StudentSubjectPositionType,
   StudentSubjectType,
   StudentUpdateDetailsReturnType,
@@ -2239,6 +2353,7 @@ export {
   StudentWalletObjType,
   StudentWithPaymentType,
   SubjectAdditionType,
+  SubjectAssignmentSubmissionsType,
   SubjectCreationType,
   SubjectCumScoreJobData,
   SubjectDocument,

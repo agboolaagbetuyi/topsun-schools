@@ -1309,7 +1309,7 @@ import {
 // NOT HAVE CUMMULATIVE, USE THE TOTAL OF THE CURRENT TERM AS
 // CUMMULATIVE
 
-const fetchResultSetting = async () => {
+const fetchResultSettings = async () => {
   try {
     const resultSettingExist = await ResultSetting.find();
 
@@ -1319,6 +1319,8 @@ const fetchResultSetting = async () => {
         400
       );
     }
+
+    // console.log('resultSettingExist:', resultSettingExist);
 
     return resultSettingExist;
   } catch (error) {
@@ -1488,6 +1490,47 @@ const recordManyStudentScores = async (payload: MultipleScoreParamType) => {
       class_id,
     } = payload;
 
+    const classId = new mongoose.Types.ObjectId(class_id);
+
+    const classExist = await Class.findById({
+      _id: classId,
+    });
+    if (!classExist) {
+      throw new AppError("Class not found.", 404);
+    }
+
+    const resultSettings = await ResultSetting.findOne({
+      level: classExist.level,
+    });
+
+    if (!resultSettings) {
+      throw new AppError("Result setting not found.", 404);
+    }
+
+    const actualScoreObj = resultSettings.components.find(
+      (comp) => comp.name.toLowerCase() === score_name.toLowerCase().trim()
+    );
+
+    if (!actualScoreObj) {
+      throw new AppError(`Invalid score type: ${score_name}.`, 400);
+    }
+
+    for (const result of result_objs) {
+      if (result.score === undefined) {
+        console.log(
+          `Student with ID: ${result.student_id} has no score inputted from frontend`
+        );
+        continue;
+      }
+
+      if (result.score > actualScoreObj.percentage) {
+        throw new AppError(
+          `Score exceeds max of ${actualScoreObj.percentage}.`,
+          400
+        );
+      }
+    }
+
     const recordPromises = result_objs.map((student) =>
       recordScore({
         term,
@@ -1613,6 +1656,52 @@ const studentsSubjectScoreInAClassUpdating = async (
       class_id,
     } = payload;
 
+    const classId = new mongoose.Types.ObjectId(class_id);
+
+    const classExist = await Class.findById({
+      _id: classId,
+    });
+    if (!classExist) {
+      throw new AppError("Class not found.", 404);
+    }
+
+    const resultSettings = await ResultSetting.findOne({
+      level: classExist.level,
+    });
+
+    if (!resultSettings) {
+      throw new AppError("Result setting not found.", 404);
+    }
+
+    const exam_components = resultSettings.exam_components.component;
+    const test_components = resultSettings.components;
+
+    const flattenedComponents = [...exam_components, ...test_components];
+
+    const actualScoreObj = flattenedComponents.find(
+      (comp) => comp.name.toLowerCase() === score_name.toLowerCase().trim()
+    );
+
+    if (!actualScoreObj) {
+      throw new AppError(`Invalid score type: ${score_name}.`, 400);
+    }
+
+    for (const result of result_objs) {
+      if (result.score === undefined) {
+        console.log(
+          `Student with ID: ${result.student_id} has no score inputted from frontend`
+        );
+        continue;
+      }
+
+      if (result.score > actualScoreObj.percentage) {
+        throw new AppError(
+          `Score exceeds max of ${actualScoreObj.percentage}.`,
+          400
+        );
+      }
+    }
+
     // change here to update score
     const recordPromises = result_objs.map((student) =>
       updateScore({
@@ -1630,6 +1719,8 @@ const studentsSubjectScoreInAClassUpdating = async (
           const currentTermResult = result.term_results.find(
             (t) => t.term === term
           );
+
+          console.log("currentTermResult:", currentTermResult);
           return {
             status: "fulfilled",
             student_id: student.student_id,
@@ -1651,14 +1742,15 @@ const studentsSubjectScoreInAClassUpdating = async (
               score_name: score_name,
               score: student.score,
             };
+          } else {
+            return {
+              status: "rejected",
+              student_id: student.student_id,
+              reason: err.message || "Unknown error",
+              score_name: score_name,
+              score: student.score,
+            };
           }
-          return {
-            status: "rejected",
-            student_id: student.student_id,
-            reason: err.message || "Unknown error",
-            score_name: score_name,
-            score: student.score,
-          };
         })
     );
 
@@ -2726,7 +2818,8 @@ const studentEffectiveAreasForActiveTermRecording = async (
   try {
     const {
       student_id,
-      result_id,
+      session_id,
+      term,
       punctuality,
       userId,
       neatness,
@@ -2742,7 +2835,7 @@ const studentEffectiveAreasForActiveTermRecording = async (
     } = payload;
 
     const student = Object(student_id);
-    const result = Object(result_id);
+    const session = Object(session_id);
 
     const teacher = await Teacher.findById({
       _id: userId,
@@ -2752,18 +2845,46 @@ const studentEffectiveAreasForActiveTermRecording = async (
       throw new AppError("This teacher does not exist.", 404);
     }
 
+    const activeSession = await Session.findById({
+      _id: session,
+    });
+
+    if (!activeSession) {
+      throw new AppError("Session not found.", 400);
+    }
+
+    if (activeSession.is_active !== true) {
+      throw new AppError("Session not active.", 400);
+    }
+
     const studentResult = await Result.findOne(
       {
         student: student,
-        "term_results._id": result,
+        academic_session_id: activeSession._id,
       }
       // {
       //   term_results: { $elemMatch: { _id: result } },
       // }
     );
 
-    if (!studentResult || !studentResult.term_results.length) {
+    if (!studentResult) {
       throw new AppError("Specific term result not found.", 404);
+    }
+    // if (!studentResult || !studentResult.term_results.length) {
+    //   throw new AppError('Specific term result not found.', 404);
+    // }
+
+    const activeTerm = activeSession.terms.find((t) => t.is_active === true);
+
+    if (!activeTerm) {
+      throw new AppError(
+        "You can only perform this operation for the result of an active term.",
+        400
+      );
+    }
+
+    if (activeTerm.name !== term) {
+      throw new AppError("Invalid term", 400);
     }
 
     if (!teacher.class_managing) {
@@ -2775,42 +2896,25 @@ const studentEffectiveAreasForActiveTermRecording = async (
     }
 
     const termResult = studentResult.term_results.find(
-      (a) => a._id?.toString() === result.toString()
+      (a) => a.term === activeTerm.name
     );
-
-    const sessionExist = await Session.findById({
-      _id: studentResult.academic_session_id,
-    });
-
-    if (!sessionExist) {
-      throw new AppError("Academic Session not found.", 404);
-    }
-
-    const getTerm = sessionExist.terms.find((t) => t.name === termResult?.term);
-
-    if (getTerm?.is_active !== true) {
-      throw new AppError(
-        "You can only perform this operation for the result of an active term.",
-        400
-      );
-    }
 
     if (!termResult) {
       throw new AppError("No result found for this term.", 404);
     }
 
     if (
-      !termResult.punctuality ||
-      !termResult.neatness ||
-      !termResult.politeness ||
-      !termResult.honesty ||
-      !termResult.relationshipWithOthers ||
-      !termResult.leadership ||
-      !termResult.emotionalStability ||
-      !termResult.health ||
-      !termResult.attitudeToSchoolWork ||
-      !termResult.attentiveness ||
-      !termResult.perseverance
+      termResult.punctuality === "" ||
+      termResult.neatness === "" ||
+      termResult.politeness === "" ||
+      termResult.honesty === "" ||
+      termResult.relationshipWithOthers === "" ||
+      termResult.leadership === "" ||
+      termResult.emotionalStability === "" ||
+      termResult.health === "" ||
+      termResult.attitudeToSchoolWork === "" ||
+      termResult.attentiveness === "" ||
+      termResult.perseverance === ""
     ) {
       termResult.punctuality = punctuality;
       termResult.neatness = neatness;
@@ -2823,6 +2927,8 @@ const studentEffectiveAreasForActiveTermRecording = async (
       termResult.attitudeToSchoolWork = attitudeToSchoolWork;
       termResult.attentiveness = attentiveness;
       termResult.perseverance = perseverance;
+    } else {
+      throw new AppError("This has already been recorded.", 400);
     }
 
     await studentResult.save();
@@ -3353,8 +3459,10 @@ const recordManyStudentCbtExamScoresManually = async (
     } = payload;
     const subject = Object(subject_id);
 
+    const classId = new mongoose.Types.ObjectId(class_id);
+
     const classExist = await Class.findById({
-      _id: class_id,
+      _id: classId,
     });
     if (!classExist) {
       throw new AppError("Class not found.", 404);
@@ -3974,6 +4082,21 @@ const fetchStudentSpecificResult = async (
       }
     ).select("class");
 
+    if (!classEnrolment) {
+      throw new AppError(
+        "Student not enrolled in this class for this session.",
+        404
+      );
+    }
+
+    const classExist = await Class.findById({
+      _id: classEnrolment.class,
+    });
+
+    if (!classExist) {
+      throw new AppError("Class not found.", 404);
+    }
+
     const studentSubjectEnrolled = classEnrolment?.students[0].subjects_offered;
 
     const subjectResults = await SubjectResult.find({
@@ -3982,6 +4105,8 @@ const fetchStudentSpecificResult = async (
       class: classEnrolment?.class,
       subject: { $in: studentSubjectEnrolled },
     }).populate([{ path: "subject" }]);
+
+    console.log("subjectResults:", subjectResults);
 
     if (!subjectResults || subjectResults.length === 0) {
       throw new AppError(
@@ -3997,8 +4122,14 @@ const fetchStudentSpecificResult = async (
       {
         term_results: { $elemMatch: { term: term } },
       }
-    ).populate([{ path: "student", select: "-password" }]);
+    ).populate([
+      { path: "student", select: "first_name last_name profile_image" },
+    ]);
     // console.log('studentResult.term_results:', studentResult?.term_results);
+
+    /**
+     * first name, last name, image,
+     */
 
     if (!studentResult || !studentResult.term_results.length) {
       throw new AppError("Specific term result not found.", 404);
@@ -4020,11 +4151,13 @@ const fetchStudentSpecificResult = async (
     // );
 
     const actualSubjectResultForTerm = subjectResults.map((s) => {
-      const termResult = s.term_results.find((a) => a.term === term);
+      const obj = s.toObject();
+      const termResult = obj.term_results.find((a) => a.term === term);
 
+      const { term_results, ...rest } = obj;
       return {
-        ...s.toObject(),
-        term_results: termResult ? [termResult] : [],
+        ...rest,
+        ...termResult,
       };
     });
     // console.log('actualSubjectResultForTerm:', actualSubjectResultForTerm);
@@ -4043,20 +4176,26 @@ const fetchStudentSpecificResult = async (
     const termSettingExist = await TermSettings.findOne({
       session: sessionExist._id,
       term: term,
-    });
+    }).populate([{ path: "session", select: "academic_session" }]);
+
+    const classDetails = {
+      class_id: classExist._id,
+      level: classExist.level,
+      name: classExist.name,
+    };
 
     const formattedResult = {
       ...others,
+      classDetails,
       subject_results: actualSubjectResultForTerm,
       term_settings: termSettingExist,
     };
 
     const neededObj = {
-      academic_session: sessionExist._id,
+      // academic_session: sessionExist._id,
       student: remainingValues,
       term_result: formattedResult,
     };
-    console.log("neededObj:", neededObj.term_result);
 
     return neededObj;
   } catch (error) {
@@ -4074,7 +4213,7 @@ export {
   fetchAllScoresPerSubject,
   fetchAllStudentResultsInClassForActiveTermByClassId,
   fetchLevelResultSetting,
-  fetchResultSetting,
+  fetchResultSettings,
   fetchStudentResultByResultId,
   fetchStudentSessionResults,
   fetchStudentSpecificResult,
