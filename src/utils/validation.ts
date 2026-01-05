@@ -1609,38 +1609,6 @@ const joiValidateEffectiveAreasSchema = (
   return { success: true, value };
 };
 
-// const joiValidateVacationAndResumptionDatesSchema = (
-//   payload: VacationAndResumptionDatesPayload
-// ): {
-//   success: boolean;
-//   value?: any;
-//   error?: string;
-// } => {
-//   const validationSchema = Joi.object({
-//     date_of_vacation: Joi.date().required().min('yesterday').messages({
-//       'date.min': 'Date of vacation cannot be in the past.',
-//     }),
-//     date_of_resumption: Joi.date().required().min('now').messages({
-//       'date.min': 'Date of resumption cannot be in the past.',
-//     }),
-//   }).custom((obj, helper) => {
-//     const { date_of_resumption, date_of_vacation } = obj;
-//     if (date_of_vacation >= date_of_resumption) {
-//       return helper.message({
-//         message: 'Date of vacation must come before date of resumption.',
-//       });
-//     }
-//     return obj;
-//   });
-
-//   const { error, value } = validationSchema.validate(payload);
-//   if (error) {
-//     return { success: false, error: error.details[0].message };
-//   }
-
-//   return { success: true, value };
-// };
-
 const joiValidateVacationAndResumptionDatesSchema = (
   payload: VacationAndResumptionDatesPayload
 ): {
