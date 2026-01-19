@@ -2225,8 +2225,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
 
     const subjectTeacherObj = classExist.teacher_subject_assignments.find(
       (s) =>
-        new mongoose.Types.ObjectId(s?.subject as any)?._id.toString() ===
-        subjectExist._id.toString()
+        s.subject && s.subject._id.toString() === subjectExist._id.toString()
     );
 
     const subjectObj = {
@@ -2238,6 +2237,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
 
     return subjectObj;
   } catch (error) {
+    console.log("error:", error);
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
     } else {

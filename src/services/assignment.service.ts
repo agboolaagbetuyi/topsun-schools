@@ -263,6 +263,8 @@ const fetchSubjectAssignmentSubmissionById = async (
 
     const submissionObj = submissionExist.toObject();
 
+    const { answers, ...others } = submissionObj;
+
     const assignmentExist = await Assignment.findById({
       _id: submissionExist.assignment_id._id,
     });
@@ -274,10 +276,10 @@ const fetchSubjectAssignmentSubmissionById = async (
     const assignment =
       submissionObj.assignment_id as unknown as AssignmentWithQuestions;
     const questions = assignment.questions || [];
-    const answers = submissionObj.answers || [];
+    const answersArray = submissionObj.answers || [];
 
     const mergedAnswers = questions.map((question: any) => {
-      const matchedAnswer = answers.find(
+      const matchedAnswer = answersArray.find(
         (ans: any) => ans.question_number === question.question_number
       );
 
@@ -285,6 +287,17 @@ const fetchSubjectAssignmentSubmissionById = async (
         question_number: question.question_number,
         question_text: question.question_text,
         text_response: matchedAnswer?.text_response || null,
+      };
+    });
+
+    const formattedAnswer = answersArray.map((ans: any) => {
+      const matchingQuestion = questions.find(
+        (question: any) => question.question_number === ans.question_number
+      );
+
+      return {
+        ...ans,
+        question_text: matchingQuestion?.question_text,
       };
     });
 
@@ -335,7 +348,8 @@ const fetchSubjectAssignmentSubmissionById = async (
     }
 
     const merged = {
-      ...submissionObj,
+      ...others,
+      answers: formattedAnswer,
       mergedQandA: mergedAnswers,
     };
 
