@@ -217,7 +217,7 @@ const getTeachersBySubjectId = catchErrors(async (req, res) => {
     subject_id,
     page,
     limit,
-    searchQuery
+    searchQuery,
   );
 
   if (!info) {
@@ -309,7 +309,7 @@ const teacherOnboardingById = catchErrors(async (req, res) => {
   if (!subject_ids) {
     throw new AppError(
       "Please provide at least one subject that this teacher will be teaching.",
-      400
+      400,
     );
   }
 
@@ -467,7 +467,7 @@ const getStudentsInClassOfferingTeacherSubject = catchErrors(
     if (!class_id || !subject_id || !academic_session_id) {
       throw new AppError(
         "Please provide valid academic session ID, class ID and subject ID to proceed.",
-        400
+        400,
       );
     }
 
@@ -484,7 +484,7 @@ const getStudentsInClassOfferingTeacherSubject = catchErrors(
     if (!result) {
       throw new AppError(
         "Unable to fetch students offering this subject in this class.",
-        400
+        400,
       );
     }
 
@@ -515,7 +515,7 @@ const getStudentsInClassOfferingTeacherSubject = catchErrors(
       status: 200,
       students: result,
     });
-  }
+  },
 );
 
 const getAllClassesTeacherTeachesByTeacherId = catchErrors(async (req, res) => {
@@ -544,7 +544,7 @@ const getAllClassesTeacherTeachesByTeacherId = catchErrors(async (req, res) => {
   if (!result) {
     throw new AppError(
       "Unable to fetch all the classes that this teacher teaches.",
-      400
+      400,
     );
   }
 
@@ -601,14 +601,13 @@ const getStudentsOfferingTeacherSubjectUsingClassId = catchErrors(
       userRole,
     };
 
-    const result = await fetchStudentsOfferingTeacherSubjectUsingClassId(
-      payload
-    );
+    const result =
+      await fetchStudentsOfferingTeacherSubjectUsingClassId(payload);
 
     if (!result) {
       throw new AppError(
         "Unable to get students offering this subject using the class ID.",
-        400
+        400,
       );
     }
 
@@ -639,7 +638,7 @@ const getStudentsOfferingTeacherSubjectUsingClassId = catchErrors(
       status: 200,
       students_in_class: result,
     });
-  }
+  },
 );
 
 const getAllStudentsInClassByClassId = catchErrors(async (req, res) => {
@@ -653,7 +652,7 @@ const getAllStudentsInClassByClassId = catchErrors(async (req, res) => {
   if (!class_id || !academic_session_id) {
     throw new AppError(
       "Please provide a class ID and academic session ID to proceed",
-      400
+      400,
     );
   }
 
@@ -719,7 +718,7 @@ const getStudentsInClassThatTeacherManages = catchErrors(async (req, res) => {
   if (!class_id || !teacher_id || !academic_session_id) {
     throw new AppError(
       "Please provide a class ID and academic session ID to proceed",
-      400
+      400,
     );
   }
 
@@ -739,7 +738,7 @@ const getStudentsInClassThatTeacherManages = catchErrors(async (req, res) => {
     page,
     limit,
     searchQuery,
-    payload
+    payload,
   );
 
   if (!result) {

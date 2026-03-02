@@ -68,11 +68,11 @@ const classExamTimetableSchema =
     },
     {
       timestamps: true,
-    }
+    },
   );
 
 const ClassExamTimetable = mongoose.model<ClassCbtAssessmentTimetableDocument>(
   "ClassExamTimetable",
-  classExamTimetableSchema
+  classExamTimetableSchema,
 );
 export default ClassExamTimetable;

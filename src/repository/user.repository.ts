@@ -38,7 +38,7 @@ const findUserByEmail = async (email: string): Promise<UserDocument | null> => {
     ];
 
     const queries = userCollections.map(({ model, field }) =>
-      model.findOne({ [field]: email.trim().toLowerCase() }).exec()
+      model.findOne({ [field]: email.trim().toLowerCase() }).exec(),
     );
 
     const results = await Promise.all(queries);
@@ -201,7 +201,7 @@ const createNewUserDoc = async (payload: UserDocument) => {
       throw new Error(`Error creating new user document: ${error.message}`);
     }
     throw new Error(
-      "An unknown error occurred while creating new user document."
+      "An unknown error occurred while creating new user document.",
     );
   }
 };
@@ -230,12 +230,12 @@ const findAndVerifyUser = async (payload: VerifyUserType) => {
     return await model.findByIdAndUpdate(
       { _id: idValue },
       { is_verified: true },
-      { new: true }
+      { new: true },
     );
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(
-        `An Error occurred while verifying user document: ${error.message}`
+        `An Error occurred while verifying user document: ${error.message}`,
       );
     }
     throw new Error("An unknown error occurred while verifying user document.");

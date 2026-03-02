@@ -20,7 +20,7 @@ const gradingSchema = new mongoose.Schema(
       trim: true,
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const resultSettingSchema = new mongoose.Schema<ResultSettingDocument>({
@@ -68,6 +68,6 @@ const resultSettingSchema = new mongoose.Schema<ResultSettingDocument>({
 
 const ResultSetting = mongoose.model<ResultSettingDocument>(
   "ResultSetting",
-  resultSettingSchema
+  resultSettingSchema,
 );
 export default ResultSetting;

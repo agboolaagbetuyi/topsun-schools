@@ -241,7 +241,7 @@ const resultSettingCreation = async (
   name_percent_array: ResultSettingComponentType[],
   level: string,
   grading_array: GradingAndRemarkType[],
-  exam_components: ExamComponentType
+  exam_components: ExamComponentType,
 ) => {
   try {
     const schoolLevels = await ClassLevel.findOne();
@@ -251,13 +251,13 @@ const resultSettingCreation = async (
     }
 
     const classLevelExist = schoolLevels.class_level_array.find(
-      (a) => a.toString() === level
+      (a) => a.toString() === level,
     );
 
     if (!classLevelExist) {
       throw new AppError(
         "This class level does not exist for this school",
-        404
+        404,
       );
     }
 
@@ -268,7 +268,7 @@ const resultSettingCreation = async (
     if (resultSettingExist) {
       throw new AppError(
         "This level already have result component in this school.",
-        400
+        400,
       );
     }
 
@@ -291,7 +291,7 @@ const resultSettingCreation = async (
       if (!itemName || !itemPercentage || !itemColumn) {
         throw new AppError(
           "Each name must have a corresponding percentage and column number to process.",
-          400
+          400,
         );
       }
 
@@ -300,7 +300,7 @@ const resultSettingCreation = async (
           `Duplicate name detected: ${itemName
             .trim()
             .toLowerCase()}. Each name must be unique.`,
-          400
+          400,
         );
       }
       nameSet.add(itemName.trim().toLowerCase());
@@ -308,7 +308,7 @@ const resultSettingCreation = async (
       if (columnSet.has(itemColumn)) {
         throw new AppError(
           `Duplicate column number detected: ${itemColumn}.`,
-          400
+          400,
         );
       }
 
@@ -329,32 +329,32 @@ const resultSettingCreation = async (
       if (sortedColumns[i] !== i + 1) {
         throw new AppError(
           `Column numbers must be sequential without skipping. Found: ${sortedColumns.join(
-            ", "
+            ", ",
           )}`,
-          400
+          400,
         );
       }
     }
 
     const emptyExamPercentage = exam_components.component.find(
-      (a) => a.percentage === 0 || a.percentage === null
+      (a) => a.percentage === 0 || a.percentage === null,
     );
 
     if (emptyExamPercentage) {
       throw new AppError(
         `Please provide percentage value for ${emptyExamPercentage.name}.`,
-        400
+        400,
       );
     }
 
     const totalExamPercentage = exam_components.component.reduce(
       (sum, percent) => sum + percent.percentage,
-      0
+      0,
     );
 
     const totalOthersPercentage = resultComponentArray.reduce(
       (sum, percent) => sum + percent.percentage,
-      0
+      0,
     );
 
     const totalPercentage = totalExamPercentage + totalOthersPercentage;
@@ -362,7 +362,7 @@ const resultSettingCreation = async (
     if (totalPercentage !== 100) {
       throw new AppError(
         "Total percentage can not be greater than or less than 100%.",
-        400
+        400,
       );
     }
 

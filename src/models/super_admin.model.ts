@@ -21,7 +21,7 @@ const superAdminSchema = new mongoose.Schema<UserDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 superAdminSchema.index({ email: 1 });

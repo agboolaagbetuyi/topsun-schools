@@ -38,11 +38,11 @@ const assignmentSchema = new mongoose.Schema<AssignmentDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Assignment = mongoose.model<AssignmentDocument>(
   "Assignment",
-  assignmentSchema
+  assignmentSchema,
 );
 export default Assignment;

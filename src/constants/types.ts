@@ -17,7 +17,7 @@ declare global {
 type AsyncHandler = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => Promise<any>;
 
 // type AsyncHandler = (
@@ -717,8 +717,8 @@ type UserWithoutPassword = Omit<UserDocument, "password">;
 type StudentUpdateType = {
   home_address: string;
   student_id: string;
-  parent_id?: string;
-  userRole?: string;
+  // parent_id?: string;
+  userRole: string;
   // school_id: string;
 };
 

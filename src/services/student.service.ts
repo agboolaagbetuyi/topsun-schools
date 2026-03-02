@@ -706,32 +706,29 @@
 // };
 
 ////////////////////////////////////////////////////////////////////////////////
-import mongoose, { ObjectId } from "mongoose";
+import { Request } from "express";
+import mongoose from "mongoose";
+import { rolesEnum } from "../constants/enum";
 import {
   ParentObjType,
   SessionSubscriptionType,
-  StudentAccountDocumentType,
   StudentLinkingType,
-  StudentNotificationType,
   StudentSessionSubscriptionType,
-  StudentUpdateDetailsReturnType,
   StudentUpdateType,
   StudentWithPaymentType,
   UserDocument,
   UserWithoutPassword,
 } from "../constants/types";
+import Class from "../models/class.model";
+import Parent from "../models/parents.model";
 import Payment from "../models/payment.model";
 import Session from "../models/session.model";
 import Student from "../models/students.model";
 import { AppError } from "../utils/app.error";
-import { Request } from "express";
 import { cloudinaryDestroy, handleFileUpload } from "../utils/cloudinary";
 import { maxParentLength } from "../utils/code";
-import Parent from "../models/parents.model";
 import {
   capitalizeFirstLetter,
-  mySchoolDomain,
-  mySchoolName,
   schoolCityHandCoded,
   schoolCountryHandCoded,
   schoolNameHandCoded,
@@ -739,10 +736,9 @@ import {
   sendingEmailToQueue,
 } from "../utils/functions";
 import { emailQueue } from "../utils/queue";
-import Class from "../models/class.model";
 
 const fetchStudentById = async (
-  student_id: string
+  student_id: string,
 ): Promise<UserWithoutPassword> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -758,7 +754,7 @@ const fetchStudentById = async (
     });
 
     const activeTerm = sessionExist?.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     let userPaymentDoc = null;
@@ -805,12 +801,12 @@ const fetchStudentById = async (
 const studentUpdateDetails = async (
   req: Request,
   payload: StudentUpdateType,
-  res: any
+  res: any,
 ): Promise<UserWithoutPassword> => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const { home_address, student_id, parent_id, userRole } = payload;
+    const { home_address, student_id, userRole } = payload;
 
     const response = await Student.findById({
       _id: student_id,
@@ -820,21 +816,21 @@ const studentUpdateDetails = async (
       throw new AppError("Student not found.", 404);
     }
 
-    if (parent_id !== student_id) {
-      if (userRole === "parent") {
-        if (!response.parent_id?.includes(Object(parent_id))) {
-          throw new AppError(
-            "You can not update this student because you are not a parent to this student.",
-            400
-          );
-        }
-      }
+    const allowedRoles = [rolesEnum[0], rolesEnum[4]];
+
+    if (!allowedRoles.includes(userRole)) {
+      throw new AppError(
+        "Please reach out to the school owner to update your details.",
+        400,
+      );
     }
 
     if (response.profile_image?.url) {
       const deletion = await cloudinaryDestroy(
-        response.profile_image.public_url
+        response.profile_image.public_url,
       );
+
+      console.log("deletion:", deletion);
     }
 
     const imageUpload = await handleFileUpload(req, res);
@@ -865,7 +861,7 @@ const studentUpdateDetails = async (
           public_url: imageData.public_url,
         },
       },
-      { new: true }
+      { new: true },
     ).session(session);
 
     if (!updateStudent) {
@@ -987,7 +983,7 @@ const studentUpdateDetails = async (
 const fetchAllStudents = async (
   page?: number,
   limit?: number,
-  searchParams = ""
+  searchParams = "",
 ): Promise<{
   studentObj: StudentWithPaymentType[];
   totalCount: number;
@@ -1033,7 +1029,7 @@ const fetchAllStudents = async (
 
     const activeSession = await Session.findOne({ is_active: true });
     const activeTerm = activeSession?.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     const studentsWithPayments: StudentWithPaymentType[] = await Promise.all(
@@ -1050,7 +1046,7 @@ const fetchAllStudents = async (
           ...others,
           latest_payment_document: payment || null,
         } as StudentWithPaymentType;
-      })
+      }),
     );
 
     return {
@@ -1100,7 +1096,7 @@ const studentLinking = async (param: StudentLinkingType) => {
         last_name: last_name,
       },
       null,
-      { session }
+      { session },
     );
 
     if (!student) {
@@ -1110,7 +1106,7 @@ const studentLinking = async (param: StudentLinkingType) => {
     if (student.parent_id && student?.parent_id?.length + 1 > maxParentLength) {
       throw new AppError(
         `Student can only be linked to ${maxParentLength} parents and presently ${student.first_name} ${student.last_name} has already being linked to ${student.parent_id.length} parents.`,
-        400
+        400,
       );
     }
 
@@ -1144,7 +1140,7 @@ const studentLinking = async (param: StudentLinkingType) => {
       {
         new: true,
         session,
-      }
+      },
     );
 
     if (!getStudent) {
@@ -1161,7 +1157,7 @@ const studentLinking = async (param: StudentLinkingType) => {
       {
         new: true,
         session,
-      }
+      },
     );
 
     if (!getParent) {
@@ -1351,7 +1347,7 @@ const newSessionStudentsSubscription = async (): Promise<
 };
 
 const studentSessionSubscriptionUpdateByAdmin = async (
-  payload: SessionSubscriptionType
+  payload: SessionSubscriptionType,
 ): Promise<Omit<UserDocument, "password">[]> => {
   try {
     const { student_ids_array, academic_session_id, userRole } = payload;
@@ -1359,11 +1355,11 @@ const studentSessionSubscriptionUpdateByAdmin = async (
     // student_ids_array.map((student_id) => {});
 
     const validStudentIds = student_ids_array.filter((id) =>
-      mongoose.Types.ObjectId.isValid(id)
+      mongoose.Types.ObjectId.isValid(id),
     );
 
     const objectIds = validStudentIds.map(
-      (id) => new mongoose.Types.ObjectId(id)
+      (id) => new mongoose.Types.ObjectId(id),
     );
 
     const foundStudents = await Student.find({
@@ -1387,7 +1383,7 @@ const studentSessionSubscriptionUpdateByAdmin = async (
     });
 
     const validStudents = notVerified.filter(
-      (s) => s.isValid === true && s.isUpdated === true
+      (s) => s.isValid === true && s.isUpdated === true,
     );
     const notValidStudents = notVerified.filter((s) => s.isValid !== true);
     const notUpdatedStudents = notVerified.filter((s) => s.isUpdated !== true);
@@ -1396,9 +1392,9 @@ const studentSessionSubscriptionUpdateByAdmin = async (
       const notValidNames = notValidStudents.map((a) => a.studentName);
       throw new AppError(
         `The students with the following names are not verified: ${notValidNames.join(
-          ", "
+          ", ",
         )}`,
-        400
+        400,
       );
     }
 
@@ -1406,9 +1402,9 @@ const studentSessionSubscriptionUpdateByAdmin = async (
       const notUpdatedNames = notUpdatedStudents.map((a) => a.studentName);
       throw new AppError(
         `The students with the following names have not updated their addresses and profile picture: ${notUpdatedNames.join(
-          ", "
+          ", ",
         )}`,
-        400
+        400,
       );
     }
 
@@ -1419,14 +1415,14 @@ const studentSessionSubscriptionUpdateByAdmin = async (
     if (!session) {
       throw new AppError(
         `Session with ID: ${academic_session_id} not found.`,
-        404
+        404,
       );
     }
 
     if (session.is_active !== true) {
       throw new AppError(
         `The session with ID: ${academic_session_id} is not active.`,
-        400
+        400,
       );
     }
 
@@ -1466,7 +1462,7 @@ const fetchStudentsThatSubscribedToNewSession = async (level: string) => {
           new_session_subscription: true,
           active_class_enrolment: false,
         });
-      })
+      }),
     );
 
     const studentIds = students.flat().map((student) => {
@@ -1487,7 +1483,7 @@ const fetchStudentsThatSubscribedToNewSession = async (level: string) => {
 const fetchNewStudentsThatHasNoClassEnrolmentBefore = async (
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ) => {
   try {
     // let query = Student.find({
@@ -1553,7 +1549,7 @@ const fetchNewStudentsThatHasNoClassEnrolmentBefore = async (
 const fetchStudentsThatAreYetToSubscribedToNewSession = async (
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ) => {
   try {
     const activeSessionExist = await Session.findOne({
@@ -1563,7 +1559,7 @@ const fetchStudentsThatAreYetToSubscribedToNewSession = async (
     if (!activeSessionExist) {
       throw new AppError(
         "There is no active session found for the school. Please start a new session before proceeding.",
-        400
+        400,
       );
     }
 
@@ -1620,7 +1616,7 @@ const fetchStudentsThatAreYetToSubscribedToNewSession = async (
     if (students.length === 0) {
       throw new AppError(
         "There is no student that has not subscribed to a new session in the school.",
-        400
+        400,
       );
     }
 
@@ -1644,7 +1640,7 @@ const fetchStudentsThatAreYetToSubscribedToNewSession = async (
 };
 
 const studentSessionSubscriptionUpdateByStudentOrParent = async (
-  payload: StudentSessionSubscriptionType
+  payload: StudentSessionSubscriptionType,
 ): Promise<Omit<UserDocument, "password">> => {
   try {
     const {
@@ -1666,14 +1662,14 @@ const studentSessionSubscriptionUpdateByStudentOrParent = async (
     if (student.is_verified !== true) {
       throw new AppError(
         `Student bearing ${student.first_name} ${student.last_name} need to verify his/her email before progressing`,
-        400
+        400,
       );
     }
 
     if (student.is_updated !== true) {
       throw new AppError(
         `Student bearing ${student.first_name} ${student.last_name} need to update his/her account by providing address and also latest profile picture before progressing`,
-        400
+        400,
       );
     }
 
@@ -1683,7 +1679,7 @@ const studentSessionSubscriptionUpdateByStudentOrParent = async (
         if (!parentMatch) {
           throw new AppError(
             "You can only update a student that you are linked to as a parent.",
-            400
+            400,
           );
         }
       }
@@ -1696,21 +1692,21 @@ const studentSessionSubscriptionUpdateByStudentOrParent = async (
     if (!session) {
       throw new AppError(
         `Session with ID: ${academic_session_id} not found.`,
-        404
+        404,
       );
     }
 
     if (session.is_active !== true) {
       throw new AppError(
         `The session with ID: ${academic_session_id} is not active.`,
-        400
+        400,
       );
     }
 
     if (student.new_session_subscription !== null) {
       throw new AppError(
         `This student has already informed us of his decision concerning session subscription for the ${session.academic_session} academic session.`,
-        400
+        400,
       );
     }
 
@@ -1736,15 +1732,15 @@ const studentSessionSubscriptionUpdateByStudentOrParent = async (
 // THAT ALLOW DOUBLE PROMOTION AND STUDENT TO REPEAT CLASS.
 
 export {
-  fetchStudentsThatAreYetToSubscribedToNewSession,
+  fetchAllStudents,
+  fetchAllStudentsOnAClassLevel,
   fetchNewStudentsThatHasNoClassEnrolmentBefore,
+  fetchStudentById,
+  fetchStudentsThatAreYetToSubscribedToNewSession,
   fetchStudentsThatSubscribedToNewSession,
-  studentSessionSubscriptionUpdateByAdmin,
-  studentSessionSubscriptionUpdateByStudentOrParent,
   newSessionStudentsSubscription,
   studentLinking,
-  fetchAllStudents,
-  fetchStudentById,
+  studentSessionSubscriptionUpdateByAdmin,
+  studentSessionSubscriptionUpdateByStudentOrParent,
   studentUpdateDetails,
-  fetchAllStudentsOnAClassLevel,
 };

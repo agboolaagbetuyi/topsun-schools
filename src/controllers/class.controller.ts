@@ -256,7 +256,7 @@ const addSubjectsToAClass = catchErrors(async (req, res) => {
   if (!subject_ids_array || subject_ids_array.length === 0) {
     throw new AppError(
       "Please select subjects that you want to add to this class.",
-      400
+      400,
     );
   }
 
@@ -313,7 +313,7 @@ const removeSubjectsToAClass = catchErrors(async (req, res) => {
   if (!subject_ids_array || subject_ids_array.length === 0) {
     throw new AppError(
       "Please select subjects that you want to remove to this class.",
-      400
+      400,
     );
   }
 

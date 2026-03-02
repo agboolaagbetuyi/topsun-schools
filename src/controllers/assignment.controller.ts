@@ -35,13 +35,13 @@ const createAssignment = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -113,13 +113,13 @@ const getAllSubjectAssignmentsInClass = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -148,13 +148,13 @@ const getAllSubjectAssignmentsInClass = catchErrors(async (req, res) => {
     payload,
     page,
     limit,
-    searchQuery
+    searchQuery,
   );
 
   if (!result) {
     throw new AppError(
       "Unable to fetch subject assignments in this class.",
-      400
+      400,
     );
   }
 
@@ -182,7 +182,7 @@ const submitAssignment = catchErrors(async (req, res) => {
   if (!answers_array || answers_array.length === 0) {
     throw new AppError(
       "Please provide answers to the assignment questions.",
-      400
+      400,
     );
   }
 
@@ -244,7 +244,7 @@ const getSubjectAssignmentSubmissions = catchErrors(async (req, res) => {
   if (!result) {
     throw new AppError(
       "Unable to fetch assignment submission for this assignment.",
-      400
+      400,
     );
   }
 
@@ -283,14 +283,13 @@ const getAllMySubjectAssignmentSubmissionsInASession = catchErrors(
       searchQuery,
     };
 
-    const result = await fetchAllMySubjectAssignmentSubmissionsInASession(
-      payload
-    );
+    const result =
+      await fetchAllMySubjectAssignmentSubmissionsInASession(payload);
 
     if (!result) {
       throw new AppError(
         "Unable to fetch assignment submission for this subject.",
-        400
+        400,
       );
     }
 
@@ -300,7 +299,7 @@ const getAllMySubjectAssignmentSubmissionsInASession = catchErrors(
       success: true,
       submissions: result,
     });
-  }
+  },
 );
 
 const getSubjectAssignmentSubmissionById = catchErrors(async (req, res) => {
@@ -352,7 +351,7 @@ const markAssignment = catchErrors(async (req, res) => {
   if (!submission_doc) {
     throw new AppError(
       "Please provide the marked document of the student.",
-      400
+      400,
     );
   }
 
@@ -385,7 +384,7 @@ const markAssignment = catchErrors(async (req, res) => {
 const getAllAssignments = catchErrors(async (req, res) => {});
 
 const getAllSubjectAssignmentForStudentsThatOfferTheSubject = catchErrors(
-  async (req, res) => {}
+  async (req, res) => {},
 );
 
 export {

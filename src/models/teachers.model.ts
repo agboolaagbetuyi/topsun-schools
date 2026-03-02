@@ -44,7 +44,7 @@ const teacherSchema = new mongoose.Schema<UserDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 teacherSchema.index({ email: 1 });

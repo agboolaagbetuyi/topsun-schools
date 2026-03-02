@@ -265,7 +265,7 @@ import { maxSchoolAccountNumbers } from "../utils/code";
 
 // this is for creating school fees
 const schoolFeesCreation = async (
-  fee_array: FeePayloadType[]
+  fee_array: FeePayloadType[],
   // receiving_acc_id: string
 ): Promise<SchoolFeesDocument[]> => {
   // const session = await mongoose.startSession();
@@ -302,9 +302,9 @@ const schoolFeesCreation = async (
     if (duplicateLevel.size > 0) {
       throw new AppError(
         `Duplicate level fee found for: ${Array.from(duplicateLevel).join(
-          ", "
+          ", ",
         )}.`,
-        400
+        400,
       );
     }
 
@@ -332,12 +332,12 @@ const schoolFeesCreation = async (
     if (!activeSession) {
       throw new AppError(
         "You can only create school fees in an active session before starting a new term.",
-        400
+        400,
       );
     }
 
     const activeTerm = activeSession.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     let term: string = "";
@@ -361,14 +361,14 @@ const schoolFeesCreation = async (
     if (activeTerm) {
       throw new AppError(
         "Fee documents can only be created when a term has ended.",
-        400
+        400,
       );
     }
 
     if (paymentDocExist) {
       throw new AppError(
         "You can only create school fees before creating payment document for the term.",
-        400
+        400,
       );
     }
 
@@ -380,7 +380,7 @@ const schoolFeesCreation = async (
             academic_session_id: activeSession._id,
             term: term,
           });
-        })
+        }),
       );
 
       return feeDocs.filter((fee) => fee !== null);
@@ -391,7 +391,7 @@ const schoolFeesCreation = async (
     if (getFeeDocuments.length > 0) {
       throw new AppError(
         "School fees has already been created for this term.",
-        400
+        400,
       );
     }
 
@@ -413,7 +413,7 @@ const schoolFeesCreation = async (
 
 const fetchAllSchoolFeesPerTerm = async (
   term: string,
-  academic_session_id: string
+  academic_session_id: string,
 ): Promise<SchoolFeesDocument[]> => {
   try {
     const response = await Fee.find({
@@ -426,7 +426,7 @@ const fetchAllSchoolFeesPerTerm = async (
     }
 
     const responseResult = response.map(
-      (doc) => doc.toJSON() as unknown as SchoolFeesDocument
+      (doc) => doc.toJSON() as unknown as SchoolFeesDocument,
     );
 
     return responseResult;
@@ -440,7 +440,7 @@ const fetchAllSchoolFeesPerTerm = async (
 };
 
 const fetchASchoolFee = async (
-  school_fee_id: string
+  school_fee_id: string,
 ): Promise<SchoolFeesDocument> => {
   try {
     const response = await Fee.findOne({
@@ -465,7 +465,7 @@ const fetchASchoolFee = async (
 
 const fetchASchoolFeeByLevelAndTerm = async (
   academic_session_id: string,
-  term: string
+  term: string,
 ): Promise<SchoolFeesDocument> => {
   try {
     const response = await Fee.findOne({
@@ -491,7 +491,7 @@ const fetchASchoolFeeByLevelAndTerm = async (
 
 // this is for adding optional fees when term is yet to start
 const optionalFeesCreation = async (
-  payload: OptionalFeePayloadType
+  payload: OptionalFeePayloadType,
 ): Promise<SchoolFeesDocument[]> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -522,16 +522,16 @@ const optionalFeesCreation = async (
     if (duplicateClasses.size > 0) {
       throw new AppError(
         `Duplicate Classes found for: ${Array.from(duplicateClasses).join(
-          ", "
+          ", ",
         )}.`,
-        400
+        400,
       );
     }
 
     if (activeTerm) {
       throw new AppError(
         "Optional fees can only be created before the creation of a new term.",
-        400
+        400,
       );
     }
 
@@ -553,13 +553,13 @@ const optionalFeesCreation = async (
       cLevels,
       term,
       academicSession._id,
-      session
+      session,
     );
 
     if (gLevels.length !== cLevels.length) {
       throw new AppError(
         "Please create school fees for all levels before adding other fees.",
-        400
+        400,
       );
     }
 
@@ -585,9 +585,9 @@ const optionalFeesCreation = async (
     if (updatedFee.length === 0) {
       throw new AppError(
         `${capitalizeFirstLetter(
-          fee_name
+          fee_name,
         )} has already been saved in all applicable fee documents.`,
-        400
+        400,
       );
     }
 
@@ -608,7 +608,7 @@ const optionalFeesCreation = async (
 
 // this is for adding optional fees when term is already active
 const optionalFeesAddition = async (
-  payload: OptionalFeePayloadType
+  payload: OptionalFeePayloadType,
 ): Promise<SchoolFeesDocument[]> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -625,13 +625,13 @@ const optionalFeesAddition = async (
     const academicSession = schoolClasses.academicSession;
 
     const activeTerm = academicSession.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     if (!activeTerm) {
       throw new AppError(
         "There is no active term. Please create one to proceed.",
-        400
+        400,
       );
     }
 
@@ -645,13 +645,13 @@ const optionalFeesAddition = async (
       cLevels,
       activeTerm.name,
       academicSession._id,
-      session
+      session,
     );
 
     if (gLevels.length !== cLevels.length) {
       throw new AppError(
         "Please create school fees for all levels before adding other fees.",
-        400
+        400,
       );
     }
 
@@ -663,7 +663,7 @@ const optionalFeesAddition = async (
     if (termPaymentDocExist.length === 0) {
       throw new AppError(
         "Please create payment document for students before proceeding.",
-        400
+        400,
       );
     }
 
@@ -689,9 +689,9 @@ const optionalFeesAddition = async (
     if (updatedFee.length === 0) {
       throw new AppError(
         `${capitalizeFirstLetter(
-          fee_name
+          fee_name,
         )} has already been saved in all applicable fee documents.`,
-        400
+        400,
       );
     }
 
@@ -710,9 +710,8 @@ const optionalFeesAddition = async (
       amount: amount,
     };
 
-    const addFeeToPaymentDocs = await optionalFeeAdditionToPaymentDocuments(
-      paymentPayload
-    );
+    const addFeeToPaymentDocs =
+      await optionalFeeAdditionToPaymentDocuments(paymentPayload);
 
     await session.commitTransaction();
     session.endSession();
@@ -731,7 +730,7 @@ const optionalFeesAddition = async (
 
 // this is for adding mandatory fees when term is yet to start
 const mandatoryFeesCreation = async (
-  payload: MandatoryFeePayloadType
+  payload: MandatoryFeePayloadType,
 ): Promise<SchoolFeesDocument[]> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -756,13 +755,13 @@ const mandatoryFeesCreation = async (
     }
 
     const activeTerm = academicSession.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     if (activeTerm) {
       throw new AppError(
         "Mandatory fees can only be created before the start of a new term.",
-        400
+        400,
       );
     }
 
@@ -774,13 +773,13 @@ const mandatoryFeesCreation = async (
       cLevels,
       term,
       academicSession._id,
-      session
+      session,
     );
 
     if (gLevels.length !== cLevels.length) {
       throw new AppError(
         "Please create school fees for all levels before adding other fees.",
-        400
+        400,
       );
     }
 
@@ -792,7 +791,7 @@ const mandatoryFeesCreation = async (
     if (termPaymentDocExist.length > 0) {
       throw new AppError(
         "Mandatory fees can only be created before payment document is created.",
-        400
+        400,
       );
     }
 
@@ -856,9 +855,9 @@ const mandatoryFeesCreation = async (
     if (updatedFee.length === 0) {
       throw new AppError(
         `${capitalizeFirstLetter(
-          fee_name
+          fee_name,
         )} has already been saved in all applicable fee documents.`,
-        400
+        400,
       );
     }
 
@@ -879,7 +878,7 @@ const mandatoryFeesCreation = async (
 
 // this is for adding mandatory fees when term is yet to start
 const mandatoryFeesAddition = async (
-  payload: MandatoryFeePayloadType
+  payload: MandatoryFeePayloadType,
 ): Promise<SchoolFeesDocument[]> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -896,13 +895,13 @@ const mandatoryFeesAddition = async (
     const academicSession = schoolClasses.academicSession;
 
     const activeTerm = academicSession.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     if (!activeTerm) {
       throw new AppError(
         "There is no active term. Please create one to proceed.",
-        400
+        400,
       );
     }
 
@@ -918,13 +917,13 @@ const mandatoryFeesAddition = async (
       cLevels,
       term,
       academicSession._id,
-      session
+      session,
     );
 
     if (gLevels.length !== cLevels.length) {
       throw new AppError(
         "Please create school fees for all levels before adding other fees.",
-        400
+        400,
       );
     }
 
@@ -948,9 +947,9 @@ const mandatoryFeesAddition = async (
     if (updatedFee.length === 0) {
       throw new AppError(
         `${capitalizeFirstLetter(
-          fee_name
+          fee_name,
         )} has already been saved in all applicable fee documents.`,
-        400
+        400,
       );
     }
 
@@ -962,9 +961,8 @@ const mandatoryFeesAddition = async (
       amount: amount,
     };
 
-    const addFeeToPaymentDocs = await mandatoryFeeAdditionToPaymentDocuments(
-      paymentPayload
-    );
+    const addFeeToPaymentDocs =
+      await mandatoryFeeAdditionToPaymentDocuments(paymentPayload);
 
     await session.commitTransaction();
     session.endSession();
@@ -986,7 +984,7 @@ const fetchSchoolFees = async (
   limit: number | undefined,
   searchParams: string,
   session?: string,
-  term?: string
+  term?: string,
 ): Promise<{
   feesArray: SchoolFeesDocument[];
   totalCount: number;
@@ -1059,7 +1057,7 @@ const fetchSchoolFees = async (
       const docObject = a.toObject() as any;
       delete docObject.optional_fees;
       const school_fee = docObject.mandatory_fees.find(
-        (b: MandatoryFeeType) => b.fee_name === "school_fee"
+        (b: MandatoryFeeType) => b.fee_name === "school_fee",
       );
       delete docObject.mandatory_fees;
       const obj = {
@@ -1091,7 +1089,7 @@ const fetchAllMandatoryFees = async (
   limit: number | undefined,
   searchParams: string,
   session?: string,
-  term?: string
+  term?: string,
 ): Promise<{
   feesArray: SchoolFeesDocument[];
   totalCount: number;
@@ -1145,7 +1143,7 @@ const fetchAllMandatoryFees = async (
         const docObject = a.toObject() as any;
         delete docObject.optional_fees;
         const otherMandatoryFees = docObject.mandatory_fees.filter(
-          (b: MandatoryFeeType) => b.fee_name !== "school_fee"
+          (b: MandatoryFeeType) => b.fee_name !== "school_fee",
         );
 
         delete docObject.mandatory_fees;
@@ -1153,7 +1151,7 @@ const fetchAllMandatoryFees = async (
           (a: MandatoryFeeType) => ({
             ...a,
             ...docObject,
-          })
+          }),
         );
 
         return mandatoryObjStructureManipulated;
@@ -1175,7 +1173,7 @@ const fetchAllMandatoryFees = async (
       const offset = (page - 1) * limit;
       const paginatedFees = formattedMandatoryFees.slice(
         offset,
-        offset + limit
+        offset + limit,
       );
 
       return {
@@ -1217,7 +1215,7 @@ const fetchAllOptionalFees = async (
   limit: number | undefined,
   searchParams: string,
   session?: string,
-  term?: string
+  term?: string,
 ): Promise<{
   feesArray: SchoolFeesDocument[];
   totalCount: number;
@@ -1265,7 +1263,7 @@ const fetchAllOptionalFees = async (
     }
 
     const filteredResponse = response.filter(
-      (a) => Array.isArray(a.optional_fees) && a.optional_fees.length > 0
+      (a) => Array.isArray(a.optional_fees) && a.optional_fees.length > 0,
     );
 
     const formattedOptionalFees = filteredResponse
@@ -1280,7 +1278,7 @@ const fetchAllOptionalFees = async (
           (a: OptionalFeeType) => ({
             ...a,
             ...docObject,
-          })
+          }),
         );
 
         return optionalObjStructureManipulated;
@@ -1359,7 +1357,7 @@ const fetchTermFees = async (academic_session_id: string, term: string) => {
 
 const fetchTermMandatoryFees = async (
   academic_session_id: string,
-  term: string
+  term: string,
 ) => {
   try {
     const result = await Fee.find({
@@ -1389,7 +1387,7 @@ const fetchTermMandatoryFees = async (
 
 const fetchTermOptionalFees = async (
   academic_session_id: string,
-  term: string
+  term: string,
 ) => {
   try {
     const result = await Fee.find({

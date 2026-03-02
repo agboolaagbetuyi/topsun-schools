@@ -42,13 +42,13 @@ const createResult = async (payload: ResultCreationType) => {
     });
 
     const studentExistInsideClass = enrollmentExist?.students.find(
-      (p) => p.student.toString() === student_id.toString()
+      (p) => p.student.toString() === student_id.toString(),
     );
 
     if (!studentExistInsideClass) {
       throw new AppError(
         "Student not enrolled into this class for the session.",
-        404
+        404,
       );
     }
 
@@ -60,7 +60,7 @@ const createResult = async (payload: ResultCreationType) => {
     if (studentAlreadyHaveResultForTheSession) {
       throw new AppError(
         "Since a student can only have one result per session, this student already have the result for the session.",
-        400
+        400,
       );
     }
 
@@ -124,7 +124,7 @@ const createResult = async (payload: ResultCreationType) => {
     if (!result) {
       throw new AppError(
         `Unable to create result for student with ID: ${student_id}`,
-        400
+        400,
       );
     }
 
@@ -140,7 +140,7 @@ const createResult = async (payload: ResultCreationType) => {
 };
 
 const createResultsForStudents = async (
-  payload: MultipleResultCreationType
+  payload: MultipleResultCreationType,
 ) => {
   try {
     const { class_enrolment_id, student_ids, class_id, academic_session_id } =
@@ -153,7 +153,7 @@ const createResultsForStudents = async (
     if (!enrollmentExist) {
       throw new AppError(
         `Class enrollment with ID: ${class_enrolment_id} does not exist.`,
-        404
+        404,
       );
     }
 
@@ -163,13 +163,13 @@ const createResultsForStudents = async (
     for (const student_id of student_ids) {
       try {
         const studentExistInsideClass = enrollmentExist.students.find(
-          (p) => p.student.toString() === student_id.toString()
+          (p) => p.student.toString() === student_id.toString(),
         );
 
         if (!studentExistInsideClass) {
           throw new AppError(
             `Student with ID: ${student_id} is not enrolled in this class for the session.`,
-            404
+            404,
           );
         }
 
@@ -181,7 +181,7 @@ const createResultsForStudents = async (
         if (studentAlreadyHaveResultForTheSession) {
           throw new AppError(
             `Student with ID: ${student_id} already has a result for this session.`,
-            400
+            400,
           );
         }
 
@@ -215,7 +215,7 @@ const createResultsForStudents = async (
 };
 
 const recordScore = async (
-  payload: ScoreRecordingParamType
+  payload: ScoreRecordingParamType,
 ): Promise<SubjectResultDocument> => {
   try {
     const {
@@ -279,7 +279,7 @@ const recordScore = async (
     console.log("resultSettings:", resultSettings);
 
     const validComponent = resultSettings.components.find(
-      (comp) => comp.name === score_name
+      (comp) => comp.name === score_name,
     );
     console.log("validComponent:", validComponent);
 
@@ -291,20 +291,20 @@ const recordScore = async (
     if (score > validComponent.percentage) {
       throw new AppError(
         `${validComponent.name} score can not be greater than ${validComponent.percentage}.`,
-        400
+        400,
       );
     }
 
     const subjectTeacher = classExist.teacher_subject_assignments.find(
       (p) =>
         p?.subject?.toString() === subject_id &&
-        p?.teacher?.toString() === teacher_id
+        p?.teacher?.toString() === teacher_id,
     );
 
     if (!subjectTeacher) {
       throw new AppError(
         "You are not the teacher assigned to teach this subject.",
-        400
+        400,
       );
     }
 
@@ -352,7 +352,7 @@ const recordScore = async (
       });
     } else {
       let termResult = studentSubjectResult.term_results.find(
-        (t) => t.term === term
+        (t) => t.term === term,
       );
 
       if (!termResult) {
@@ -374,13 +374,13 @@ const recordScore = async (
         });
       } else {
         const existingScore = termResult.scores.find(
-          (s) => s.score_name === score_name
+          (s) => s.score_name === score_name,
         );
 
         if (existingScore) {
           throw new AppError(
             `${score_name} score has already been recorded for this student`,
-            409
+            409,
           );
         }
         termResult.scores.push(scoreObj);
@@ -401,7 +401,7 @@ const recordScore = async (
 };
 
 const updateScore = async (
-  payload: ScoreRecordingParamType
+  payload: ScoreRecordingParamType,
 ): Promise<SubjectResultDocument> => {
   try {
     const {
@@ -474,7 +474,7 @@ const updateScore = async (
     console.log("allComponentsArray:", allComponentsArray);
 
     const validComponent = allComponentsArray.find(
-      (comp) => comp.name === score_name
+      (comp) => comp.name === score_name,
     );
 
     console.log("validComponent:", validComponent);
@@ -486,7 +486,7 @@ const updateScore = async (
     if (score > validComponent.percentage) {
       throw new AppError(
         `${validComponent.name} score can not be greater than ${validComponent.percentage}.`,
-        400
+        400,
       );
     }
 
@@ -503,7 +503,7 @@ const updateScore = async (
     const subjectTeacher = classExist.teacher_subject_assignments.find(
       (p) =>
         p?.subject?.toString() === subjectId.toString() &&
-        p?.teacher?.toString() === teacherExist._id.toString()
+        p?.teacher?.toString() === teacherExist._id.toString(),
     );
 
     console.log("subjectTeacher:", subjectTeacher);
@@ -515,7 +515,7 @@ const updateScore = async (
     ) {
       throw new AppError(
         "The teacher selected is not the teacher assigned to teach this subject.",
-        400
+        400,
       );
     }
 
@@ -544,7 +544,7 @@ const updateScore = async (
     console.log("studentSubjectResult:", studentSubjectResult);
 
     const actualTermResult = studentSubjectResult.term_results.find(
-      (a) => a.term === term.trim()
+      (a) => a.term === term.trim(),
     );
 
     console.log("actualTermResult:", actualTermResult);
@@ -552,31 +552,31 @@ const updateScore = async (
     if (!actualTermResult) {
       throw new AppError(
         `This student has no scores recorded for this subject in ${term}`,
-        404
+        404,
       );
     }
 
     if (!actualTermResult.scores) {
       throw new AppError(
         "No score has been recorded for this student yet.",
-        404
+        404,
       );
     }
     const getScoreToUpdate = actualTermResult?.scores.find(
-      (a) => a.score_name === validComponent.name
+      (a) => a.score_name === validComponent.name,
     );
 
     if (!getScoreToUpdate) {
       throw new AppError(
         `Score for ${validComponent.name} has not being recorded for this student yet.`,
-        404
+        404,
       );
     }
 
     getScoreToUpdate.score = score;
     if ("key" in getScoreToUpdate) {
       const getScoreInsideExam = actualTermResult?.exam_object.find(
-        (a) => a.score_name === getScoreToUpdate.score_name
+        (a) => a.score_name === getScoreToUpdate.score_name,
       );
       if (getScoreInsideExam) {
         getScoreInsideExam.score = score;
@@ -586,17 +586,17 @@ const updateScore = async (
         ) {
           const newTotal = actualTermResult?.exam_object.reduce(
             (prev, curr) => prev + curr.score,
-            0
+            0,
           );
 
           const examScoreName = resultSettings.exam_components.exam_name;
           const scoreExists = actualTermResult.scores.some(
-            (a) => a.score_name === examScoreName
+            (a) => a.score_name === examScoreName,
           );
 
           if (scoreExists) {
             const newScore = actualTermResult.scores.find(
-              (a) => a.score_name === resultSettings.exam_components.exam_name
+              (a) => a.score_name === resultSettings.exam_components.exam_name,
             );
             if (newScore) {
               newScore.score = newTotal;
@@ -622,7 +622,7 @@ const updateScore = async (
 };
 
 const recordCbtScore = async (
-  payload: ManualCbtScoreType
+  payload: ManualCbtScoreType,
 ): Promise<SubjectResultDocument> => {
   try {
     const {
@@ -686,7 +686,7 @@ const recordCbtScore = async (
     console.log("resultSettings:", resultSettings);
 
     const validComponent = resultSettings.exam_components.component.find(
-      (comp) => comp.key === key.toLowerCase()
+      (comp) => comp.key === key.toLowerCase(),
     );
     console.log("validComponent:", validComponent);
 
@@ -698,20 +698,20 @@ const recordCbtScore = async (
     if (score > validComponent.percentage) {
       throw new AppError(
         `${validComponent.name} score can not be greater than ${validComponent.percentage}.`,
-        400
+        400,
       );
     }
 
     const subjectTeacher = classExist.teacher_subject_assignments.find(
       (p) =>
         p?.subject?.toString() === subject_id &&
-        p?.teacher?.toString() === teacher_id
+        p?.teacher?.toString() === teacher_id,
     );
 
     if (!subjectTeacher) {
       throw new AppError(
         "You are not the teacher assigned to teach this subject.",
-        400
+        400,
       );
     }
 
@@ -760,7 +760,7 @@ const recordCbtScore = async (
       });
     } else {
       let termResult = studentSubjectResult.term_results.find(
-        (t) => t.term === term
+        (t) => t.term === term,
       );
 
       if (!termResult) {
@@ -782,13 +782,13 @@ const recordCbtScore = async (
         });
       } else {
         const existingScore = termResult.scores.find(
-          (s) => s.score_name === validComponent.name
+          (s) => s.score_name === validComponent.name,
         );
 
         if (existingScore) {
           throw new AppError(
             `${validComponent.name} score has already been recorded for this student`,
-            409
+            409,
           );
         }
         termResult.scores.push(scoreObj);
@@ -827,7 +827,7 @@ const recordCbtScore = async (
 };
 
 const recordCumScore = async (
-  payload: CumScoreParamType
+  payload: CumScoreParamType,
 ): Promise<SubjectResultDocument> => {
   try {
     const {
@@ -880,20 +880,20 @@ const recordCumScore = async (
     if (!resultSettings) {
       throw new AppError(
         "Result setting not found for this level in the school.",
-        404
+        404,
       );
     }
 
     const subjectTeacher = classExist.teacher_subject_assignments.find(
       (p) =>
         p?.subject?.toString() === subject_id &&
-        p?.teacher?.toString() === teacher_id
+        p?.teacher?.toString() === teacher_id,
     );
 
     if (!subjectTeacher) {
       throw new AppError(
         "You are not the teacher assigned to teach this subject.",
-        400
+        400,
       );
     }
 
@@ -920,7 +920,7 @@ const recordCumScore = async (
     }
 
     let subjectResult = resultExist.term_results.find(
-      (t) => t.term === term
+      (t) => t.term === term,
     ) as SubjectTermResult | undefined;
 
     if (!subjectResult) {
@@ -930,7 +930,7 @@ const recordCumScore = async (
     if (!subjectResult.total_score || subjectResult.total_score === 0) {
       throw new AppError(
         "You can only record last term cumulative when all scores has been recorded.",
-        400
+        400,
       );
     }
 
@@ -953,10 +953,10 @@ const recordCumScore = async (
 
     for (const gradeItem of gradingArray) {
       if (subjectResult.cumulative_average >= gradeItem.value) {
-        (grade = gradeItem.grade), (remark = gradeItem.remark);
+        ((grade = gradeItem.grade), (remark = gradeItem.remark));
         break;
       } else {
-        (grade = "F9"), (remark = "Fail");
+        ((grade = "F9"), (remark = "Fail"));
       }
     }
 
@@ -1005,7 +1005,7 @@ const processStudentResultUpdate = async (payload: ResultJobData) => {
     }
 
     let termExistInResultDoc = resultExist.term_results.find(
-      (t) => t.term === term
+      (t) => t.term === term,
     ) as TermResult | undefined;
 
     const scoreObj = {
@@ -1038,7 +1038,7 @@ const processStudentResultUpdate = async (payload: ResultJobData) => {
       resultExist.term_results.push(termExistInResultDoc);
     } else {
       let subjectResult = termExistInResultDoc.subject_results.find(
-        (s) => s.subject?.toString() === subject_id
+        (s) => s.subject?.toString() === subject_id,
       );
 
       if (!subjectResult) {
@@ -1062,13 +1062,13 @@ const processStudentResultUpdate = async (payload: ResultJobData) => {
         ];
       } else {
         let existingScore = subjectResult.scores.find(
-          (s) => s.score_name === score_name
+          (s) => s.score_name === score_name,
         );
         console.log("existingScore:", existingScore);
 
         if (existingScore) {
           console.log(
-            `${score_name} score has already been recorded and can not be changed.`
+            `${score_name} score has already been recorded and can not be changed.`,
           );
           // throw new AppError(
           //   `${score_name} score has already been recorded and can not be changed.`,
@@ -1095,7 +1095,7 @@ const processStudentResultUpdate = async (payload: ResultJobData) => {
 };
 
 const processStudentExamResultUpdate = async (
-  payload: CbtAssessmentJobData
+  payload: CbtAssessmentJobData,
 ) => {
   const {
     term,
@@ -1124,7 +1124,7 @@ const processStudentExamResultUpdate = async (
     }
 
     let termExistInResultDoc = resultExist.term_results.find(
-      (t) => t.term === term
+      (t) => t.term === term,
     ) as TermResult | undefined;
 
     const scoreObj = {
@@ -1158,7 +1158,7 @@ const processStudentExamResultUpdate = async (
       resultExist.term_results.push(termExistInResultDoc);
     } else {
       let subjectResult = termExistInResultDoc.subject_results.find(
-        (s) => s.subject?.toString() === subject_id
+        (s) => s.subject?.toString() === subject_id,
       );
 
       if (!subjectResult) {
@@ -1182,7 +1182,7 @@ const processStudentExamResultUpdate = async (
         ];
       } else {
         let existingScore = subjectResult.scores.find(
-          (s) => s.score_name === scoreObj.score_name
+          (s) => s.score_name === scoreObj.score_name,
         );
 
         console.log("scoreObj.score_name:", scoreObj.score_name);
@@ -1190,7 +1190,7 @@ const processStudentExamResultUpdate = async (
 
         if (existingScore) {
           console.log(
-            `${scoreObj.score_name} score has already been recorded and can not be changed.`
+            `${scoreObj.score_name} score has already been recorded and can not be changed.`,
           );
           // throw new AppError(
           //   `${score_name} score has already been recorded and can not be changed.`,
@@ -1204,7 +1204,7 @@ const processStudentExamResultUpdate = async (
 
       const actualTerm = term_results.find((t) => t.term === term);
       const examScore = actualTerm?.scores.find(
-        (s) => s.score_name === exam_component_name
+        (s) => s.score_name === exam_component_name,
       );
 
       console.log("examScore:", examScore);
@@ -1222,7 +1222,7 @@ const processStudentExamResultUpdate = async (
       if (!subjectResult) {
         throw new AppError(
           "Unexpected error: subjectResult is undefined.",
-          400
+          400,
         );
       }
 
@@ -1264,7 +1264,7 @@ const processStudentExamResultUpdate = async (
 };
 
 const processStudentSubjectPositionUpdate = async (
-  payload: SubjectPositionJobData
+  payload: SubjectPositionJobData,
 ) => {
   const {
     student_id,
@@ -1295,7 +1295,7 @@ const processStudentSubjectPositionUpdate = async (
     const actualSubject = info?.subject_results.find(
       (r) =>
         r?.subject instanceof mongoose.Types.ObjectId &&
-        r.subject.equals(subject_id)
+        r.subject.equals(subject_id),
     );
 
     if (actualSubject) {
@@ -1305,11 +1305,11 @@ const processStudentSubjectPositionUpdate = async (
       actualSubject.class_average_mark = class_average_mark;
       console.log(
         "actualSubject.class_highest_mark:",
-        actualSubject.class_highest_mark
+        actualSubject.class_highest_mark,
       );
       console.log(
         "actualSubject.class_lowest_mark:",
-        actualSubject.class_lowest_mark
+        actualSubject.class_lowest_mark,
       );
     }
 
@@ -1331,7 +1331,7 @@ const processStudentSubjectPositionUpdate = async (
 };
 
 const processSubjectCumScoreUpdate = async (
-  payload: SubjectCumScoreJobData
+  payload: SubjectCumScoreJobData,
 ) => {
   const {
     term,
@@ -1357,7 +1357,7 @@ const processSubjectCumScoreUpdate = async (
     const actualSubject = info?.subject_results.find(
       (r) =>
         r?.subject instanceof mongoose.Types.ObjectId &&
-        r.subject.equals(subject_id)
+        r.subject.equals(subject_id),
     );
 
     if (actualSubject) {
@@ -1375,12 +1375,11 @@ const processSubjectCumScoreUpdate = async (
 };
 
 const processCbtAssessmentSubmission = async (
-  payload: CbtAssessmentEndedType
+  payload: CbtAssessmentEndedType,
 ) => {
   try {
-    const cbtAssessmentSubmission = await subjectCbtObjCbtAssessmentSubmission(
-      payload
-    );
+    const cbtAssessmentSubmission =
+      await subjectCbtObjCbtAssessmentSubmission(payload);
 
     return cbtAssessmentSubmission;
   } catch (error) {
@@ -1389,13 +1388,13 @@ const processCbtAssessmentSubmission = async (
 };
 
 const processCbtAssessmentResultSubmission = async (
-  payload: CbtAssessmentResultType
+  payload: CbtAssessmentResultType,
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
     const examDocExist = await CbtExam.findById(payload.exam_id).session(
-      session
+      session,
     );
 
     if (!examDocExist) {
@@ -1412,7 +1411,7 @@ const processCbtAssessmentResultSubmission = async (
 
     const exam_component_name = resultSettings?.exam_components.exam_name;
     const cbtObj = resultSettings?.exam_components.component.find(
-      (a) => a.key === "obj"
+      (a) => a.key === "obj",
     );
 
     console.log("cbtObj:", cbtObj);
@@ -1439,7 +1438,7 @@ const processCbtAssessmentResultSubmission = async (
     }
 
     let termResult = studentSubjectResult?.term_results.find(
-      (a) => a.term === payload.term
+      (a) => a.term === payload.term,
     );
 
     if (!termResult) {
@@ -1488,13 +1487,13 @@ const processCbtAssessmentResultSubmission = async (
       objKeyName = resultSettings.components?.find(
         (k) =>
           k.name.trim().toLowerCase() ===
-          examDocExist.assessment_type.trim().toLowerCase()
+          examDocExist.assessment_type.trim().toLowerCase(),
       );
 
       if (!objKeyName?.percentage || !objKeyName?.name) {
         throw new AppError(
           "Objective scoring setup not found in result settings.",
-          400
+          400,
         );
       }
 
@@ -1522,12 +1521,12 @@ const processCbtAssessmentResultSubmission = async (
       const hasRecordedExamScore = termResult?.scores.find(
         (s) =>
           s.score_name.trim().toLowerCase() ===
-          testObj?.score_name.trim().toLowerCase()
+          testObj?.score_name.trim().toLowerCase(),
       );
 
       if (hasRecordedExamScore) {
         console.log(
-          `Score for ${testObj.score_name} has been recorded for this student.`
+          `Score for ${testObj.score_name} has been recorded for this student.`,
         );
       } else {
         termResult?.scores.push(testObj);
@@ -1539,13 +1538,13 @@ const processCbtAssessmentResultSubmission = async (
       const exam_components = resultSettings?.exam_components.component;
 
       objKeyName = exam_components?.find(
-        (k) => k.key.trim().toLowerCase() === examKeyEnum[0]
+        (k) => k.key.trim().toLowerCase() === examKeyEnum[0],
       );
 
       if (!objKeyName?.percentage || !objKeyName?.name) {
         throw new AppError(
           "Objective scoring setup not found in result settings.",
-          400
+          400,
         );
       }
 
@@ -1572,11 +1571,11 @@ const processCbtAssessmentResultSubmission = async (
       const hasRecordedExamScore = termResult?.exam_object.find(
         (s) =>
           s.score_name.trim().toLowerCase() ===
-          examObj?.score_name.trim().toLowerCase()
+          examObj?.score_name.trim().toLowerCase(),
       );
       if (hasRecordedExamScore) {
         console.log(
-          `Score for ${examObj.score_name} has been recorded for this student.`
+          `Score for ${examObj.score_name} has been recorded for this student.`,
         );
       } else {
         termResult?.scores.push(examObj);
@@ -1609,7 +1608,7 @@ const processCbtAssessmentResultSubmission = async (
     }
 
     let termExistInResultDoc = mainResult?.term_results.find(
-      (t) => t.term === payload.term
+      (t) => t.term === payload.term,
     );
 
     console.log("I can find term result:", termExistInResultDoc);
@@ -1627,7 +1626,7 @@ const processCbtAssessmentResultSubmission = async (
       // mainResult?.markModified('term_results');
     } else {
       let mainSubjectResult = termExistInResultDoc?.subject_results.find(
-        (s) => s.subject.toString() === payload.subject_id.toString()
+        (s) => s.subject.toString() === payload.subject_id.toString(),
       );
 
       console.log("Getting mainSubjectResult:", mainSubjectResult);
@@ -1636,7 +1635,7 @@ const processCbtAssessmentResultSubmission = async (
         termExistInResultDoc?.subject_results?.push(subjectObj);
         console.log(
           "Not find but created it mainSubjectResult:",
-          mainSubjectResult
+          mainSubjectResult,
         );
         // mainResult?.markModified('term_results');
       } else {
@@ -1651,7 +1650,7 @@ const processCbtAssessmentResultSubmission = async (
             const hasTest = mainSubjectResult.scores.find(
               (s) =>
                 s.score_name.trim().toLowerCase() ===
-                testObj.score_name.trim().toLowerCase()
+                testObj.score_name.trim().toLowerCase(),
             );
             if (!hasTest) {
               mainSubjectResult.scores.push(testObj);
@@ -1663,7 +1662,7 @@ const processCbtAssessmentResultSubmission = async (
             const hasExam = mainSubjectResult.exam_object.find(
               (s) =>
                 s.score_name.trim().toLowerCase() ===
-                examObj.score_name.trim().toLowerCase()
+                examObj.score_name.trim().toLowerCase(),
             );
             if (!hasExam) {
               mainSubjectResult.exam_object.push(examObj);
@@ -1695,18 +1694,18 @@ const processCbtAssessmentResultSubmission = async (
     if (!actualExamTimeTable) {
       throw new AppError(
         `There is no timetable for this class in this ${payload.term}.`,
-        400
+        400,
       );
     }
 
     const findSubjectTimetable = actualExamTimeTable.scheduled_subjects.find(
-      (s) => s.subject_id.toString() === payload.subject_id.toString()
+      (s) => s.subject_id.toString() === payload.subject_id.toString(),
     );
 
     if (!findSubjectTimetable) {
       throw new AppError(
         `The time to write this subject exam is not taken care off in the timetable.`,
-        400
+        400,
       );
     }
 
@@ -1727,7 +1726,7 @@ const processCbtAssessmentResultSubmission = async (
             payload.student_id,
         },
       },
-      { session }
+      { session },
     );
     await session.commitTransaction();
     session.endSession();
@@ -1739,7 +1738,7 @@ const processCbtAssessmentResultSubmission = async (
 };
 
 const processStudentCbtExamResultUpdateManually = async (
-  payload: CbtAssessmentJobData
+  payload: CbtAssessmentJobData,
 ) => {
   const {
     term,
@@ -1768,7 +1767,7 @@ const processStudentCbtExamResultUpdateManually = async (
     }
 
     let termExistInResultDoc = resultExist.term_results.find(
-      (t) => t.term === term
+      (t) => t.term === term,
     ) as TermResult | undefined;
 
     const scoreObj = {
@@ -1802,7 +1801,7 @@ const processStudentCbtExamResultUpdateManually = async (
       resultExist.term_results.push(termExistInResultDoc);
     } else {
       let subjectResult = termExistInResultDoc.subject_results.find(
-        (s) => s.subject?.toString() === subject_id
+        (s) => s.subject?.toString() === subject_id,
       );
 
       if (!subjectResult) {
@@ -1826,7 +1825,7 @@ const processStudentCbtExamResultUpdateManually = async (
         ];
       } else {
         let existingScore = subjectResult.scores.find(
-          (s) => s.score_name === scoreObj.score_name
+          (s) => s.score_name === scoreObj.score_name,
         );
 
         console.log("scoreObj.score_name:", scoreObj.score_name);
@@ -1834,7 +1833,7 @@ const processStudentCbtExamResultUpdateManually = async (
 
         if (existingScore) {
           console.log(
-            `${scoreObj.score_name} score has already been recorded and can not be changed.`
+            `${scoreObj.score_name} score has already been recorded and can not be changed.`,
           );
           // throw new AppError(
           //   `${score_name} score has already been recorded and can not be changed.`,
@@ -1848,7 +1847,7 @@ const processStudentCbtExamResultUpdateManually = async (
 
       const actualTerm = term_results.find((t) => t.term === term);
       const examScore = actualTerm?.scores.find(
-        (s) => s.score_name === exam_component_name
+        (s) => s.score_name === exam_component_name,
       );
 
       const totalScore = actualTerm?.total_score;

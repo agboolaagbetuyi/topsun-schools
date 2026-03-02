@@ -11,7 +11,7 @@ const jwt_refresh_secret = process.env.JWT_REFRESH_SECRET;
 const generateAccessToken = async (
   userId: object,
   userEmail: string,
-  userRole: string
+  userRole: string,
 ) => {
   try {
     const payload = {
@@ -23,7 +23,7 @@ const generateAccessToken = async (
     if (!jwt_access_secret) {
       throw new AppError(
         "JWT_SECRET is not defined in the environment variables",
-        404
+        404,
       );
     }
 
@@ -40,7 +40,7 @@ const generateAccessToken = async (
 const generateRefreshToken = async (
   userId: object,
   userEmail: string,
-  userRole: string
+  userRole: string,
 ) => {
   try {
     const payload = {
@@ -52,7 +52,7 @@ const generateRefreshToken = async (
     if (!jwt_refresh_secret) {
       throw new AppError(
         "JWT_SECRET is not defined in the environment variables",
-        404
+        404,
       );
     }
 
@@ -69,7 +69,7 @@ const generateRefreshToken = async (
 const verifyAccessToken = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<any> => {
   try {
     const accessToken = req.headers["authorization"]?.split(" ")[1];
@@ -81,13 +81,13 @@ const verifyAccessToken = async (
     if (!jwt_access_secret) {
       throw new AppError(
         "JWT_SECRET is not defined in the environment variables",
-        404
+        404,
       );
     }
 
     const user = (await jwt.verify(
       accessToken,
-      jwt_access_secret
+      jwt_access_secret,
     )) as UserInJwt;
 
     if (!user) {
@@ -110,7 +110,7 @@ const jwtDecodeRefreshToken = async (token: string): Promise<UserInJwt> => {
     if (!jwt_refresh_secret) {
       throw new AppError(
         "JWT_SECRET is not defined in the environment variables",
-        404
+        404,
       );
     }
 

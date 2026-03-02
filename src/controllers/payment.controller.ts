@@ -757,7 +757,7 @@ const createPaymentDocumentForAllStudent = catchErrors(async (req, res) => {
 
   const result = await createSchoolFeePaymentDocumentForStudents(
     session_id,
-    term
+    term,
   );
 
   if (!result) {
@@ -805,13 +805,13 @@ const addFeeToStudentPaymentDocument = catchErrors(async (req, res) => {
     amount,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -902,7 +902,7 @@ const getAllStudentPaymentDocumentsByStudentId = catchErrors(
       payload,
       page,
       limit,
-      searchQuery
+      searchQuery,
     );
 
     if (!result) {
@@ -936,7 +936,7 @@ const getAllStudentPaymentDocumentsByStudentId = catchErrors(
       status: 200,
       payment_history: result,
     });
-  }
+  },
 );
 
 const getAllPaymentDocuments = catchErrors(async (req, res) => {
@@ -998,7 +998,7 @@ const getAllOutstandingPaymentDocumentsOfStudent = catchErrors(
     if (!result) {
       throw new AppError(
         "Unable to get student outstanding payment documents.",
-        400
+        400,
       );
     }
 
@@ -1029,7 +1029,7 @@ const getAllOutstandingPaymentDocumentsOfStudent = catchErrors(
       success: true,
       student_outstanding_payment_documents: result,
     });
-  }
+  },
 );
 
 const getCurrentTermPaymentDocuments = catchErrors(async (req, res) => {
@@ -1043,7 +1043,7 @@ const getCurrentTermPaymentDocuments = catchErrors(async (req, res) => {
   const result = await fetchCurrentTermPaymentDocuments(
     page,
     limit,
-    searchQuery
+    searchQuery,
   );
 
   if (!result) {
@@ -1110,13 +1110,13 @@ const getPaymentTransactionHistoryByStudentId = catchErrors(
       // page,
       // limit,
       // searchQuery,
-      payload
+      payload,
     );
 
     if (!result) {
       throw new AppError(
         "Unable to fetch payment transaction history for this student",
-        400
+        400,
       );
     }
 
@@ -1147,7 +1147,7 @@ const getPaymentTransactionHistoryByStudentId = catchErrors(
       status: 200,
       payment_history: result,
     });
-  }
+  },
 );
 
 const getPaymentDetailsByPaymentId = catchErrors(async (req, res) => {
@@ -1247,7 +1247,7 @@ const getAPaymentDocumentOfStudentByStudentIdAndPaymentId = catchErrors(
       status: 200,
       payment_doc: result,
     });
-  }
+  },
 );
 
 const getAllPaymentSummaryFailedAndSuccessful = catchErrors(
@@ -1295,7 +1295,7 @@ const getAllPaymentSummaryFailedAndSuccessful = catchErrors(
       status: 200,
       payment_summary: result,
     });
-  }
+  },
 );
 
 const getAllPaymentSummaryFailedAndSuccessfulWithLookup = catchErrors(
@@ -1311,7 +1311,7 @@ const getAllPaymentSummaryFailedAndSuccessfulWithLookup = catchErrors(
     const result = await fetchAllPaymentSummaryFailedAndSuccessfulWithLookup(
       page,
       limit,
-      searchQuery
+      searchQuery,
     );
 
     if (!result) {
@@ -1345,7 +1345,7 @@ const getAllPaymentSummaryFailedAndSuccessfulWithLookup = catchErrors(
       status: 200,
       payment_summary: result,
     });
-  }
+  },
 );
 
 const getAPaymentNeedingApprovalById = catchErrors(async (req, res) => {
@@ -1469,13 +1469,13 @@ const makeBankPayment = catchErrors(async (req, res) => {
     bank_name,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
   const payload = {
@@ -1540,7 +1540,7 @@ const makeCashPayment = catchErrors(async (req, res) => {
   ) {
     throw new AppError(
       "Please provide student ID, payment method amount to be paid, class ID, session ID and term to proceed.",
-      400
+      400,
     );
   }
   const payload = {
@@ -1596,13 +1596,13 @@ const getAllPaymentsNeedingApproval = catchErrors(async (req, res) => {
   const result = await fetchAllPaymentsNeedingApproval(
     page,
     limit,
-    searchQuery
+    searchQuery,
   );
 
   if (!result) {
     throw new AppError(
       "unable to fetch all payment documents needing approval.",
-      400
+      400,
     );
   }
 
@@ -1630,13 +1630,13 @@ const getAllPaymentsApprovedByBursarId = catchErrors(async (req, res) => {
     bursar_id,
     page,
     limit,
-    searchQuery
+    searchQuery,
   );
 
   if (!result) {
     throw new AppError(
       "Unable to fetch all payments approved by this bursar.",
-      400
+      400,
     );
   }
 

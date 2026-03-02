@@ -15,11 +15,11 @@ const cbtCutoffSchema = new mongoose.Schema<CbtCutoffDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const CbtCutoff = mongoose.model<CbtCutoffDocument>(
   "CbtCutoff",
-  cbtCutoffSchema
+  cbtCutoffSchema,
 );
 export default CbtCutoff;

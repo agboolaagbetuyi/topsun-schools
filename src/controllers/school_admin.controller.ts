@@ -45,7 +45,7 @@ const getMySchoolSummary = catchErrors(async (req, res) => {
   if (!userRole) {
     throw new AppError(
       "This endpoint is only accessible to school owners and school admins.",
-      400
+      400,
     );
   }
 

@@ -16,29 +16,29 @@ router.use(verifyAccessToken);
 router.get(
   "/parent-fetch-student/:student_id",
   permission(["parent"]),
-  fetchALinkedStudent
+  fetchALinkedStudent,
 );
 
 router.get(
   "/parent-fetch-student-results/:student_id",
   permission(["parent"]),
-  getAllChildResults
+  getAllChildResults,
 );
 
 router.get(
   "/get-a-parent/:parent_id",
   permission(["admin", "super_admin", "parent"]),
-  getParentById
+  getParentById,
 );
 router.get(
   "/get-all-parents",
   permission(["admin", "super_admin"]),
-  getAllParents
+  getAllParents,
 );
 router.get(
   "/parent-fetch-children/:parent_id",
   permission(["parent"]),
-  fetchAllLinkedStudents
+  fetchAllLinkedStudents,
 );
 
 // get a single student by id

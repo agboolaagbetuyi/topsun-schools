@@ -303,14 +303,14 @@ const studentEnrolmentToClass = catchErrors(async (req, res) => {
   if (!student_id || !class_id || !academic_session_id || !term || !level) {
     throw new AppError(
       "Student ID, classId, academic session, level and term are all required.",
-      400
+      400,
     );
   }
 
   if (!subjects_to_offer_array || subjects_to_offer_array.length === 0) {
     throw new AppError(
       "Please select all the subjects that this student is supposed to offer in this class.",
-      400
+      400,
     );
   }
 
@@ -522,7 +522,7 @@ const getAllSessionEnrollmentsBySessionId = catchErrors(async (req, res) => {
     session_id,
     page,
     limit,
-    searchQuery
+    searchQuery,
   );
 
   if (!result) {
@@ -569,7 +569,7 @@ const getAllStudentsInAClass = catchErrors(async (req, res) => {
   if (!session_id || !class_id) {
     throw new AppError(
       "Please provide a valid session ID and class ID to proceed.",
-      400
+      400,
     );
   }
 
@@ -626,7 +626,7 @@ const getAllStudentsInAClassInActiveSession = catchErrors(async (req, res) => {
   if (!session_id || !class_id) {
     throw new AppError(
       "Please provide a valid session ID and class ID to proceed.",
-      400
+      400,
     );
   }
 
@@ -687,7 +687,7 @@ const manyStudentsEnrolmentToClass = catchErrors(async (req, res) => {
   if (!student_ids || !class_id || !academic_session_id || !term || !level) {
     throw new AppError(
       "Student ID, classId, academic session, LEVEL and term are all required.",
-      400
+      400,
     );
   }
 
@@ -700,9 +700,8 @@ const manyStudentsEnrolmentToClass = catchErrors(async (req, res) => {
     subjects_to_offer_array,
   };
 
-  const info: ClassEnrolmentDocument | null = await enrolManyStudentsToClass(
-    payload
-  );
+  const info: ClassEnrolmentDocument | null =
+    await enrolManyStudentsToClass(payload);
 
   if (!info) {
     throw new AppError("Unable to enrol students", 400);

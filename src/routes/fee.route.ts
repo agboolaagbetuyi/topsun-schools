@@ -97,88 +97,88 @@ router.use(verifyAccessToken);
 router.post(
   "/create-school-fees",
   permission(["admin", "super_admin"]),
-  createSchoolFees
+  createSchoolFees,
 );
 
 router.put(
   "/add-optional-fees-during-term",
   permission(["admin", "super_admin"]),
-  addOptionalFeeDuringTerm
+  addOptionalFeeDuringTerm,
 );
 
 router.put(
   "/add-mandatory-fees-during-term",
   permission(["admin", "super_admin"]),
-  addMandatoryFeeDuringTerm
+  addMandatoryFeeDuringTerm,
 );
 router.put(
   "/create-optional-fees",
   permission(["admin", "super_admin"]),
-  createOptionalFees
+  createOptionalFees,
 );
 router.put(
   "/create-mandatory-fees",
   permission(["admin", "super_admin"]),
-  createMandatoryFees
+  createMandatoryFees,
 );
 
 router.put(
   "/update-school-fee/:fee_id",
   permission(["admin", "super_admin"]),
-  updateSchoolFeesById
+  updateSchoolFeesById,
 );
 
 router.get(
   "/get-all-school-fees",
   permission(["admin", "super_admin"]),
   // checkFeatureAccessForSchool('payment'),
-  getAllSchoolFeesPerTerm
+  getAllSchoolFeesPerTerm,
 );
 
 router.get(
   "/get-school-fees",
   permission(["admin", "super_admin", "student", "parent"]),
-  getSchoolFees
+  getSchoolFees,
 );
 router.get(
   "/get-term-fees/:academic_session_id/:term",
   permission(["admin", "super_admin", "student", "parent"]),
-  getTermFees
+  getTermFees,
 );
 
 router.get(
   "/get-all-mandatory-fees",
   permission(["admin", "super_admin", "student", "parent"]),
-  getAllMandatoryFees
+  getAllMandatoryFees,
 );
 
 router.get(
   "/get-all-optional-fees",
   permission(["admin", "super_admin", "student", "parent"]),
-  getAllOptionalFees
+  getAllOptionalFees,
 );
 
 router.get(
   "/get-term-mandatory-fees/:academic_session_id/:term",
   permission(["admin", "super_admin", "student", "parent"]),
-  getTermMandatoryFees
+  getTermMandatoryFees,
 );
 
 router.get(
   "/get-term-optional-fees/:academic_session_id/:term",
   permission(["admin", "super_admin", "student", "parent"]),
-  getTermOptionalFees
+  getTermOptionalFees,
 );
 
 router.get(
   "/get-school-fee/:school_fee_id",
   permission(["admin", "super_admin", "parent", "student"]),
-  getASchoolFeeById
+  getASchoolFeeById,
 );
 router.get(
   "/get-school-fee/:level",
   permission(["admin", "super_admin", "parent", "student"]),
-  getASchoolFeeByLevelAndTerm
+  getASchoolFeeByLevelAndTerm,
 );
 
 // router.put(

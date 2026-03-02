@@ -45,110 +45,110 @@ router.use(verifyAccessToken);
 router.get(
   "/get-payment-by-payment-id/:payment_id",
   permission(["super_admin", "parent", "student", "admin"]),
-  getPaymentDetailsByPaymentId
+  getPaymentDetailsByPaymentId,
 );
 
 router.put(
   "/add-fee-to-student-payment-document/:session_id",
   permission(["super_admin", "admin"]),
-  addFeeToStudentPaymentDocument
+  addFeeToStudentPaymentDocument,
 );
 
 router.get(
   "/get-payment-transaction-history-of-student/:student_id",
   permission(["super_admin", "parent", "student", "admin"]),
-  getPaymentTransactionHistoryByStudentId
+  getPaymentTransactionHistoryByStudentId,
 );
 
 router.post(
   "/create-payment-document-with-only-school-fees/:session_id",
   permission(["super_admin"]),
-  createPaymentDocumentForAllStudent
+  createPaymentDocumentForAllStudent,
 );
 
 router.get(
   "/get-current-term-payment-documents",
   permission(["super_admin", "admin"]),
-  getCurrentTermPaymentDocuments
+  getCurrentTermPaymentDocuments,
 );
 
 router.get(
   "/get-all-payment-documents",
   permission(["super_admin", "admin"]),
-  getAllPaymentDocuments
+  getAllPaymentDocuments,
 );
 
 router.get(
   "/get-all-payments-approved-by-bursar/:bursar_id",
   permission(["super_admin"]),
-  getAllPaymentsApprovedByBursarId
+  getAllPaymentsApprovedByBursarId,
 );
 
 router.get(
   "/get-student-payment-documents/:student_id",
   permission(["super_admin", "admin", "student", "parent"]),
-  getAllStudentPaymentDocumentsByStudentId
+  getAllStudentPaymentDocumentsByStudentId,
 );
 
 router.get(
   "/get-payment-document-needing-approval/:payment_id",
   permission(["super_admin", "admin"]),
-  getAPaymentNeedingApprovalById
+  getAPaymentNeedingApprovalById,
 );
 
 router.get(
   "/get-all-payments-needing-approval",
   permission(["super_admin", "admin", "student"]),
-  getAllPaymentsNeedingApproval
+  getAllPaymentsNeedingApproval,
 );
 
 router.get(
   "/get-all-payment-summary-fail-and-success",
   permission(["super_admin", "admin"]),
-  getAllPaymentSummaryFailedAndSuccessful
+  getAllPaymentSummaryFailedAndSuccessful,
 );
 
 router.get(
   "/get-all-payment-summary-fail-and-success-with-search",
   permission(["super_admin", "admin"]),
-  getAllPaymentSummaryFailedAndSuccessfulWithLookup
+  getAllPaymentSummaryFailedAndSuccessfulWithLookup,
 );
 
 router.get(
   "/get-a-payment-document-of-a-student/:student_id/:payment_id",
   permission(["super_admin", "admin", "parent", "student"]),
-  getAPaymentDocumentOfStudentByStudentIdAndPaymentId
+  getAPaymentDocumentOfStudentByStudentIdAndPaymentId,
 );
 
 router.get(
   "/get-all-outstanding-payment-documents-of-a-student/:student_id",
   permission(["super_admin", "admin", "parent", "student"]),
-  getAllOutstandingPaymentDocumentsOfStudent
+  getAllOutstandingPaymentDocumentsOfStudent,
 );
 
 router.put(
   "/approve-bank-payment/:payment_id",
   permission(["super_admin", "admin"]),
-  approveBankPaymentWithId
+  approveBankPaymentWithId,
 );
 
 router.delete(
   "/decline-bank-payment/:student_id/:payment_id",
   permission(["super_admin", "admin"]),
-  declineBankPaymentWithId
+  declineBankPaymentWithId,
 );
 
 router.post(
   "/make-bank-payment/:session_id/:student_id",
   permission(["parent", "student"]),
   uploadFile.single("image"),
-  makeBankPayment
+  makeBankPayment,
 );
 
 router.post(
   "/make-cash-payment/:session_id/:student_id",
   permission(["super_admin", "admin"]),
-  makeCashPayment
+  makeCashPayment,
 );
 
 export default router;

@@ -53,13 +53,13 @@ const registerUser = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -69,13 +69,13 @@ const registerUser = catchErrors(async (req, res) => {
       employment_date,
     };
     const workerMissingField = Object.entries(workerFields).find(
-      ([key, value]) => !value
+      ([key, value]) => !value,
     );
 
     if (workerMissingField) {
       throw new AppError(
         `Please provide ${workerMissingField[0].replace("_", " ")} to proceed.`,
-        400
+        400,
       );
     }
   }
@@ -84,7 +84,7 @@ const registerUser = catchErrors(async (req, res) => {
     if (!admission_number || !dob) {
       throw new AppError(
         "Admission number and date of birth are required for student registration.",
-        400
+        400,
       );
     }
   }

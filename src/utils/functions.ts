@@ -26,7 +26,7 @@ const sendingEmailToQueue = async (
     | "school-creation"
     | "forgot-password"
     | "child-linkage"
-    | "session-subscription"
+    | "session-subscription",
 ) => {
   try {
     const name = capitalizeFirstLetter(payload.first_name);
@@ -74,7 +74,7 @@ const sendingCompanyEmailToQueue = async (
     | "school-creation"
     | "forgot-password"
     | "child-linkage"
-    | "session-subscription"
+    | "session-subscription",
 ) => {
   try {
     const name = capitalizeFirstLetter(payload.first_name);
@@ -119,7 +119,7 @@ const schoolClassLevels = async (schoolClasses: ClassDocument[]) => {
 
 // CHANGE THIS FUNCTION TO RETURN ONLY TOTAL. THEN WE CHECK IF IT IS FIRST TERM, THE TOTAL WILL BE USED AS CUMMULATIVE AVERAGE FOR THE FIRST TERM. THEN IF SECOND TERM, GET THE FIRST TERM CUMMULATIVE AND PUT AS LAST TERM CUMM, IF THIRD TERM, GET THAT OF SECOND TERM AND USE
 const calculateSubjectSumAndGrade = async (
-  payload: ScoreAndGradingType
+  payload: ScoreAndGradingType,
 ): Promise<ResultObjType> => {
   try {
     const result = payload.score.reduce((sum, a) => sum + a.score, 0);
@@ -159,7 +159,7 @@ const calculateSubjectSumAndGrade = async (
 };
 
 const validateGradingArray = (
-  gradingArray: { value: number; grade: string; remark: string }[]
+  gradingArray: { value: number; grade: string; remark: string }[],
 ) => {
   if (!gradingArray || gradingArray.length !== 5) {
     throw new Error("Grading levels must be 5 in numbers.");
@@ -179,7 +179,7 @@ const validateGradingArray = (
   }
 
   const remarkSet = new Set(
-    gradingArray.map((item) => item.remark.trim().toLowerCase())
+    gradingArray.map((item) => item.remark.trim().toLowerCase()),
   );
   if (remarkSet.size !== gradingArray.length) {
     throw new Error("Remarks must be unique.");
@@ -203,7 +203,7 @@ const genderFunction = (user: UserDocument) => {
 };
 
 const validatePriorityOrder = (
-  priorityOrder: { fee_name: string; priority_number: number }[]
+  priorityOrder: { fee_name: string; priority_number: number }[],
 ) => {
   if (!priorityOrder || priorityOrder.length === 0) {
     throw new Error("Priority order cannot be empty.");
@@ -215,7 +215,7 @@ const validatePriorityOrder = (
       throw new Error(
         `Priority number must follow the sequence. Expected ${
           i + 1
-        }, but found ${priorityOrder[i].priority_number}.`
+        }, but found ${priorityOrder[i].priority_number}.`,
       );
     }
   }
@@ -235,11 +235,11 @@ const assignPositions = (students: any[]): any[] => {
     .filter(
       (student) =>
         student.subjectObj &&
-        student.subjectObj.cumulative_average !== undefined
+        student.subjectObj.cumulative_average !== undefined,
     )
     .sort(
       (a, b) =>
-        b.subjectObj.cumulative_average - a.subjectObj.cumulative_average
+        b.subjectObj.cumulative_average - a.subjectObj.cumulative_average,
     );
 
   let previousScore: number | null = null;
@@ -260,13 +260,13 @@ const assignPositions = (students: any[]): any[] => {
 };
 
 const classPositionCalculation = (
-  students: ClassPositionCalType[]
+  students: ClassPositionCalType[],
 ): ClassPositionCalType[] => {
   students.forEach((student) => {
     const subjects = student.allCummulatives.subject_results;
     const totalScores = subjects.reduce(
       (sum, subject) => sum + subject.cumulative_average,
-      0
+      0,
     );
     student.allCummulatives.cumulative_score = subjects.length
       ? parseFloat((totalScores / subjects.length).toFixed(2))
@@ -276,7 +276,7 @@ const classPositionCalculation = (
   students.sort(
     (a, b) =>
       (b.allCummulatives.cumulative_score ?? 0) -
-      (a.allCummulatives.cumulative_score ?? 0)
+      (a.allCummulatives.cumulative_score ?? 0),
   );
 
   let position;
@@ -378,7 +378,7 @@ const formatDate = (date = new Date()) => {
 };
 
 const normalizeQuestions = (
-  questions_array: ObjQuestionType[]
+  questions_array: ObjQuestionType[],
 ): ObjQuestionType[] => {
   return questions_array.map((q: ObjQuestionType) => ({
     ...q,
@@ -395,10 +395,13 @@ const canonicalize = (obj: Record<string, any>) => {
   return JSON.stringify(
     Object.keys(obj)
       .sort()
-      .reduce((acc, key) => {
-        acc[key] = obj[key];
-        return acc;
-      }, {} as Record<string, any>)
+      .reduce(
+        (acc, key) => {
+          acc[key] = obj[key];
+          return acc;
+        },
+        {} as Record<string, any>,
+      ),
   );
 };
 
@@ -412,7 +415,7 @@ const normalizeAmount = (amount: string | number) => {
 
 const getMissingScoreNames = (
   scores: ScoreType[] | undefined,
-  expectedNames: Set<string>
+  expectedNames: Set<string>,
 ) => {
   if (!scores || scores.length === 0) {
     return Array.from(expectedNames);
@@ -423,7 +426,7 @@ const getMissingScoreNames = (
     .map((s) => s.score_name);
 
   return Array.from(expectedNames).filter(
-    (key) => !recordedNames.includes(key)
+    (key) => !recordedNames.includes(key),
   );
 };
 

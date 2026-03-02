@@ -12,7 +12,7 @@ import { AppError } from "../utils/app.error";
 
 const getStudentDetails = async (
   student_id: string,
-  parent_id: object
+  parent_id: object,
 ): Promise<StudentWithPaymentType> => {
   try {
     const getParentDetails = await Parent.findById({
@@ -30,7 +30,7 @@ const getStudentDetails = async (
     if (!checkLinkage) {
       throw new AppError(
         "This student is not linked to you and as such you do not have the right to fetch the student.",
-        401
+        401,
       );
     }
 
@@ -44,7 +44,7 @@ const getStudentDetails = async (
     });
 
     const activeTerm = activeSession?.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     const [payment] = await Promise.all([
@@ -71,7 +71,7 @@ const getStudentDetails = async (
 };
 
 const getManyStudentDetails = async (
-  parent_id: string
+  parent_id: string,
 ): Promise<{ students: StudentWithPaymentType[] }> => {
   try {
     const getParentDetails = await Parent.findById({
@@ -94,7 +94,7 @@ const getManyStudentDetails = async (
     });
 
     const activeTerm = activeSession?.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     const studentsArray: StudentWithPaymentType[] = await Promise.all(
@@ -113,7 +113,7 @@ const getManyStudentDetails = async (
         } as StudentWithPaymentType;
 
         return student;
-      })
+      }),
     );
 
     return { students: studentsArray };
@@ -129,7 +129,7 @@ const getManyStudentDetails = async (
 const fetchAllParents = async (
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ): Promise<{
   parentObj: UserWithoutPassword[];
   totalCount: number;
@@ -198,7 +198,7 @@ const fetchAllParents = async (
 };
 
 const fetchParentById = async (
-  parent_id: string
+  parent_id: string,
 ): Promise<UserWithoutPassword> => {
   try {
     const parent = new mongoose.Types.ObjectId(parent_id);
@@ -217,7 +217,7 @@ const fetchParentById = async (
     });
 
     const activeTerm = activeSession?.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     let latest_payment_document = null;
@@ -234,7 +234,7 @@ const fetchParentById = async (
           ...child,
           latest_payment_document: payment || null,
         };
-      })
+      }),
     );
 
     const { password, children, ...others } = response;

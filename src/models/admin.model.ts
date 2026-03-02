@@ -24,7 +24,7 @@ const adminSchema = new mongoose.Schema<UserDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 adminSchema.index({ email: 1 });

@@ -277,7 +277,7 @@ const getAllSubjectsThatStudentOffersInATerm = catchErrors(async (req, res) => {
   if (!result) {
     throw new AppError(
       "Unable to fetch all subjects that this student was enrolled for in this term.",
-      400
+      400,
     );
   }
 

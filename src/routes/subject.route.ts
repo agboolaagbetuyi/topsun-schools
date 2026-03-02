@@ -19,48 +19,48 @@ router.use(verifyAccessToken);
 router.post(
   "/create-a-subject",
   permission(["admin", "super_admin"]),
-  createASubject
+  createASubject,
 );
 router.get(
   "/get-all-jss-subjects",
   permission(["admin", "super_admin"]),
-  getAllJssSubjects
+  getAllJssSubjects,
 );
 
 router.get(
   "/get-all-class-subjects/:class_id",
   permission(["admin", "super_admin"]),
-  getAllClassSubjectsByClassId
+  getAllClassSubjectsByClassId,
 );
 
 router.get(
   "/get-all-compulsory-subjects",
   permission(["admin", "super_admin"]),
-  getAllSssCompulsorySubjects
+  getAllSssCompulsorySubjects,
 );
 
 router.get(
   "/get-all-optional-subjects",
   permission(["admin", "super_admin"]),
-  getAllOptionalSubjects
+  getAllOptionalSubjects,
 );
 
 router.get(
   "/get-all-subjects",
   permission(["admin", "super_admin"]),
-  getAllSubjects
+  getAllSubjects,
 );
 
 router.get(
   "/get-a-subject/:subject_id",
   permission(["admin", "super_admin"]),
-  getASubjectById
+  getASubjectById,
 );
 
 router.get(
   "/get-all-subjects-that-student-offer-in-a-session/:session_id/:class_id",
   permission(["student"]),
-  getAllSubjectsThatStudentOffersInATerm
+  getAllSubjectsThatStudentOffersInATerm,
 );
 
 // router.post(

@@ -565,7 +565,7 @@ const createSession = async (): Promise<SessionDocument> => {
     if (activeSession || checkSession.is_active === true) {
       throw new AppError(
         "A new session can only be created when there is no active session.",
-        400
+        400,
       );
     }
     const sessionArray = checkSession?.academic_session.split("-");
@@ -573,7 +573,7 @@ const createSession = async (): Promise<SessionDocument> => {
     if (!sessionArray) {
       throw new AppError(
         "this session does not have academic session field.",
-        400
+        400,
       );
     }
 
@@ -589,7 +589,7 @@ const createSession = async (): Promise<SessionDocument> => {
 };
 
 const creatingNewTerm = async (
-  payload: TermCreationType
+  payload: TermCreationType,
 ): Promise<{ session: SessionDocument; term: TermDocument }> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -609,7 +609,7 @@ const creatingNewTerm = async (
     if (response.is_active !== true) {
       throw new AppError(
         "You can only create term under an active session",
-        404
+        404,
       );
     }
 
@@ -620,7 +620,7 @@ const creatingNewTerm = async (
     if (response.terms.some((term) => term.is_active === true)) {
       throw new AppError(
         "An active term needed to be ended before you can create new term.",
-        400
+        400,
       );
     }
 
@@ -633,34 +633,34 @@ const creatingNewTerm = async (
     if (!feeDocExist) {
       throw new AppError(
         "Please create fee document for all levels in the school before proceeding.",
-        400
+        400,
       );
     }
 
     if (name === "second_term") {
       const firstTerm = response.terms.find(
-        (term) => term.name === "first_term"
+        (term) => term.name === "first_term",
       );
       if (!firstTerm) {
         throw new AppError(
           "You must create first term before you can create second term.",
-          400
+          400,
         );
       }
     }
 
     if (name === "third_term") {
       const firstTerm = response.terms.find(
-        (term) => term.name === "first_term"
+        (term) => term.name === "first_term",
       );
       const secondTerm = response.terms.find(
-        (term) => term.name === "second_term"
+        (term) => term.name === "second_term",
       );
 
       if (!firstTerm || !secondTerm) {
         throw new AppError(
           "You must create first term and second term before you can create third term.",
-          400
+          400,
         );
       }
     }
@@ -702,7 +702,7 @@ const creatingNewTerm = async (
 
 const termEndingInSessionUsingTermId = async (
   session_id: string,
-  term_id: string
+  term_id: string,
 ): Promise<{ session: SessionDocument; term_name: string }> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -720,7 +720,7 @@ const termEndingInSessionUsingTermId = async (
     }
 
     const activeTerm = response.terms.find(
-      (term) => term._id?.toString() === termId.toString()
+      (term) => term._id?.toString() === termId.toString(),
     );
 
     console.log("activeTerm:", activeTerm);
@@ -738,7 +738,7 @@ const termEndingInSessionUsingTermId = async (
     if (activeTerm.is_active === false) {
       throw new AppError(
         "This term is not active or has already been ended.",
-        400
+        400,
       );
     }
 
@@ -750,7 +750,7 @@ const termEndingInSessionUsingTermId = async (
     if (!actualTermSettings) {
       throw new AppError(
         "Vacation and New resumption dates has not been recorded.",
-        400
+        400,
       );
     }
 
@@ -760,7 +760,7 @@ const termEndingInSessionUsingTermId = async (
     ) {
       throw new AppError(
         "Please give us the vacation date and new term resumption date before ending the term.",
-        400
+        400,
       );
     }
 
@@ -771,7 +771,7 @@ const termEndingInSessionUsingTermId = async (
     response = await Session.findOneAndUpdate(
       { _id: session_id, "terms._id": term_id },
       { $set: { "terms.$.is_active": false } },
-      { new: true, session }
+      { new: true, session },
     );
 
     if (!response) {
@@ -784,14 +784,14 @@ const termEndingInSessionUsingTermId = async (
         term: term_id,
       },
       { $set: { is_active: false } },
-      { session }
+      { session },
     );
 
     if (activeTerm.name === "third_term") {
       response = await Session.findOneAndUpdate(
         { _id: session_id },
         { $set: { is_active: false } },
-        { new: true, session }
+        { new: true, session },
       );
 
       const allStudents = await Student.find().session(session);
@@ -840,7 +840,7 @@ const termEndingInSessionUsingTermId = async (
     await calculateOutStandingPerTerm(
       session,
       session_id,
-      responseObject.term_name
+      responseObject.term_name,
     );
 
     // NOTIFICATION MAIL AND IN-APP NOTIFICATION CAN BE SENT TO STUDENT AND PARENTS HERE
@@ -861,7 +861,7 @@ const termEndingInSessionUsingTermId = async (
 };
 
 const fetchSessionBySessionId = async (
-  session_id: string
+  session_id: string,
 ): Promise<SessionDocument> => {
   const sessionId = new mongoose.Types.ObjectId(session_id);
 
@@ -899,7 +899,7 @@ const fetchActiveSession = async (): Promise<SessionDocument> => {
 const fetchAllSessions = async (
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ): Promise<{
   session: SessionDocument[];
   totalCount: number;
@@ -949,7 +949,7 @@ const fetchAllSessions = async (
 };
 
 const sessionEndingBySessionId = async (
-  session_id: string
+  session_id: string,
 ): Promise<SessionDocument> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -969,7 +969,7 @@ const sessionEndingBySessionId = async (
     if (activeTerm) {
       throw new AppError(
         "Session can only end when first term, second term and third term has ended.",
-        400
+        400,
       );
     } else {
       response = await Session.findByIdAndUpdate(
@@ -982,7 +982,7 @@ const sessionEndingBySessionId = async (
         {
           new: true,
           session,
-        }
+        },
       );
 
       const allStudents = await Student.find().session(session);
@@ -1044,7 +1044,7 @@ const sessionEndingBySessionId = async (
 };
 
 const sessionDeletionUsingSessionId = async (
-  session_id: string
+  session_id: string,
 ): Promise<SessionDocument> => {
   try {
     let response = await Session.findByIdAndDelete({
@@ -1067,7 +1067,7 @@ const sessionDeletionUsingSessionId = async (
 
 const termDeletionInSessionUsingTermId = async (
   session_id: string,
-  term_id: string
+  term_id: string,
 ): Promise<{ session: SessionDocument; term_name: string }> => {
   try {
     let response = await Session.findOne({
@@ -1079,7 +1079,7 @@ const termDeletionInSessionUsingTermId = async (
     }
 
     const activeTerm = response.terms.find(
-      (term) => term._id?.toString() === term_id
+      (term) => term._id?.toString() === term_id,
     );
 
     if (!activeTerm) {
@@ -1087,7 +1087,7 @@ const termDeletionInSessionUsingTermId = async (
     }
 
     const remainingTerms = response.terms.filter(
-      (term) => term._id?.toString() !== term_id
+      (term) => term._id?.toString() !== term_id,
     );
 
     response.terms = remainingTerms;
@@ -1109,7 +1109,7 @@ const termDeletionInSessionUsingTermId = async (
 };
 
 const termVacationAndNewTermResumptionDates = async (
-  payload: VacationAndResumptionServicePayload
+  payload: VacationAndResumptionServicePayload,
 ) => {
   try {
     const { date_of_resumption, date_of_vacation, term_id, session_id } =
@@ -1131,7 +1131,7 @@ const termVacationAndNewTermResumptionDates = async (
     }
 
     const actualTerm = sessionExist.terms.find(
-      (a) => a._id?.toString() === term.toString()
+      (a) => a._id?.toString() === term.toString(),
     );
 
     if (!actualTerm) {
@@ -1151,7 +1151,7 @@ const termVacationAndNewTermResumptionDates = async (
     if (termSettingExist) {
       throw new AppError(
         "Vacation and New Resumption dates have been recorded for this term already.",
-        400
+        400,
       );
     }
 

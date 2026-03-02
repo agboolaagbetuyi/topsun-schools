@@ -21,7 +21,7 @@ import { RefreshToken } from "../models/refresh_token.model";
 
 const generateAndStoreVerificationToken = async (
   payload: UserDocument,
-  purpose: string
+  purpose: string,
 ): Promise<VerificationType> => {
   const roleTokenModel: Record<string, any> = {
     super_admin: SuperAdminToken,
@@ -77,7 +77,7 @@ const generateAndStoreVerificationToken = async (
 
 const getUserTokenDetails = async (
   token: string,
-  purpose: string
+  purpose: string,
 ): Promise<VerificationType | null> => {
   const tokenCollections: {
     model: Model<VerificationDocument>;
@@ -124,7 +124,7 @@ const getUserTokenDetails = async (
 };
 
 const getUserRefreshTokenDetails = async (
-  user_id: string | mongoose.Types.ObjectId
+  user_id: string | mongoose.Types.ObjectId,
 ): Promise<RefreshTokenType> => {
   const objectId = new mongoose.Types.ObjectId(user_id);
 
@@ -135,7 +135,7 @@ const getUserRefreshTokenDetails = async (
 
 const getUserTokenDetailsUsingUserId = async (
   user_id: object,
-  purpose: string
+  purpose: string,
 ): Promise<VerificationType | null> => {
   const tokenCollections: {
     model: Model<VerificationDocument>;

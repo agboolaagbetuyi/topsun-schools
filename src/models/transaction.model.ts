@@ -36,10 +36,10 @@ const transactionSchema = new Schema<TransactionDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const Transaction = model<TransactionDocument>(
   "Transaction",
-  transactionSchema
+  transactionSchema,
 );

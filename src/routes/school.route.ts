@@ -18,19 +18,19 @@ router.use(verifyAccessToken);
 router.post(
   "/create-school-class-levels",
   permission(["super_admin"]),
-  createClassLevels
+  createClassLevels,
 );
 
 router.post(
   "/create-school-cutoff-minutes",
   permission(["super_admin"]),
-  createCutoffMinutes
+  createCutoffMinutes,
 );
 
 router.post(
   "/create-result-setting/:level",
   permission(["super_admin"]),
-  createResultSetting
+  createResultSetting,
 );
 
 // router.put(

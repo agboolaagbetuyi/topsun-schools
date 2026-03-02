@@ -16,30 +16,30 @@ router.use(verifyAccessToken);
 router.put(
   "/add-subjects-to-class/:class_id",
   permission(["admin", "super_admin"]),
-  addSubjectsToAClass
+  addSubjectsToAClass,
 );
 
 router.get(
   "/get-school-class-level",
   permission(["admin", "super_admin", "parent", "student", "teacher"]),
-  getSchoolClassLevel
+  getSchoolClassLevel,
 );
 
 router.delete(
   "/remove-subjects-to-class/:class_id",
   permission(["admin", "super_admin"]),
-  removeSubjectsToAClass
+  removeSubjectsToAClass,
 );
 
 router.post(
   "/create-a-class",
   permission(["admin", "super_admin"]),
-  createAClass
+  createAClass,
 );
 router.get(
   "/get-a-class/:class_id",
   permission(["admin", "super_admin"]),
-  getAClassById
+  getAClassById,
 );
 
 router.get("/get-classes", permission(["admin", "super_admin"]), getAllClasses);

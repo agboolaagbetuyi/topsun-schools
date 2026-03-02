@@ -32,7 +32,7 @@ const classSchema = new mongoose.Schema<ClassDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 classSchema.index({ name: 1, level: 1, section: 1 }, { unique: true });

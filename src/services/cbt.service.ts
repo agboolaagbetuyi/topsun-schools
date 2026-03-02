@@ -43,7 +43,7 @@ import {
 } from "../utils/functions";
 
 const termCbtAssessmentDocumentCreation = async (
-  payload: CbtAssessmentDocumentArrayType
+  payload: CbtAssessmentDocumentArrayType,
 ) => {
   try {
     const { academic_session_id, term, assessmentDocumentArray } = payload;
@@ -53,7 +53,7 @@ const termCbtAssessmentDocumentCreation = async (
     if (!academicSessionExist) {
       throw new AppError(
         `Academic session with id: ${academic_session_id} does not exist.`,
-        404
+        404,
       );
     }
 
@@ -66,7 +66,7 @@ const termCbtAssessmentDocumentCreation = async (
     if (termExist && termExist.is_active !== true) {
       throw new AppError(
         `${term} has ended and exam document can not be created for a term that has ended.`,
-        403
+        403,
       );
     }
 
@@ -78,13 +78,13 @@ const termCbtAssessmentDocumentCreation = async (
       if (!levelResultSetting) {
         throw new AppError(
           `${assessment_doc.level} does not have result settings yet.`,
-          404
+          404,
         );
       }
 
       const allowedComponent =
         levelResultSetting.exam_components.component.find(
-          (a) => a.key === "obj"
+          (a) => a.key === "obj",
         );
 
       if (
@@ -92,7 +92,7 @@ const termCbtAssessmentDocumentCreation = async (
       ) {
         throw new AppError(
           `${allowedComponent?.name} is the only assessment recognized.`,
-          400
+          400,
         );
       }
 
@@ -106,7 +106,7 @@ const termCbtAssessmentDocumentCreation = async (
       if (exists) {
         throw new AppError(
           `Assessment type ${assessment_doc.assessment_type} already exists for level ${assessment_doc.level} in ${term}.`,
-          400
+          400,
         );
       }
 
@@ -119,12 +119,12 @@ const termCbtAssessmentDocumentCreation = async (
         },
         {
           is_active: false,
-        }
+        },
       );
 
       if (!updateDocument) {
         console.log(
-          `No active CBT exam found to deactivate for level ${assessment_doc.level} in ${term}.`
+          `No active CBT exam found to deactivate for level ${assessment_doc.level} in ${term}.`,
         );
       }
     }
@@ -140,7 +140,7 @@ const termCbtAssessmentDocumentCreation = async (
         expected_obj_number_of_options: doc.expected_obj_number_of_options,
         assessment_type: doc.assessment_type.trim().toLowerCase(),
         is_active: true,
-      }))
+      })),
     );
     return createDocs;
   } catch (error) {
@@ -155,7 +155,7 @@ const termCbtAssessmentDocumentCreation = async (
 
 // I NEED TO CHANGE THIS TO FETCH ALL TERM CBT ASSESSMENT DOCUMENTS
 const fetchTermCbtAssessmentDocument = async (
-  payload: CbtAssessmentDocumentPayload
+  payload: CbtAssessmentDocumentPayload,
 ) => {
   try {
     const { academic_session_id, term } = payload;
@@ -167,7 +167,7 @@ const fetchTermCbtAssessmentDocument = async (
     if (!academicSessionExist) {
       throw new AppError(
         `Academic session with id: ${academic_session_id} does not exist.`,
-        404
+        404,
       );
     }
 
@@ -180,7 +180,7 @@ const fetchTermCbtAssessmentDocument = async (
     if (termExist && termExist.is_active !== true) {
       throw new AppError(
         `${term} has ended and exam document can not be created for a term that has ended.`,
-        403
+        403,
       );
     }
 
@@ -206,7 +206,7 @@ const fetchTermCbtAssessmentDocument = async (
 };
 
 const termCbtAssessmentDocumentEnding = async (
-  exam_document_id: mongoose.Types.ObjectId
+  exam_document_id: mongoose.Types.ObjectId,
 ) => {
   try {
     const examDocExist = await CbtExam.findByIdAndUpdate(
@@ -216,7 +216,7 @@ const termCbtAssessmentDocumentEnding = async (
       {
         is_active: false,
       },
-      { new: true }
+      { new: true },
     );
 
     return examDocExist;
@@ -232,7 +232,7 @@ const termCbtAssessmentDocumentEnding = async (
 
 const allActiveTermCbtAssessmentDocumentsInATermEnding = async (
   session: mongoose.Types.ObjectId,
-  term: string
+  term: string,
 ) => {
   try {
     const activeSession = await Session.findById(session);
@@ -242,7 +242,7 @@ const allActiveTermCbtAssessmentDocumentsInATermEnding = async (
     }
 
     const actualTerm = activeSession.terms.find(
-      (a) => a.name.toLowerCase() === term.toLowerCase()
+      (a) => a.name.toLowerCase() === term.toLowerCase(),
     );
 
     if (!actualTerm) {
@@ -257,7 +257,7 @@ const allActiveTermCbtAssessmentDocumentsInATermEnding = async (
       },
       {
         $set: { is_active: false },
-      }
+      },
     );
 
     return examDocuments;
@@ -294,7 +294,7 @@ const fetchAllClassCbtAssessmentTimetables = async (
   class_id: string,
   page?: number,
   limit?: number,
-  searchParams = ""
+  searchParams = "",
 ) => {
   try {
     const classId = new mongoose.Types.ObjectId(class_id);
@@ -338,7 +338,7 @@ const fetchAllClassCbtAssessmentTimetables = async (
     if (!timetableExist || timetableExist.length === 0) {
       throw new AppError(
         `${classExist.name} does not have CBT assessment timetable.`,
-        400
+        400,
       );
     }
 
@@ -359,7 +359,7 @@ const fetchAllClassCbtAssessmentTimetables = async (
 
 // We need to fetch timetable by id or by result header name since we will now be having timetable for test and exam as well.
 const fetchTermClassCbtAssessmentTimetable = async (
-  payload: GetClassCbtAssessmentTimetablePayloadType
+  payload: GetClassCbtAssessmentTimetablePayloadType,
 ) => {
   try {
     const { academic_session_id, class_id, term } = payload;
@@ -372,7 +372,7 @@ const fetchTermClassCbtAssessmentTimetable = async (
     if (!academicSessionExist) {
       throw new AppError(
         `Academic session with id: ${academic_session_id} does not exist.`,
-        404
+        404,
       );
     }
 
@@ -385,7 +385,7 @@ const fetchTermClassCbtAssessmentTimetable = async (
     if (termExist && termExist.is_active !== true) {
       throw new AppError(
         `${term} has ended and set exam questions for a term that has ended.`,
-        403
+        403,
       );
     }
 
@@ -407,7 +407,7 @@ const fetchTermClassCbtAssessmentTimetable = async (
     if (!timetableExists) {
       throw new AppError(
         `${classExist.name} does not have exam timetable for ${term}.`,
-        400
+        400,
       );
     }
 
@@ -415,7 +415,7 @@ const fetchTermClassCbtAssessmentTimetable = async (
       (item: any) => ({
         ...item,
         timetable_id: timetableExists._id,
-      })
+      }),
     );
 
     timetableExists.scheduled_subjects = formattedTimeTable;
@@ -432,7 +432,7 @@ const fetchTermClassCbtAssessmentTimetable = async (
 };
 
 const termClassCbtAssessmentTimetableCreation = async (
-  payload: ClassCbtAssessmentTimetablePayloadType
+  payload: ClassCbtAssessmentTimetablePayloadType,
 ) => {
   try {
     const {
@@ -467,9 +467,9 @@ const termClassCbtAssessmentTimetableCreation = async (
     if (duplicateSubjectId.size > 0) {
       throw new AppError(
         `Duplicate subject found for: ${Array.from(duplicateSubjectId).join(
-          ", "
+          ", ",
         )} IDs.`,
-        400
+        400,
       );
     }
 
@@ -508,7 +508,7 @@ const termClassCbtAssessmentTimetableCreation = async (
     if (!academicSessionExist) {
       throw new AppError(
         `Academic session with id: ${academic_session_id} does not exist.`,
-        404
+        404,
       );
     }
 
@@ -521,7 +521,7 @@ const termClassCbtAssessmentTimetableCreation = async (
     if (termExist && termExist.is_active !== true) {
       throw new AppError(
         `${term} has ended and you can not set exam questions for a term that has ended.`,
-        403
+        403,
       );
     }
 
@@ -543,7 +543,7 @@ const termClassCbtAssessmentTimetableCreation = async (
     if (!classEnrolmentExist) {
       throw new AppError(
         "There is no enrollment into this class in this session.",
-        404
+        404,
       );
     }
 
@@ -554,7 +554,7 @@ const termClassCbtAssessmentTimetableCreation = async (
     if (!classResultSetting) {
       throw new AppError(
         "This class does not have result settings. Please create one to proceed.",
-        404
+        404,
       );
     }
 
@@ -590,14 +590,14 @@ const termClassCbtAssessmentTimetableCreation = async (
     if (!cbtExamExist) {
       throw new AppError(
         `Reach out to the school management to initialize processes before continuing.`,
-        400
+        400,
       );
     }
 
     if (cbtExamExist.is_active !== true) {
       throw new AppError(
         "Exam has been finalized by the school authority.",
-        400
+        400,
       );
     }
 
@@ -611,7 +611,7 @@ const termClassCbtAssessmentTimetableCreation = async (
     if (timetableExist) {
       throw new AppError(
         `${classExist.name} already have ${timetableExist.assessment_type} timetable for ${term}.`,
-        400
+        400,
       );
     }
 
@@ -626,7 +626,7 @@ const termClassCbtAssessmentTimetableCreation = async (
       {
         is_active: false,
       },
-      { new: true }
+      { new: true },
     );
 
     if (!activeTimetableExist) {
@@ -651,19 +651,19 @@ const termClassCbtAssessmentTimetableCreation = async (
       const entryDateOnly = new Date(
         entryStartTime.getFullYear(),
         entryStartTime.getMonth(),
-        entryStartTime.getDate()
+        entryStartTime.getDate(),
       );
 
       const currentDateOnly = new Date(
         currentTime.getFullYear(),
         currentTime.getMonth(),
-        currentTime.getDate()
+        currentTime.getDate(),
       );
 
       if (currentDateOnly > entryDateOnly) {
         throw new AppError(
           `Please ensure that the time chosen for all subject are not in the past.`,
-          400
+          400,
         );
       }
     }
@@ -671,7 +671,7 @@ const termClassCbtAssessmentTimetableCreation = async (
     if (timetableExist) {
       throw new AppError(
         `${classExist.name} already have exam timetable for ${term}.`,
-        400
+        400,
       );
     }
 
@@ -691,7 +691,7 @@ const termClassCbtAssessmentTimetableCreation = async (
       (item: any) => ({
         ...item,
         timetable_id: newTimetable._id,
-      })
+      }),
     );
 
     return formattedTimeTable;
@@ -706,7 +706,7 @@ const termClassCbtAssessmentTimetableCreation = async (
 };
 
 const termClassCbtAssessmentTimetableToChangeSubjectDateUpdating = async (
-  payload: ChangeSubjectStartTimeType
+  payload: ChangeSubjectStartTimeType,
 ) => {
   try {
     const { timetable_id, subject_id, selected_time } = payload;
@@ -726,18 +726,18 @@ const termClassCbtAssessmentTimetableToChangeSubjectDateUpdating = async (
     if (!cbtExamDoc || cbtExamDoc.is_active === false) {
       throw new AppError(
         "Exam document does not exist or the exam period for the school is already over.",
-        400
+        400,
       );
     }
 
     const subject = timetableExist.scheduled_subjects.find(
-      (s) => s.subject_id.toString() === subject_id.toString()
+      (s) => s.subject_id.toString() === subject_id.toString(),
     );
 
     if (!subject) {
       throw new AppError(
         `Subject with ID ${subject_id} not part of exam to be done.`,
-        400
+        400,
       );
     }
 
@@ -756,7 +756,7 @@ const termClassCbtAssessmentTimetableToChangeSubjectDateUpdating = async (
       {
         obj_start_time: selected_time,
       },
-      { new: true }
+      { new: true },
     );
 
     timetableExist.markModified("scheduled_subjects");
@@ -766,7 +766,7 @@ const termClassCbtAssessmentTimetableToChangeSubjectDateUpdating = async (
       (item: any) => ({
         ...item,
         timetable_id: timetableExist._id,
-      })
+      }),
     );
 
     return formattedTimeTable;
@@ -799,18 +799,18 @@ const endSubjectInATimetable = async (payload: EndSubjectInATimetableType) => {
     if (!cbtExamDoc || cbtExamDoc.is_active === false) {
       throw new AppError(
         "Exam document does not exist or the exam period for the school is already over.",
-        400
+        400,
       );
     }
 
     const subject = timetableExist.scheduled_subjects.find(
-      (s) => s.subject_id.toString() === subject_id.toString()
+      (s) => s.subject_id.toString() === subject_id.toString(),
     );
 
     if (!subject) {
       throw new AppError(
         `Subject with ID ${subject_id} not part of exam to be done.`,
-        400
+        400,
       );
     }
 
@@ -829,7 +829,7 @@ const endSubjectInATimetable = async (payload: EndSubjectInATimetableType) => {
       {
         exam_subject_status: "ended",
       },
-      { new: true }
+      { new: true },
     );
 
     timetableExist.markModified("scheduled_subjects");
@@ -839,7 +839,7 @@ const endSubjectInATimetable = async (payload: EndSubjectInATimetableType) => {
       (item: any) => ({
         ...item,
         timetable_id: timetableExist._id,
-      })
+      }),
     );
 
     return formattedTimeTable;
@@ -856,7 +856,7 @@ const endSubjectInATimetable = async (payload: EndSubjectInATimetableType) => {
 const fetchAllCbtAssessmentDocument = async (
   page?: number,
   limit?: number,
-  searchParams = ""
+  searchParams = "",
 ) => {
   try {
     let query = CbtExam.find({}).sort({ createdAt: -1 });
@@ -905,7 +905,7 @@ const fetchAllCbtAssessmentDocument = async (
 };
 
 const objQestionSetting = async (
-  payload: SubjectObjQuestionDocumentCreationType
+  payload: SubjectObjQuestionDocumentCreationType,
 ) => {
   try {
     const {
@@ -927,7 +927,7 @@ const objQestionSetting = async (
     if (!academicSessionExist) {
       throw new AppError(
         `Academic session with id: ${academic_session_id} does not exist.`,
-        404
+        404,
       );
     }
 
@@ -940,7 +940,7 @@ const objQestionSetting = async (
     if (termExist && termExist.is_active !== true) {
       throw new AppError(
         `${term} has ended and set exam questions for a term that has ended.`,
-        403
+        403,
       );
     }
 
@@ -957,18 +957,18 @@ const objQestionSetting = async (
     }
 
     const subjectInClass = classExist.compulsory_subjects.find(
-      (r) => r.toString() === subjectExist._id.toString()
+      (r) => r.toString() === subjectExist._id.toString(),
     );
 
     if (!subjectInClass) {
       throw new AppError(
         `${subjectExist.name} is not offered in ${classExist.name}.`,
-        400
+        400,
       );
     }
 
     const actualSubjectTeacher = classExist.teacher_subject_assignments.find(
-      (a) => a.subject.toString() === subjectExist._id.toString()
+      (a) => a.subject.toString() === subjectExist._id.toString(),
     );
 
     const teacherExist = await Teacher.findById(teacher_id);
@@ -983,7 +983,7 @@ const objQestionSetting = async (
     ) {
       throw new AppError(
         `You are not the subject teacher of ${subjectExist.name} in ${classExist.name}. It is only the subject teacher for the class that can set exams for the subject in the class.`,
-        403
+        403,
       );
     }
 
@@ -998,14 +998,14 @@ const objQestionSetting = async (
     if (!examDocExist) {
       throw new AppError(
         `Question submission has not being authorized by the school. Please reach out to the school authority.`,
-        400
+        400,
       );
     }
 
     if (examDocExist.is_active !== true) {
       throw new AppError(
         "Exam has been finalized by the school authority.",
-        400
+        400,
       );
     }
 
@@ -1020,14 +1020,14 @@ const objQestionSetting = async (
     if (!classExamTimetable) {
       throw new AppError(
         `Assessment Timetable has not been created for ${classExist.name} for ${term}. Please ensure that assessment timetable has been created before setting questions.`,
-        400
+        400,
       );
     }
 
     if (classExamTimetable.exam_id.toString() !== examDocExist._id.toString()) {
       throw new AppError(
         `The timetable found does not match CBT assessment.`,
-        400
+        400,
       );
     }
 
@@ -1038,32 +1038,32 @@ const objQestionSetting = async (
     if (questions_array.length < minLength) {
       throw new AppError(
         `The number of questions set is less than ${minLength} which is the minimum number expected.`,
-        400
+        400,
       );
     }
 
     if (questions_array.length < questionsPerstudent) {
       throw new AppError(
         `The number of questions set is less than ${questionsPerstudent} which is the expected number of questions per student.`,
-        400
+        400,
       );
     }
 
     if (questions_array.length > maxLength) {
       throw new AppError(
         `The number of questions set is more than ${maxLength} which is the maximum number allowed.`,
-        400
+        400,
       );
     }
 
     const optionsLength = questions_array.filter(
-      (r) => r.options.length !== examDocExist.expected_obj_number_of_options
+      (r) => r.options.length !== examDocExist.expected_obj_number_of_options,
     );
 
     if (optionsLength.length > 0) {
       throw new AppError(
         `Please ensure that all questions' options is ${examDocExist.expected_obj_number_of_options}.`,
-        400
+        400,
       );
     }
 
@@ -1084,9 +1084,9 @@ const objQestionSetting = async (
     if (duplicateQuestions.size > 0) {
       throw new AppError(
         `Duplicate question found for: ${Array.from(duplicateQuestions).join(
-          ", "
+          ", ",
         )}.`,
-        400
+        400,
       );
     }
 
@@ -1101,12 +1101,12 @@ const objQestionSetting = async (
     if (subjectQuestionExist && subjectQuestionExist.obj_questions.length > 0) {
       throw new AppError(
         `${examDocExist.assessment_type} question has been submitted for ${subjectExist.name} in ${classExist.name}.`,
-        400
+        400,
       );
     }
 
     const actualSubjectExamTime = classExamTimetable.scheduled_subjects.find(
-      (s) => s.subject_id.toString() === subject_id.toString()
+      (s) => s.subject_id.toString() === subject_id.toString(),
     );
 
     if (!actualSubjectExamTime) {
@@ -1186,7 +1186,7 @@ const objQestionSetting = async (
 };
 
 const studentCbtSubjectCbtAssessmentAuthorization = async (
-  payload: CbtAssessmentAuthorizationPayloadType
+  payload: CbtAssessmentAuthorizationPayloadType,
 ) => {
   try {
     const {
@@ -1216,9 +1216,9 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (duplicateIds.size > 0) {
       throw new AppError(
         `The following IDs: ${Array.from(duplicateIds).join(
-          ", "
+          ", ",
         )} appear more than ones.`,
-        400
+        400,
       );
     }
 
@@ -1227,12 +1227,12 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (!academicSessionExist) {
       throw new AppError(
         `Academic session with id: ${academic_session_id} does not exist.`,
-        404
+        404,
       );
     }
 
     const activeTermExist = academicSessionExist.terms.find(
-      (t) => t.is_active === true
+      (t) => t.is_active === true,
     );
 
     if (!activeTermExist) {
@@ -1248,14 +1248,14 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (!classExist.class_teacher) {
       throw new AppError(
         `${classExist.name} does not have a class teacher yet.`,
-        400
+        400,
       );
     }
 
     if (classExist.class_teacher.toString() !== teacher_id.toString()) {
       throw new AppError(
         `You are not the class teacher of ${classExist.name}.`,
-        400
+        400,
       );
     }
 
@@ -1271,23 +1271,23 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (classEnrolmentExist.is_active !== true) {
       throw new AppError(
         "There is no active class enrolment for this class.",
-        404
+        404,
       );
     }
 
     const studentNotEnrolled = students_id_array.filter(
       (s) =>
         !classEnrolmentExist.students.some(
-          (a) => a.student.toString() === s.toString()
-        )
+          (a) => a.student.toString() === s.toString(),
+        ),
     );
 
     if (studentNotEnrolled.length > 0) {
       throw new AppError(
         `Students with the following IDs: ${studentNotEnrolled.join(
-          ", "
+          ", ",
         )} are not enrolled into ${classExist.name}.`,
-        400
+        400,
       );
     }
 
@@ -1301,7 +1301,7 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (!examDocExist) {
       throw new AppError(
         `CBT assessment  has not being authorized to start.`,
-        403
+        403,
       );
     }
 
@@ -1316,7 +1316,7 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (!questionExist) {
       throw new AppError(
         `Question does not exist for this subject in ${term}.`,
-        404
+        404,
       );
     }
 
@@ -1329,7 +1329,7 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (current_time < start_time) {
       throw new AppError(
         `You cannot authorize the start of the exam before the scheduled time. Exam Start time: ${questionExist.obj_start_time}`,
-        401
+        401,
       );
     }
 
@@ -1354,28 +1354,28 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (!actualExamTimeTable) {
       throw new AppError(
         `There is no timetable for ${classExist.name} in this ${term} in ${academicSessionExist.academic_session}.`,
-        400
+        400,
       );
     }
 
     const findSubjectTimetable = actualExamTimeTable.scheduled_subjects.find(
-      (s) => s.subject_id.toString() === subject_id
+      (s) => s.subject_id.toString() === subject_id,
     );
     if (!findSubjectTimetable) {
       throw new AppError(
         `The time to write this subject exam is not taken care off in the timetable.`,
-        400
+        400,
       );
     }
 
     const studentIds = questionExist.allowed_students.map((a) => a);
 
     const matchedIds = students_id_array.filter((b) =>
-      studentIds.some((a) => a.toString() === b.toString())
+      studentIds.some((a) => a.toString() === b.toString()),
     );
 
     const notMatchedIds = students_id_array.filter(
-      (b) => !studentIds.some((a) => a.toString() === b.toString())
+      (b) => !studentIds.some((a) => a.toString() === b.toString()),
     );
 
     // const studentsInTimtableArray = findSubjectTimetable.authorized_students.map((c)=>c)
@@ -1391,15 +1391,15 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
     if (matchedIds.length > 0 && notMatchedIds.length === 0) {
       throw new AppError(
         `The following IDs: ${matchedIds.join(
-          ", "
+          ", ",
         )} are already allowed to take the CBT subject exam.`,
-        400
+        400,
       );
     }
 
     await CbtQuestion.updateOne(
       { _id: questionExist._id },
-      { $addToSet: { allowed_students: { $each: notMatchedIds } } }
+      { $addToSet: { allowed_students: { $each: notMatchedIds } } },
     );
 
     const savedTimetable = await ClassExamTimetable.updateOne(
@@ -1411,7 +1411,7 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
         $addToSet: {
           "scheduled_subjects.$.authorized_students": { $each: notMatchedIds },
         },
-      }
+      },
     );
 
     const ids = questionExist.allowed_students.map((id) => id);
@@ -1428,7 +1428,7 @@ const studentCbtSubjectCbtAssessmentAuthorization = async (
 };
 
 const subjectCbtObjCbtAssessmentStarting = async (
-  payload: CbtAssessmentStartingType
+  payload: CbtAssessmentStartingType,
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -1441,14 +1441,13 @@ const subjectCbtObjCbtAssessmentStarting = async (
     const academicSessionId = new mongoose.Types.ObjectId(academic_session_id);
     const subjectId = new mongoose.Types.ObjectId(subject_id);
 
-    const academicSessionExist = await Session.findById(
-      academicSessionId
-    ).session(session);
+    const academicSessionExist =
+      await Session.findById(academicSessionId).session(session);
 
     if (!academicSessionExist) {
       throw new AppError(
         `Academic session with id: ${academic_session_id} does not exist.`,
-        404
+        404,
       );
     }
 
@@ -1461,7 +1460,7 @@ const subjectCbtObjCbtAssessmentStarting = async (
     if (termExist && termExist.is_active !== true) {
       throw new AppError(
         `${term} has ended and set exam questions for a term that has ended.`,
-        403
+        403,
       );
     }
 
@@ -1485,18 +1484,18 @@ const subjectCbtObjCbtAssessmentStarting = async (
     if (!classEnrolmentExist) {
       throw new AppError(
         "There is no enrollment into this class in this session.",
-        404
+        404,
       );
     }
 
     const studentInEnrolment = classEnrolmentExist.students.find(
-      (s) => s.student.toString() === studentExist._id.toString()
+      (s) => s.student.toString() === studentExist._id.toString(),
     );
 
     if (!studentInEnrolment) {
       throw new AppError(
         `${studentExist.first_name} ${studentExist.last_name} does not belong to ${classExist.name}.`,
-        400
+        400,
       );
     }
 
@@ -1514,7 +1513,7 @@ const subjectCbtObjCbtAssessmentStarting = async (
     if (examDocExist.is_active !== true) {
       throw new AppError(
         "Exam has been finalized by the school authority.",
-        400
+        400,
       );
     }
 
@@ -1531,17 +1530,17 @@ const subjectCbtObjCbtAssessmentStarting = async (
     }
 
     const studentAuthorized = exam.allowed_students.find(
-      (a) => a.toString() === studentExist._id.toString()
+      (a) => a.toString() === studentExist._id.toString(),
     );
 
     if (!studentAuthorized) {
       throw new AppError(
         `${capitalizeFirstLetter(
-          studentExist.first_name
+          studentExist.first_name,
         )} ${capitalizeFirstLetter(
-          studentExist.last_name
+          studentExist.last_name,
         )} has not being authorized to start the exam. Please reach out to your class teacher.`,
-        400
+        400,
       );
     }
 
@@ -1558,30 +1557,30 @@ const subjectCbtObjCbtAssessmentStarting = async (
     if (!actualExamTimeTable) {
       throw new AppError(
         `There is no timetable for ${classExist.name} in this ${term} in ${academicSessionExist.academic_session}.`,
-        400
+        400,
       );
     }
 
     const findSubjectTimetable = actualExamTimeTable.scheduled_subjects.find(
-      (s) => s.subject_id.toString() === subject_id
+      (s) => s.subject_id.toString() === subject_id,
     );
 
     if (!findSubjectTimetable) {
       throw new AppError(
         `The time to write this subject exam is not taken care off in the timetable.`,
-        400
+        400,
       );
     }
 
     const hasSubmitted =
       findSubjectTimetable.students_that_have_submitted.includes(
-        studentExist._id
+        studentExist._id,
       );
 
     if (hasSubmitted) {
       throw new AppError(
         "You have submitted this exam before and you can not take it again.",
-        400
+        400,
       );
     }
 
@@ -1593,9 +1592,9 @@ const subjectCbtObjCbtAssessmentStarting = async (
     if (current_time < start_time) {
       throw new AppError(
         `You cannot start the exam before the scheduled time. Exam Start time: ${formatDate(
-          exam.obj_start_time
+          exam.obj_start_time,
         )}`,
-        401
+        401,
       );
     }
 
@@ -1603,9 +1602,9 @@ const subjectCbtObjCbtAssessmentStarting = async (
     if (current_time > end_time.getTime()) {
       throw new AppError(
         `This exam has ended because the time for the exam has passed. Exam End time: ${formatDate(
-          end_time
+          end_time,
         )}`,
-        401
+        401,
       );
     }
 
@@ -1679,7 +1678,7 @@ const subjectCbtObjCbtAssessmentStarting = async (
     const { shuffled_obj_questions, ...others } = populatedValues.toJSON();
 
     const sanitizedQuestions = shuffled_obj_questions.map(
-      ({ correct_answer, question_original_number, score, ...rest }) => rest
+      ({ correct_answer, question_original_number, score, ...rest }) => rest,
     );
 
     // const studentAlreadyInside =
@@ -1705,7 +1704,7 @@ const subjectCbtObjCbtAssessmentStarting = async (
           "scheduled_subjects.$.students_that_have_started": result.student_id,
         },
       },
-      { session }
+      { session },
     );
 
     const returnObj = {
@@ -1735,7 +1734,7 @@ const subjectCbtObjCbtAssessmentStarting = async (
 };
 
 const subjectCbtObjCbtAssessmentUpdate = async (
-  payload: CbtAssessmentUpdateType
+  payload: CbtAssessmentUpdateType,
 ) => {
   // const session = await mongoose.startSession();
   // session.startTransaction();
@@ -1761,7 +1760,7 @@ const subjectCbtObjCbtAssessmentUpdate = async (
     if (examDocExist.is_active !== true) {
       throw new AppError(
         "Exam has been finalized by the school authority.",
-        400
+        400,
       );
     }
 
@@ -1778,7 +1777,7 @@ const subjectCbtObjCbtAssessmentUpdate = async (
     if (result.obj_status !== examStatusEnum[1]) {
       throw new AppError(
         "This subject exam is not in-progress. It is either completed or ended.",
-        400
+        400,
       );
     }
 
@@ -1789,19 +1788,19 @@ const subjectCbtObjCbtAssessmentUpdate = async (
     if (current_time < start_time) {
       throw new AppError(
         `You cannot update the exam before the scheduled time. Exam Start time: ${result.obj_start_time}`,
-        401
+        401,
       );
     }
 
     if (current_time > examCutoffTime) {
       throw new AppError(
         `You can not update this subject CBT exam again as you have reached your allocated time.`,
-        400
+        400,
       );
     }
 
     const questionMap = new Map(
-      result.shuffled_obj_questions.map((q) => [q._id.toString(), q])
+      result.shuffled_obj_questions.map((q) => [q._id.toString(), q]),
     );
 
     result_doc.forEach((a) => {
@@ -1842,7 +1841,7 @@ const subjectCbtObjCbtAssessmentUpdate = async (
 };
 
 const subjectCbtObjCbtAssessmentRemainingTimeUpdate = async (
-  payload: CbtAssessmentTimeUpdateType
+  payload: CbtAssessmentTimeUpdateType,
 ) => {
   // const session = await mongoose.startSession();
   // session.startTransaction();
@@ -1868,7 +1867,7 @@ const subjectCbtObjCbtAssessmentRemainingTimeUpdate = async (
     if (examDocExist.is_active !== true) {
       throw new AppError(
         "Exam has been finalized by the school authority.",
-        400
+        400,
       );
     }
 
@@ -1885,7 +1884,7 @@ const subjectCbtObjCbtAssessmentRemainingTimeUpdate = async (
     if (result.obj_status !== examStatusEnum[1]) {
       throw new AppError(
         "This subject exam is not in-progress. It is either completed or ended.",
-        400
+        400,
       );
     }
 
@@ -1896,14 +1895,14 @@ const subjectCbtObjCbtAssessmentRemainingTimeUpdate = async (
     if (current_time < start_time) {
       throw new AppError(
         `You cannot update the exam before the scheduled time. Exam Start time: ${result.obj_start_time}`,
-        401
+        401,
       );
     }
 
     if (current_time > examCutoffTime) {
       throw new AppError(
         `You can not update this subject CBT exam again as the subject CBT exam has ended. Reach out to the school authority.`,
-        400
+        400,
       );
     }
 
@@ -2246,7 +2245,7 @@ const subjectCbtObjCbtAssessmentRemainingTimeUpdate = async (
 // };
 
 const subjectCbtObjCbtAssessmentSubmission = async (
-  payload: CbtAssessmentEndedType
+  payload: CbtAssessmentEndedType,
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -2275,7 +2274,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
     if (examDocExist.is_active !== true) {
       throw new AppError(
         "Exam has been finalized by the school authority.",
-        400
+        400,
       );
     }
 
@@ -2295,7 +2294,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
     if (notStarted || isSubmitted) {
       throw new AppError(
         "This subject exam is not in-progress. It is either completed or ended.",
-        400
+        400,
       );
     }
 
@@ -2308,7 +2307,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
     if (current_time < start_time) {
       throw new AppError(
         `You cannot update the exam before the scheduled time.`,
-        401
+        401,
       );
     }
 
@@ -2329,7 +2328,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
       if (current_time < examCutoffTime) {
         throw new AppError(
           `It is not yet the final cutoff time so student can still take exam.`,
-          400
+          400,
         );
       }
 
@@ -2338,7 +2337,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
     }
 
     const questionMap = new Map(
-      result.shuffled_obj_questions.map((q) => [q._id.toString(), q])
+      result.shuffled_obj_questions.map((q) => [q._id.toString(), q]),
     );
 
     let totalStudentScore = 0;
@@ -2361,7 +2360,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
     // Max that a student can get
     const totalPossibleScore = result.shuffled_obj_questions.reduce(
       (acc, q) => acc + q.score,
-      0
+      0,
     );
 
     const resultSettings = await ResultSetting.findOne({
@@ -2374,7 +2373,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
 
     const exam_component_name = resultSettings?.exam_components.exam_name;
     const cbtObj = resultSettings?.exam_components.component.find(
-      (a) => a.key === "obj"
+      (a) => a.key === "obj",
     );
 
     let objKeyName;
@@ -2402,7 +2401,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
     }
 
     let termResult = studentSubjectResult?.term_results.find(
-      (a) => a.term === result.term
+      (a) => a.term === result.term,
     );
 
     if (!termResult) {
@@ -2446,13 +2445,13 @@ const subjectCbtObjCbtAssessmentSubmission = async (
       // do for test
       objKeyName = resultSettings.components?.find(
         (k) =>
-          k.name.toLowerCase() === examDocExist.assessment_type.toLowerCase()
+          k.name.toLowerCase() === examDocExist.assessment_type.toLowerCase(),
       );
 
       if (!objKeyName?.percentage || !objKeyName?.name) {
         throw new AppError(
           "Objective scoring setup not found in result settings.",
-          400
+          400,
         );
       }
       testName = objKeyName?.name;
@@ -2484,12 +2483,12 @@ const subjectCbtObjCbtAssessmentSubmission = async (
       const hasRecordedExamScore = termResult?.scores.find(
         (s) =>
           s.score_name.trim().toLowerCase() ===
-          testObj?.score_name.trim().toLowerCase()
+          testObj?.score_name.trim().toLowerCase(),
       );
 
       if (hasRecordedExamScore) {
         console.log(
-          `Score for ${testObj.score_name} has been recorded for this student.`
+          `Score for ${testObj.score_name} has been recorded for this student.`,
         );
       } else {
         termResult?.scores.push(testObj);
@@ -2500,13 +2499,13 @@ const subjectCbtObjCbtAssessmentSubmission = async (
       const exam_components = resultSettings?.exam_components.component;
 
       objKeyName = exam_components?.find(
-        (k) => k.key.trim().toLowerCase() === examKeyEnum[0]
+        (k) => k.key.trim().toLowerCase() === examKeyEnum[0],
       );
 
       if (!objKeyName?.percentage || !objKeyName?.name) {
         throw new AppError(
           "Objective scoring setup not found in result settings.",
-          400
+          400,
         );
       }
 
@@ -2539,11 +2538,11 @@ const subjectCbtObjCbtAssessmentSubmission = async (
       const hasRecordedExamScore = termResult?.exam_object.find(
         (s) =>
           s.score_name.trim().toLowerCase() ===
-          examObj?.score_name.trim().toLowerCase()
+          examObj?.score_name.trim().toLowerCase(),
       );
       if (hasRecordedExamScore) {
         console.log(
-          `Score for ${examObj.score_name} has been recorded for this student.`
+          `Score for ${examObj.score_name} has been recorded for this student.`,
         );
       } else {
         termResult?.scores.push(examObj);
@@ -2614,7 +2613,7 @@ const subjectCbtObjCbtAssessmentSubmission = async (
 };
 
 const theoryQestionSetting = async (
-  payload: SubjectObjQuestionDocumentCreationType
+  payload: SubjectObjQuestionDocumentCreationType,
 ) => {
   try {
     const {
@@ -2637,7 +2636,7 @@ const theoryQestionSetting = async (
     if (!academicSessionExist) {
       throw new AppError(
         `Academic session with id: ${academic_session_id} does not exist.`,
-        404
+        404,
       );
     }
 
@@ -2650,7 +2649,7 @@ const theoryQestionSetting = async (
     if (termExist && termExist.is_active !== true) {
       throw new AppError(
         `${term} has ended and set exam questions for a term that has ended.`,
-        403
+        403,
       );
     }
 
@@ -2678,14 +2677,14 @@ const theoryQestionSetting = async (
     if (!examDocExist) {
       throw new AppError(
         `Question submission has not being authorized by the school. Please reach out to the school authority.`,
-        400
+        400,
       );
     }
 
     if (examDocExist.is_active !== true) {
       throw new AppError(
         "Exam has been finalized by the school authority.",
-        400
+        400,
       );
     }
 
@@ -2695,25 +2694,25 @@ const theoryQestionSetting = async (
     if (questions_array.length < minLength) {
       throw new AppError(
         `The number of questions set is less than ${minLength} which is the minimum number expected.`,
-        400
+        400,
       );
     }
 
     if (questions_array.length > maxLength) {
       throw new AppError(
         `The number of questions set is more than ${maxLength} which is the maximum number allowed.`,
-        400
+        400,
       );
     }
 
     const optionsLength = questions_array.filter(
-      (r) => r.options.length !== examDocExist.expected_obj_number_of_options
+      (r) => r.options.length !== examDocExist.expected_obj_number_of_options,
     );
 
     if (optionsLength.length > 0) {
       throw new AppError(
         `Please ensure that all questions' options is ${examDocExist.expected_obj_number_of_options}.`,
-        400
+        400,
       );
     }
 
@@ -2726,7 +2725,7 @@ const theoryQestionSetting = async (
     if (subjectQuestionExist && subjectQuestionExist.obj_questions.length > 0) {
       throw new AppError(
         `${term} Exam question has been submitted for ${subjectExist.name} in ${classExist.name}.`,
-        400
+        400,
       );
     }
 

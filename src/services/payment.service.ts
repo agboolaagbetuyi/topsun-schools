@@ -29,7 +29,7 @@ import { cloudinaryDestroy, handleFileUpload } from "../utils/cloudinary";
 
 const createSchoolFeePaymentDocumentForStudents = async (
   session_id: string,
-  term: string
+  term: string,
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -42,7 +42,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
     if (!activeSession) {
       throw new AppError(
         "Payment can only be created in an active session. Please create a new session and term before proceeding.",
-        400
+        400,
       );
     }
 
@@ -51,7 +51,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
     if (activeTermCheck?.is_active !== true) {
       throw new AppError(
         "Payment can  only be created in an active term.",
-        400
+        400,
       );
     }
 
@@ -70,13 +70,13 @@ const createSchoolFeePaymentDocumentForStudents = async (
     const unenrolledStudents = allStudents.filter(
       (student) =>
         // !student.current_class?.class_id ||
-        student.active_class_enrolment === false
+        student.active_class_enrolment === false,
     );
 
     const enrolledStudents = allStudents.filter(
       (student) =>
         student.current_class?.class_id &&
-        student.active_class_enrolment === true
+        student.active_class_enrolment === true,
     );
 
     const studentsWithPaymentDocument: UserDocument[] = [];
@@ -95,7 +95,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
         } else {
           studentsWithoutPaymentDocument.push(s);
         }
-      })
+      }),
     );
 
     if (
@@ -105,9 +105,9 @@ const createSchoolFeePaymentDocumentForStudents = async (
       throw new AppError(
         `All enrolled students already have payment document for ${term.replace(
           "_",
-          " "
+          " ",
         )} of ${activeSession.academic_session} session`,
-        400
+        400,
       );
     }
 
@@ -116,7 +116,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
     for (const student of studentsWithoutPaymentDocument) {
       if (!student.current_class_level) {
         console.warn(
-          `Student with ID ${student._id} and name: ${student.first_name} ${student.last_name} has no current class level field: ${student.current_class_level}`
+          `Student with ID ${student._id} and name: ${student.first_name} ${student.last_name} has no current class level field: ${student.current_class_level}`,
         );
         continue;
       }
@@ -124,12 +124,12 @@ const createSchoolFeePaymentDocumentForStudents = async (
       const feeForClassLevel = allSchoolFees.find(
         (fee) =>
           fee.level.toString() === student.current_class_level?.toString() &&
-          fee.term === activeTermCheck.name
+          fee.term === activeTermCheck.name,
       );
 
       if (!feeForClassLevel) {
         console.warn(
-          `No school fee found for class level: ${student.current_class_level}`
+          `No school fee found for class level: ${student.current_class_level}`,
         );
         continue;
       }
@@ -161,7 +161,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
             fee.applicable_classes.some(
               (classId) =>
                 classId.toString() ===
-                student.current_class?.class_id.toString()
+                student.current_class?.class_id.toString(),
             )
           ) {
             fees_breakdown.push({
@@ -174,7 +174,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
 
       const total_amount = fees_breakdown.reduce(
         (sum, fee) => sum + fee.amount,
-        0
+        0,
       );
 
       bulkOperations.push({
@@ -196,7 +196,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
     if (bulkOperations.length === 0) {
       throw new AppError(
         "No payment documents created. Ensure all students have corresponding fee.",
-        404
+        404,
       );
     }
 
@@ -211,7 +211,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
         unenrolledStudents.length
       } students are yet to be enrolled into classes for the ${term.replace(
         "_",
-        " "
+        " ",
       )} of ${activeSession.academic_session} session.`;
     }
 
@@ -236,7 +236,7 @@ const createSchoolFeePaymentDocumentForStudents = async (
 
 // for adding fee to individual student by clicking on edit student
 const addingFeeToStudentPaymentDocument = async (
-  payload: AddingFeeToPaymentPayload
+  payload: AddingFeeToPaymentPayload,
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -254,13 +254,13 @@ const addingFeeToStudentPaymentDocument = async (
     }
 
     const activeTerm = schoolSession.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     if (!activeTerm) {
       throw new AppError(
         "There is no active term where the payment document can be updated.",
-        400
+        400,
       );
     }
 
@@ -294,7 +294,7 @@ const fetchAllStudentPaymentDocumentsByStudentId = async (
   payload: StudentPaymentHistoryType,
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ): Promise<{
   resultArray: PaymentDocument[];
   totalPages: number;
@@ -369,7 +369,7 @@ const fetchAllStudentPaymentDocumentsByStudentId = async (
 const fetchAllPaymentDocuments = async (
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ): Promise<{
   resultArray: PaymentDocument[];
   totalCount: number;
@@ -435,7 +435,7 @@ const fetchStudentOutstandingPaymentDoc = async (student_id: string) => {
     });
 
     const activeTerm = currentTerm?.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     const outstandingPayments = await Payment.find({
@@ -460,7 +460,7 @@ const fetchStudentOutstandingPaymentDoc = async (student_id: string) => {
 const fetchCurrentTermPaymentDocuments = async (
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ): Promise<{
   resultArray: PaymentDocument[];
   totalPages: number;
@@ -472,7 +472,7 @@ const fetchCurrentTermPaymentDocuments = async (
     });
 
     const activeTerm = activeSession?.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     let query = Payment.find({
@@ -530,7 +530,7 @@ const fetchCurrentTermPaymentDocuments = async (
 };
 
 const fetchPaymentTransactionHistoryByStudentId = async (
-  payload: StudentPaymentHistoryType
+  payload: StudentPaymentHistoryType,
 ): Promise<{
   // totalCount: number;
   paymentObj: PaymentHistoryDataType[];
@@ -548,7 +548,7 @@ const fetchPaymentTransactionHistoryByStudentId = async (
         if (!student.parent_id?.includes(userId)) {
           throw new AppError(
             `You are not a parent to ${student.first_name} ${student.last_name}.`,
-            403
+            403,
           );
         }
       }
@@ -672,7 +672,7 @@ const fetchPaymentTransactionHistoryByStudentId = async (
 };
 
 const fetchPaymentDetailsByPaymentId = async (
-  payload: PaymentDataType
+  payload: PaymentDataType,
 ): Promise<PaymentDocument> => {
   try {
     const { payment_id, userId, userRole } = payload;
@@ -703,7 +703,7 @@ const fetchPaymentDetailsByPaymentId = async (
         updatedAt: 1,
         payment_summary: { $elemMatch: { _id: paymentId } },
         waiting_for_confirmation: { $elemMatch: { _id: paymentId } },
-      }
+      },
     ).populate([
       { path: "student", select: "first_name last_name" },
       { path: "class", select: "name level" },
@@ -712,7 +712,7 @@ const fetchPaymentDetailsByPaymentId = async (
     if (!paymentDetails) {
       throw new AppError(
         `Payment document with ID: ${payment_id} not found.`,
-        404
+        404,
       );
     }
 
@@ -722,7 +722,7 @@ const fetchPaymentDetailsByPaymentId = async (
       if (paymentDetails.student.toString() !== userId.toString()) {
         throw new AppError(
           `Payment document with ID: ${payment_id} does not belong to you.`,
-          403
+          403,
         );
       }
     } else if (userRole === "parent") {
@@ -733,7 +733,7 @@ const fetchPaymentDetailsByPaymentId = async (
       if (!student?.parent_id || student.parent_id.length === 0) {
         throw new AppError(
           "You are not a parent to the student that owns this payment document.",
-          403
+          403,
         );
       }
 
@@ -744,7 +744,7 @@ const fetchPaymentDetailsByPaymentId = async (
       if (!exists) {
         throw new AppError(
           `You are not a parent to the student that owns this payment document.`,
-          403
+          403,
         );
       }
     }
@@ -761,7 +761,7 @@ const fetchPaymentDetailsByPaymentId = async (
 
 const fetchStudentSinglePaymentDoc = async (
   student_id: string,
-  payment_id: string
+  payment_id: string,
 ) => {
   try {
     const paymentId = new mongoose.Types.ObjectId(payment_id);
@@ -851,7 +851,7 @@ const fetchAllPaymentSummaryFailedAndSuccessful = async (): Promise<{
 const fetchAllPaymentSummaryFailedAndSuccessfulWithLookup = async (
   page?: number,
   limit?: number,
-  searchParams?: string
+  searchParams?: string,
 ): Promise<{
   resultArray: PaymentHistoryDataTypeFlat[];
   totalCount: number;
@@ -987,7 +987,7 @@ const fetchAllPaymentSummaryFailedAndSuccessfulWithLookup = async (
             student: payment.student,
             class: payment.class,
           }));
-      }
+      },
     );
 
     const totalCount = resultArray.length;
@@ -1018,7 +1018,7 @@ const fetchAllPaymentSummaryFailedAndSuccessfulWithLookup = async (
 const studentBankFeePayment = async (
   req: Request,
   payload: StudentFeePaymentType,
-  res: Response
+  res: Response,
 ): Promise<PaymentDocument> => {
   try {
     const {
@@ -1044,7 +1044,7 @@ const studentBankFeePayment = async (
       if (!student.parent_id?.includes(userId)) {
         throw new AppError(
           `You are not a parent to ${student.first_name} ${student.last_name}.`,
-          403
+          403,
         );
       }
     }
@@ -1069,7 +1069,7 @@ const studentBankFeePayment = async (
     if (findPaymentDocument.is_payment_complete === true) {
       throw new AppError(
         "Payment for this term has already being completed.",
-        400
+        400,
       );
     }
 
@@ -1148,7 +1148,7 @@ const studentBankFeePayment = async (
 };
 
 const studentCashFeePayment = async (
-  payload: StudentFeePaymentTypeWithBursarRole
+  payload: StudentFeePaymentTypeWithBursarRole,
 ) => {
   try {
     const { student_id, session_id, term, amount_paying, payment_method } =
@@ -1166,7 +1166,7 @@ const studentCashFeePayment = async (
 
     const result = await calculateAndUpdateStudentPaymentDocuments(
       payload,
-      "cash"
+      "cash",
     );
     const student = await Student.findById({
       _id: student_id,
@@ -1194,7 +1194,7 @@ const studentCashFeePayment = async (
 };
 
 const declineStudentBankPayment = async (
-  payload: DeclineStudentPayloadType
+  payload: DeclineStudentPayloadType,
 ) => {
   const { payment_id, bursar_id, bursarRole } = payload;
   const paymentId = new mongoose.Types.ObjectId(payment_id);
@@ -1214,7 +1214,7 @@ const declineStudentBankPayment = async (
     }
 
     const actualTransaction = findPayment.waiting_for_confirmation.find(
-      (p) => p._id?.toString() === payment_id
+      (p) => p._id?.toString() === payment_id,
     );
 
     // console.log('actualTransaction:', actualTransaction);
@@ -1226,7 +1226,7 @@ const declineStudentBankPayment = async (
 
     if (actualTransaction.payment_evidence_image.url) {
       await cloudinaryDestroy(
-        actualTransaction.payment_evidence_image.public_url
+        actualTransaction.payment_evidence_image.public_url,
       );
     }
 
@@ -1261,7 +1261,7 @@ const declineStudentBankPayment = async (
 };
 
 const approveStudentBankPayment = async (
-  payload: ApproveStudentPayloadType
+  payload: ApproveStudentPayloadType,
 ) => {
   const { bank_name, payment_id, bursar_id, amount_paid, bursarRole } = payload;
   try {
@@ -1282,7 +1282,7 @@ const approveStudentBankPayment = async (
     }
 
     const actualTransaction = findPayment.waiting_for_confirmation.find(
-      (p) => p._id?.toString() === payment_id
+      (p) => p._id?.toString() === payment_id,
     );
 
     // console.log('actualTransaction:', actualTransaction);
@@ -1333,7 +1333,7 @@ const approveStudentBankPayment = async (
 
     const result = await calculateAndUpdateStudentPaymentDocuments(
       payload,
-      "bank"
+      "bank",
     );
 
     // const result = payload;
@@ -1358,7 +1358,7 @@ const approveStudentBankPayment = async (
 };
 
 const fetchAPaymentNeedingApprovalById = async (
-  payment_id: string
+  payment_id: string,
 ): Promise<WaitingForConfirmationType> => {
   try {
     const response = await Payment.find({
@@ -1372,8 +1372,8 @@ const fetchAPaymentNeedingApprovalById = async (
     const result = response
       ?.map((payment) =>
         payment.waiting_for_confirmation.find(
-          (p) => p?._id?.toString() === payment_id
-        )
+          (p) => p?._id?.toString() === payment_id,
+        ),
       )
       .filter(Boolean);
 
@@ -1394,7 +1394,7 @@ const fetchAPaymentNeedingApprovalById = async (
 const fetchAllPaymentsNeedingApproval = async (
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ): Promise<{
   resultArray: WaitingForConfirmationType[];
   totalCount: number;
@@ -1480,7 +1480,7 @@ const fetchAllPaymentsNeedingApproval = async (
     const expectedReturn = result
       .map((payment) => {
         const filtered = payment.waiting_for_confirmation.filter(
-          (p) => p.payment_method === "bank"
+          (p) => p.payment_method === "bank",
         );
         console.log("filtered:", filtered);
 
@@ -1492,7 +1492,7 @@ const fetchAllPaymentsNeedingApproval = async (
               class: payment.class,
               ...docObject,
             };
-          }
+          },
 
           //   ({
           //   student: payment.student,
@@ -1523,7 +1523,7 @@ const fetchAllPaymentsApprovedByBursarId = async (
   bursar_id: string,
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ): Promise<{
   resultArray: WaitingForConfirmationType[];
   totalCount: number;
@@ -1574,8 +1574,8 @@ const fetchAllPaymentsApprovedByBursarId = async (
     const expectedReturn = response
       .map((payment) =>
         payment.payment_summary.filter(
-          (p) => p?.staff_who_approve?._id.toString() === bursar_id
-        )
+          (p) => p?.staff_who_approve?._id.toString() === bursar_id,
+        ),
       )
       .flat();
 

@@ -14,7 +14,7 @@ const getLevelFeeDoc = async (
   uniqueClassLevel: ClassDocument[],
   term: string,
   academic_session_id: mongoose.Types.ObjectId,
-  session: mongoose.ClientSession
+  session: mongoose.ClientSession,
 ) => {
   const feeDocs = await Promise.all(
     uniqueClassLevel.map(async (l) => {
@@ -23,7 +23,7 @@ const getLevelFeeDoc = async (
         term: term,
         academic_session_id: academic_session_id,
       }).session(session);
-    })
+    }),
   );
 
   return feeDocs.filter((fee) => fee !== null);
@@ -32,7 +32,7 @@ const getLevelFeeDoc = async (
 const createFeeDoc = async (
   fee_array: FeePayloadType[],
   term: string,
-  activeSession: mongoose.Types.ObjectId
+  activeSession: mongoose.Types.ObjectId,
   // session: mongoose.ClientSession
 ) => {
   return await Promise.all(
@@ -52,18 +52,18 @@ const createFeeDoc = async (
       const savedResponse = await response.save();
       const plainObject = savedResponse.toJSON();
       return plainObject;
-    })
+    }),
   );
 };
 
 const fetchClassLevels = async (
   applicable_classes: ObjectId[],
-  session: mongoose.ClientSession
+  session: mongoose.ClientSession,
 ) => {
   const classLevels = await Promise.all(
     applicable_classes.map((classId) =>
-      Class.findOne({ _id: classId }).session(session)
-    )
+      Class.findOne({ _id: classId }).session(session),
+    ),
   );
 
   return classLevels.filter((classDoc) => classDoc !== null);
@@ -78,7 +78,7 @@ const mySchoolClasses = async (session: mongoose.ClientSession) => {
     if (!academicSession) {
       throw new AppError(
         "There is no active session. Please create one to proceed.",
-        400
+        400,
       );
     }
 
@@ -87,7 +87,7 @@ const mySchoolClasses = async (session: mongoose.ClientSession) => {
     if (!schoolClasses || schoolClasses.length === 0) {
       throw new AppError(
         "Classes not found. Please create classes to proceed.",
-        400
+        400,
       );
     }
 
@@ -108,19 +108,22 @@ const mySchoolClasses = async (session: mongoose.ClientSession) => {
 
 const optionalFeeProcessing = async (
   payload: OptionalFeeProcessingType,
-  session: mongoose.ClientSession
+  session: mongoose.ClientSession,
 ) => {
   const { uniqueClasses, fee_name, amount, term, academic_session_id } =
     payload;
   try {
     // Group classes by level
-    const levelClassMap = uniqueClasses.reduce((acc, c) => {
-      if (!acc[c.level]) {
-        acc[c.level] = [];
-      }
-      acc[c.level].push(new mongoose.Types.ObjectId(String(c._id))); // Collect class IDs for the level
-      return acc;
-    }, {} as Record<string, mongoose.Types.ObjectId[]>); // Object mapping level -> class IDs
+    const levelClassMap = uniqueClasses.reduce(
+      (acc, c) => {
+        if (!acc[c.level]) {
+          acc[c.level] = [];
+        }
+        acc[c.level].push(new mongoose.Types.ObjectId(String(c._id))); // Collect class IDs for the level
+        return acc;
+      },
+      {} as Record<string, mongoose.Types.ObjectId[]>,
+    ); // Object mapping level -> class IDs
 
     return Promise.all(
       Object.entries(levelClassMap).map(async ([level, classIds]) => {
@@ -142,7 +145,7 @@ const optionalFeeProcessing = async (
         }
 
         const feeExists = existingFee.optional_fees.some(
-          (fee: any) => fee.fee_name === fee_name
+          (fee: any) => fee.fee_name === fee_name,
         );
 
         if (feeExists) {
@@ -157,9 +160,9 @@ const optionalFeeProcessing = async (
             academic_session_id: academic_session_id,
           },
           { $push: { optional_fees: optionalFeeObj } },
-          { new: true, session }
+          { new: true, session },
         );
-      })
+      }),
     ).then((feeDocs) => feeDocs.filter((doc) => doc !== null));
   } catch (error) {
     if (error instanceof AppError) {
@@ -193,7 +196,7 @@ const mandatoryFeeProcessing = async (payload: MandatoryFeeProcessingType) => {
         }
 
         const feeExists = existingFee.mandatory_fees.some(
-          (fee: any) => fee.fee_name === fee_name
+          (fee: any) => fee.fee_name === fee_name,
         );
 
         if (feeExists) {
@@ -208,9 +211,9 @@ const mandatoryFeeProcessing = async (payload: MandatoryFeeProcessingType) => {
             academic_session_id: academic_session_id,
           },
           { $push: { mandatory_fees: mandatoryFeeObj } },
-          { new: true, session }
+          { new: true, session },
         );
-      })
+      }),
     ).then((feeDocs) => feeDocs.filter((doc) => doc !== null));
   } catch (error) {
     if (error instanceof AppError) {

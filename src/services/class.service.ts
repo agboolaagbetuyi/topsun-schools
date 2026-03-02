@@ -131,7 +131,7 @@ import Subject from "../models/subject.model";
 import { AppError } from "../utils/app.error";
 
 const classCreation = async (
-  payload: ClassCreationType
+  payload: ClassCreationType,
 ): Promise<ClassDocument> => {
   // REMOVE STREAMS AND OPTIONAL SUBJECTS
   try {
@@ -149,7 +149,7 @@ const classCreation = async (
     if (!/^[A-Za-z0-9]+$/.test(section)) {
       throw new AppError(
         "Section can only contain letters or numbers with no spaces or special characters.",
-        400
+        400,
       );
     }
 
@@ -162,7 +162,7 @@ const classCreation = async (
     }
 
     const compulsorySubjectsLower = compulsory_subjects?.map((subject) =>
-      subject.toLowerCase()
+      subject.toLowerCase(),
     );
     // const optionalSubjectsLower = optional_subjects?.map((subject) =>
     //   subject.toLowerCase()
@@ -179,13 +179,13 @@ const classCreation = async (
     const compulsorySubjectsNames = compulsorySubjectsIds.map((s) => s.name);
 
     const invalidSubjects = compulsory_subjects.filter(
-      (subject) => !compulsorySubjectsNames.includes(subject.toLowerCase())
+      (subject) => !compulsorySubjectsNames.includes(subject.toLowerCase()),
     );
 
     if (invalidSubjects?.length > 0) {
       throw new AppError(
         `The following subjects are not found: ${invalidSubjects.join(", ")}`,
-        404
+        404,
       );
     }
 
@@ -230,14 +230,14 @@ const classCreation = async (
 };
 
 const fetchAClassById = async (
-  payload: GetClassPayloadType
+  payload: GetClassPayloadType,
 ): Promise<ClassDocument> => {
   try {
     const existingClass = await Class.findById({
       _id: payload.class_id,
     })
       .populate(
-        "compulsory_subjects teacher_subject_assignments.teacher teacher_subject_assignments.subject"
+        "compulsory_subjects teacher_subject_assignments.teacher teacher_subject_assignments.subject",
       )
       .populate("teacher_subject_assignments.teacher", "-password")
       .populate("class_teacher", "-password");
@@ -258,7 +258,7 @@ const fetchAClassById = async (
 const fetchAllClasses = async (): Promise<ClassDocument[]> => {
   try {
     const existingClasses = await Class.find({}).populate(
-      "compulsory_subjects"
+      "compulsory_subjects",
     );
 
     if (!existingClasses) {
@@ -288,7 +288,7 @@ const subjectsAdditionToAClass = async (payload: SubjectAdditionType) => {
     if (activeClassEnrollment) {
       throw new AppError(
         "You can not add new subject to this class because there is an active class enrollment for the class.",
-        400
+        400,
       );
     }
 
@@ -316,11 +316,11 @@ const subjectsAdditionToAClass = async (payload: SubjectAdditionType) => {
     }
 
     const subjectObjectIds = subject_ids_array.map(
-      (id) => new mongoose.Types.ObjectId(id)
+      (id) => new mongoose.Types.ObjectId(id),
     );
 
     const invalidSubjects = classExist.compulsory_subjects.filter((subject) =>
-      subjectObjectIds.some((id) => id.equals(subject))
+      subjectObjectIds.some((id) => id.equals(subject)),
     );
 
     const allSubjects = (await Subject.find({
@@ -329,22 +329,24 @@ const subjectsAdditionToAClass = async (payload: SubjectAdditionType) => {
 
     const filteredSubjects = subjectObjectIds.filter(
       (id) =>
-        !allSubjects.some((subject) => subject._id.toString() === id.toString())
+        !allSubjects.some(
+          (subject) => subject._id.toString() === id.toString(),
+        ),
     );
 
     if (filteredSubjects.length > 0) {
       throw new AppError(
         `The following subject IDs: ${filteredSubjects.join(
-          ", "
+          ", ",
         )} are not found.`,
-        400
+        400,
       );
     }
 
     if (invalidSubjects.length > 0) {
       throw new AppError(
         "One or more of the subjects is already been offered in this class.",
-        400
+        400,
       );
     }
 
@@ -375,7 +377,7 @@ const subjectsRemovalFromClass = async (payload: SubjectRemovalType) => {
     if (activeClassEnrollment) {
       throw new AppError(
         "You can not remove subject from a class when there is an active class enrollment.",
-        400
+        400,
       );
     }
 

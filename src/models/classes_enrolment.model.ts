@@ -56,7 +56,7 @@ const classEnrolmentSchema = new mongoose.Schema<ClassEnrolmentDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const ClassEnrolment = mongoose.model("ClassEnrolment", classEnrolmentSchema);

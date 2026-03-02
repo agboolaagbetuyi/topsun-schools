@@ -1250,7 +1250,7 @@ import { AppError } from "../utils/app.error";
 import { capitalizeFirstLetter, genderFunction } from "../utils/functions";
 
 const classTeacherAssignedEndpoint = async (
-  payload: TeacherToSubjectType
+  payload: TeacherToSubjectType,
 ): Promise<ClassDocument> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -1268,14 +1268,14 @@ const classTeacherAssignedEndpoint = async (
     if (findTeacher.is_updated !== true) {
       throw new AppError(
         "This teacher needs to be onboarded before being assigned as a class teacher.",
-        400
+        400,
       );
     }
 
     if (findTeacher.class_managing) {
       throw new AppError(
         "Teacher already assigned to a class and a teacher can only be assigned to one class.",
-        400
+        400,
       );
     }
 
@@ -1294,7 +1294,7 @@ const classTeacherAssignedEndpoint = async (
     const result = await Class.findByIdAndUpdate(
       { _id: class_id },
       { class_teacher: teacher_id },
-      { new: true }
+      { new: true },
     )
       .populate("class_teacher", "-password")
       .session(session);
@@ -1322,7 +1322,7 @@ const classTeacherAssignedEndpoint = async (
 };
 
 const assigningTeacherToSubject = async (
-  payload: TeacherToSubjectType
+  payload: TeacherToSubjectType,
 ): Promise<{
   classDoc: ClassDocument;
   teacherFullName: string;
@@ -1352,7 +1352,7 @@ const assigningTeacherToSubject = async (
     if (teacherInfo.is_updated !== true) {
       throw new AppError(
         "This teacher needs to be onboarded before being assigned to teach any subject.",
-        400
+        400,
       );
     }
 
@@ -1394,13 +1394,13 @@ const assigningTeacherToSubject = async (
           return subject.toString() === subjectInfo._id.toString();
         }
         return false;
-      }
+      },
     );
 
     if (!checkSubject) {
       throw new AppError(
         `${teacherFullName}is not qualify to teach ${subject}.`,
-        400
+        400,
       );
     }
 
@@ -1436,7 +1436,7 @@ const assigningTeacherToSubject = async (
           teacher: UserDocument;
         }[];
       }>(
-        "teacher_subject_assignments.subject teacher_subject_assignments.teacher"
+        "teacher_subject_assignments.subject teacher_subject_assignments.teacher",
       )
       .session(session);
 
@@ -1509,14 +1509,14 @@ const assigningTeacherToSubject = async (
 };
 
 const getTeacherDetailsById = async (
-  teacher_id: string
+  teacher_id: string,
 ): Promise<UserWithoutPassword> => {
   try {
     const findTeacher = await Teacher.findById({
       _id: teacher_id,
     })
       .populate(
-        "teaching_assignment.subject teaching_assignment.class_id subjects_capable_of_teaching class_managing"
+        "teaching_assignment.subject teaching_assignment.class_id subjects_capable_of_teaching class_managing",
       )
       .lean();
 
@@ -1540,7 +1540,7 @@ const fetchTeachersBySubjectId = async (
   subject_id: string,
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ): Promise<{
   teacherObj: UserWithoutPassword[];
   totalCount: number;
@@ -1619,7 +1619,7 @@ const fetchTeachersBySubjectId = async (
 const fetchAllTeachers = async (
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ): Promise<{
   teacherObj: UserWithoutPassword[];
   totalCount: number;
@@ -1627,7 +1627,7 @@ const fetchAllTeachers = async (
 }> => {
   try {
     let query = Teacher.find({}).populate(
-      "teaching_assignment.class_id teaching_assignment.subject subjects_capable_of_teaching"
+      "teaching_assignment.class_id teaching_assignment.subject subjects_capable_of_teaching",
     );
 
     if (searchParams) {
@@ -1693,7 +1693,7 @@ const fetchAllTeachers = async (
 };
 
 const onboardTeacher = async (
-  payload: OnboardTeacherType
+  payload: OnboardTeacherType,
 ): Promise<UserReturn> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -1726,7 +1726,7 @@ const onboardTeacher = async (
     if (teacher.is_verified !== true) {
       throw new AppError(
         "Teacher must verify his or her email before such teacher can be onboarded.",
-        404
+        404,
       );
     }
 
@@ -1743,17 +1743,17 @@ const onboardTeacher = async (
     // }
 
     const existingSubjectIds = teacher.subjects_capable_of_teaching?.map(
-      (subject) => subject.toString()
+      (subject) => subject.toString(),
     );
 
     const duplicateSubjects = payload.subject_ids.filter((id) =>
-      existingSubjectIds?.includes(id)
+      existingSubjectIds?.includes(id),
     );
 
     if (duplicateSubjects.length > 0) {
       throw new AppError(
         `Subjects with IDs ${duplicateSubjects.join(", ")} already exist`,
-        400
+        400,
       );
     }
 
@@ -1767,7 +1767,7 @@ const onboardTeacher = async (
           },
         },
       },
-      { new: true }
+      { new: true },
     )
       .session(session)
       .populate("subjects_capable_of_teaching");
@@ -1786,9 +1786,9 @@ const onboardTeacher = async (
               teacher_ids: payload.teacher_id,
             },
           },
-          { new: true }
-        ).session(session)
-      )
+          { new: true },
+        ).session(session),
+      ),
     );
 
     const { password, ...others } = findAndUpdateTeacher.toJSON();
@@ -1834,7 +1834,7 @@ const classTeacherChange = async (payload: ClassTeacherChangeType) => {
     if (!teacherInfo) {
       throw new AppError(
         `Teacher with ID: ${new_class_teacher_id} can not be found.`,
-        404
+        404,
       );
     }
 
@@ -1844,11 +1844,11 @@ const classTeacherChange = async (payload: ClassTeacherChangeType) => {
 
       throw new AppError(
         `Teacher with name ${capitalizeFirstLetter(
-          teacherInfo.first_name
+          teacherInfo.first_name,
         )} ${capitalizeFirstLetter(
-          teacherInfo.last_name
+          teacherInfo.last_name,
         )} is already a class teacher for ${classTeacherManages.name}`,
-        400
+        400,
       );
     }
 
@@ -1883,7 +1883,7 @@ const classTeacherChange = async (payload: ClassTeacherChangeType) => {
 };
 
 const changingTeacherToSubject = async (
-  payload: ClassSubjectTeacherChangeType
+  payload: ClassSubjectTeacherChangeType,
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -1908,7 +1908,7 @@ const changingTeacherToSubject = async (
     if (teacherInfo.is_updated !== true) {
       throw new AppError(
         "This teacher needs to be onboarded before being assigned to teach any subject.",
-        400
+        400,
       );
     }
 
@@ -1950,13 +1950,13 @@ const changingTeacherToSubject = async (
           return subject.toString() === subjectInfo._id.toString();
         }
         return false;
-      }
+      },
     );
 
     if (!checkSubject) {
       throw new AppError(
         `${teacherFullName}is not qualify to teach ${subject}.`,
-        400
+        400,
       );
     }
 
@@ -1973,7 +1973,7 @@ const changingTeacherToSubject = async (
       "teacher_subject_assignments.subject": subjectInfo._id,
     })
       .populate(
-        "teacher_subject_assignments.subject teacher_subject_assignments.teacher"
+        "teacher_subject_assignments.subject teacher_subject_assignments.teacher",
       )
       .session(session);
 
@@ -2000,7 +2000,7 @@ const changingTeacherToSubject = async (
         ) {
           throw new AppError(
             `This teacher has already been assigned to teach ${subject} in this class.`,
-            400
+            400,
           );
         }
 
@@ -2015,7 +2015,7 @@ const changingTeacherToSubject = async (
             formalTeacher.teaching_assignment?.filter(
               (t: { subject: object; class_id: object }) =>
                 t.subject.toString() !== subjectInfo._id.toString() ||
-                t.class_id.toString() !== classInfo._id.toString()
+                t.class_id.toString() !== classInfo._id.toString(),
             );
 
           await formalTeacher.save({ session });
@@ -2029,7 +2029,7 @@ const changingTeacherToSubject = async (
                   ...item,
                   teacher: new mongoose.Types.ObjectId(new_teacher_id),
                 }
-              : item
+              : item,
           ) as typeof classInfo.teacher_subject_assignments;
 
         await classInfo.save({ session });
@@ -2075,7 +2075,7 @@ const changingTeacherToSubject = async (
 };
 
 const fetchStudentsInClassOfferingTeacherSubject = async (
-  payload: StudentSubjectType
+  payload: StudentSubjectType,
 ) => {
   try {
     const {
@@ -2091,7 +2091,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
       _id: class_id,
     })
       .populate(
-        "teacher_subject_assignments.teacher teacher_subject_assignments.subject"
+        "teacher_subject_assignments.teacher teacher_subject_assignments.subject",
       )
       .lean();
 
@@ -2131,7 +2131,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
       if (!isAssigned) {
         throw new AppError(
           `You are not the teacher assigned to teach ${subjectExist.name} in ${classExist.name}.`,
-          400
+          400,
         );
       }
     }
@@ -2143,12 +2143,12 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
     if (!sessionExist) {
       throw new AppError(
         `Session with ID: ${academic_session_id} does not exist.`,
-        404
+        404,
       );
     }
 
     const activeTerm = sessionExist.terms.find(
-      (term) => term.is_active === true
+      (term) => term.is_active === true,
     );
 
     const classDetails = await ClassEnrolment.findOne({
@@ -2165,7 +2165,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
     if (!classDetails || !classDetails.students) {
       throw new AppError(
         `No students are enrolled in ${classExist.name} for the ${sessionExist.academic_session} academic session.`,
-        404
+        404,
       );
     }
 
@@ -2179,7 +2179,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
         })
         .map(async (student) => {
           const subjectIncluded = student.subjects_offered.find((p) =>
-            p._id.equals(subjectExist._id)
+            p._id.equals(subjectExist._id),
           );
 
           // const result = await Result.findOne({
@@ -2210,7 +2210,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
           });
 
           const currentTermResult = result?.term_results.find(
-            (term) => term.term === activeTerm?.name
+            (term) => term.term === activeTerm?.name,
           );
 
           const subjectResult = currentTermResult;
@@ -2220,12 +2220,12 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
             subject_result: subjectResult ? subjectResult : {},
             subjects_offered: subjectIncluded,
           };
-        })
+        }),
     );
 
     const subjectTeacherObj = classExist.teacher_subject_assignments.find(
       (s) =>
-        s.subject && s.subject._id.toString() === subjectExist._id.toString()
+        s.subject && s.subject._id.toString() === subjectExist._id.toString(),
     );
 
     const subjectObj = {
@@ -2247,7 +2247,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
 };
 
 const fetchAllClassesTeacherTeachesByTeacherId = async (
-  payload: TeacherSubjectType
+  payload: TeacherSubjectType,
 ) => {
   try {
     const { teacher_id, userRole, user_id } = payload;
@@ -2258,7 +2258,7 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
       if (teacher_id !== userId.toString()) {
         throw new AppError(
           "You can only view the class and subject that belong to you as a teacher.",
-          403
+          403,
         );
       }
     }
@@ -2281,7 +2281,7 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
     if (!teacher.teaching_assignment) {
       throw new AppError(
         "Teacher assignment does not exist for this teacher.",
-        400
+        400,
       );
     }
 
@@ -2314,8 +2314,8 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
         return students
           .filter((entry) =>
             entry.subjects_offered.some(
-              (a) => a.toString() === subject?._id.toString()
-            )
+              (a) => a.toString() === subject?._id.toString(),
+            ),
           )
           .map((entry) => {
             const { subjects_offered, ...others } = entry;
@@ -2346,7 +2346,7 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
 };
 
 const fetchStudentsOfferingTeacherSubjectUsingClassId = async (
-  payload: StudentClassPayloadType
+  payload: StudentClassPayloadType,
 ) => {
   try {
     const { class_id, userId, userRole } = payload;
@@ -2377,13 +2377,13 @@ const fetchStudentsOfferingTeacherSubjectUsingClassId = async (
       const teacherSubject = classExist.teacher_subject_assignments.find(
         (s) => {
           return s.teacher?.toString() === teacher._id.toString();
-        }
+        },
       );
 
       if (!teacherSubject || !subjectExistInTeacher) {
         throw new AppError(
           "You are not the teacher assigned to teach this subject in this class.",
-          403
+          403,
         );
       }
 
@@ -2394,7 +2394,7 @@ const fetchStudentsOfferingTeacherSubjectUsingClassId = async (
       if (!subjectExist) {
         throw new AppError(
           `Subject with ID: ${subjectExistInTeacher} does not exist.`,
-          404
+          404,
         );
       }
 
@@ -2418,7 +2418,7 @@ const fetchStudentsOfferingTeacherSubjectUsingClassId = async (
       for (const student of classEnrolment?.students) {
         const isEnrolled = student.subjects_offered.some(
           (subject) =>
-            subject._id.toString() === teacherSubject.subject.toString()
+            subject._id.toString() === teacherSubject.subject.toString(),
         );
 
         if (isEnrolled) {
@@ -2438,7 +2438,7 @@ const fetchStudentsOfferingTeacherSubjectUsingClassId = async (
 };
 
 const fetchAllStudentsInClassByClassId = async (
-  payload: StudentClassByIdPayloadType
+  payload: StudentClassByIdPayloadType,
 ) => {
   try {
     const { class_id, userId, userRole, academic_session_id } = payload;
@@ -2463,7 +2463,7 @@ const fetchAllStudentsInClassByClassId = async (
       if (teacher._id.toString() !== classExist.class_teacher?.toString()) {
         throw new AppError(
           `You are not the class teacher of ${classExist.name}.`,
-          403
+          403,
         );
       }
     }
@@ -2484,7 +2484,7 @@ const fetchAllStudentsInClassByClassId = async (
     if (!latestClassEnrolment) {
       throw new AppError(
         `There is no active class enrolment for ${classExist.name} in the ${activeSession.academic_session} session.`,
-        404
+        404,
       );
     }
 
@@ -2502,7 +2502,7 @@ const fetchStudentsInClassThatTeacherManages = async (
   page: number | 1,
   limit: number | 10,
   searchParams: string,
-  payload: StudentClassByIdPayloadType
+  payload: StudentClassByIdPayloadType,
 ) => {
   try {
     const { class_id, userId, userRole, academic_session_id, teacher_id } =
@@ -2531,7 +2531,7 @@ const fetchStudentsInClassThatTeacherManages = async (
       ) {
         throw new AppError(
           `You are not the class teacher of ${classExist.name}.`,
-          403
+          403,
         );
       }
     }
@@ -2552,12 +2552,12 @@ const fetchStudentsInClassThatTeacherManages = async (
     if (!latestClassEnrolment) {
       throw new AppError(
         `There is no active class enrolment for ${classExist.name} in the ${activeSession.academic_session} session.`,
-        404
+        404,
       );
     }
 
     let students = latestClassEnrolment.students.map(
-      (s) => s.student as unknown as UserDocument
+      (s) => s.student as unknown as UserDocument,
     );
     if (searchParams) {
       const search = searchParams.toLowerCase();
@@ -2566,7 +2566,7 @@ const fetchStudentsInClassThatTeacherManages = async (
           student.first_name.toLowerCase().includes(search) ||
           student.last_name.toLowerCase().includes(search) ||
           student.email.toLowerCase().includes(search) ||
-          student.middle_name?.toLowerCase().includes(search)
+          student.middle_name?.toLowerCase().includes(search),
       );
     }
 
@@ -2593,7 +2593,7 @@ const fetchStudentsInClassThatTeacherManages = async (
 };
 
 const fetchClassTeacherManagesByTeacherId = async (
-  payload: ClassTeacherManagesPayloadType
+  payload: ClassTeacherManagesPayloadType,
 ) => {
   try {
     const { teacher_id } = payload;
@@ -2613,11 +2613,11 @@ const fetchClassTeacherManagesByTeacherId = async (
     if (!teacherExist.class_managing) {
       throw new AppError(
         `${myStatus.title} ${capitalizeFirstLetter(
-          teacherExist.first_name
+          teacherExist.first_name,
         )} ${capitalizeFirstLetter(
-          teacherExist.last_name
+          teacherExist.last_name,
         )} has not been assigned to manage any class.`,
-        400
+        400,
       );
     }
 

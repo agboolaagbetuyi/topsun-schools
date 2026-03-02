@@ -10,7 +10,7 @@ import { AppError } from "../utils/app.error";
 
 // refactor this function
 const findOneAssignment = async (
-  payload: FindOneAssignmentPayload
+  payload: FindOneAssignmentPayload,
 ): Promise<AssignmentDocument | null> => {
   try {
     const assignmentExist = await Assignment.findOne({
@@ -36,7 +36,7 @@ const findOneAssignment = async (
 };
 
 const findAssignmentById = async (
-  id: mongoose.Types.ObjectId
+  id: mongoose.Types.ObjectId,
 ): Promise<AssignmentDocument | null> => {
   try {
     const assignmentExist = await Assignment.findById(id);
@@ -56,7 +56,7 @@ const findAssignmentById = async (
 };
 
 const findOneAssignmentSubmission = async (
-  payload: FindOneAssignmentPayload
+  payload: FindOneAssignmentPayload,
 ): Promise<SubmissionDocument | null> => {
   try {
     const submissionExist = await AssignmentSubmission.findOne({
@@ -82,7 +82,7 @@ const findOneAssignmentSubmission = async (
 };
 
 const findAssignmentSubmissionById = async (
-  id: mongoose.Types.ObjectId
+  id: mongoose.Types.ObjectId,
 ): Promise<SubmissionDocument | null> => {
   try {
     const submissionExist = await AssignmentSubmission.findById(id);

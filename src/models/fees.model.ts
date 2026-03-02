@@ -25,7 +25,7 @@ const feesSchema = new mongoose.Schema<SchoolFeesDocument>(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Fee = mongoose.model<SchoolFeesDocument>("Fee", feesSchema);

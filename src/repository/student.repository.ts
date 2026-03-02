@@ -182,7 +182,7 @@ import { AppError } from "../utils/app.error";
 const calculateOutStandingPerTerm = async (
   session: mongoose.ClientSession,
   session_id: string,
-  term: string
+  term: string,
 ) => {
   try {
     // FETCH ALL TERM PAYMENT THAT REMAINING AMOUNT IS NOT 0
@@ -207,12 +207,12 @@ const calculateOutStandingPerTerm = async (
       await Student.updateOne(
         { _id: payment.student },
         { $inc: { outstanding_balance: payment.remaining_amount } },
-        { new: true, session }
+        { new: true, session },
       );
     }
 
     console.log(
-      "Outstanding payment recorded for students affected successfully."
+      "Outstanding payment recorded for students affected successfully.",
     );
 
     return {

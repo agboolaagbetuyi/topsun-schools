@@ -130,7 +130,7 @@ const studentSchema = new mongoose.Schema<UserDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 studentSchema.index({ email: 1 });

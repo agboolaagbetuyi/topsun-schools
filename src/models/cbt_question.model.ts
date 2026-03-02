@@ -67,11 +67,11 @@ const cbtQuestionSchema = new mongoose.Schema<CbtQuestionDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const CbtQuestion = mongoose.model<CbtQuestionDocument>(
   "CbtQuestion",
-  cbtQuestionSchema
+  cbtQuestionSchema,
 );
 export default CbtQuestion;

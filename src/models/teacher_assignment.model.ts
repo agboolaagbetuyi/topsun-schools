@@ -15,11 +15,11 @@ const teacherAssignmentSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const TeacherAssignment = mongoose.model(
   "TeacherAssignment",
-  teacherAssignmentSchema
+  teacherAssignmentSchema,
 );
 export default TeacherAssignment;

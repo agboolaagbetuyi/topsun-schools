@@ -12,7 +12,7 @@ import Student from "../models/students.model";
 import { AppError } from "../utils/app.error";
 
 const enrolStudentToClass = async (
-  payload: StudentEnrolmentType
+  payload: StudentEnrolmentType,
 ): Promise<ClassEnrolmentDocument> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -37,7 +37,7 @@ const enrolStudentToClass = async (
     if (studentSubscribed.new_session_subscription !== true) {
       throw new AppError(
         `Student named: ${studentSubscribed.first_name} ${studentSubscribed.last_name} has not yet subscribed to new session. Please let the student subscribe first before enrollment.`,
-        400
+        400,
       );
     }
 
@@ -66,13 +66,13 @@ const enrolStudentToClass = async (
 
       throw new AppError(
         `Student is already enrolled in ${actualClass?.name} class for this session.`,
-        400
+        400,
       );
       // }
     }
 
     const compulsorySubjects = await Class.findById({ _id: class_id }).session(
-      session
+      session,
     );
 
     if (!compulsorySubjects?.compulsory_subjects?.length) {
@@ -80,22 +80,22 @@ const enrolStudentToClass = async (
     }
 
     const flattenedSubjects = compulsorySubjects?.compulsory_subjects.map(
-      (subject) => subject
+      (subject) => subject,
     );
 
     const flattenedSelectedSubjects = subjects_to_offer_array.map((s) => s);
 
     const hasInvalidSubjects = flattenedSelectedSubjects.filter(
       (id) =>
-        !flattenedSubjects.map((s) => s.toString()).includes(id.toString())
+        !flattenedSubjects.map((s) => s.toString()).includes(id.toString()),
     );
 
     if (hasInvalidSubjects.length > 0) {
       throw new AppError(
         `The subjects with the following IDs: ${hasInvalidSubjects.join(
-          ", "
+          ", ",
         )} is not part of the subjects available to be offered in this class.`,
-        400
+        400,
       );
     }
 
@@ -133,11 +133,11 @@ const enrolStudentToClass = async (
             students: studentObj,
           },
         },
-        { session }
+        { session },
       );
 
       result = await ClassEnrolment.findById(actualClassEnrolment._id).session(
-        session
+        session,
       );
     }
 
@@ -151,7 +151,7 @@ const enrolStudentToClass = async (
         current_class_level: level,
         active_class_enrolment: true,
       },
-      { new: true, session }
+      { new: true, session },
     );
 
     await session.commitTransaction();
@@ -171,7 +171,7 @@ const enrolStudentToClass = async (
 };
 
 const enrolManyStudentsToClass = async (
-  payload: StudentEnrolmentType
+  payload: StudentEnrolmentType,
 ): Promise<ClassEnrolmentDocument> => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -185,11 +185,11 @@ const enrolManyStudentsToClass = async (
 
     if (studentsWithoutSubscription.length > 0) {
       const studentNames = studentsWithoutSubscription.map(
-        (student) => `${student.first_name} ${student.last_name}`
+        (student) => `${student.first_name} ${student.last_name}`,
       );
       throw new AppError(
         `The following students: ${studentNames} have not yet subscribed to the new session. Please let them subscribe first before you enroll them to the new session.`,
-        400
+        400,
       );
     }
 
@@ -217,7 +217,7 @@ const enrolManyStudentsToClass = async (
 
     if (alreadyEnrolledStudents.length > 0) {
       const enrolledStudentIds = alreadyEnrolledStudents.flatMap((enrolment) =>
-        enrolment.students.map((student) => student.student.toString())
+        enrolment.students.map((student) => student.student.toString()),
       );
       const conflictingStudents =
         student_ids?.filter((id) => enrolledStudentIds.includes(id)) || [];
@@ -232,20 +232,20 @@ const enrolManyStudentsToClass = async (
             return `${student.first_name} ${student.last_name}`;
           }
           return "Unknown student";
-        })
+        }),
       );
 
       // I WILL NEED TO CHANGE THE IDS INSIDE THE ERROR TO NAME OF STUDENTS INVOLVED
       throw new AppError(
         `The following students are already enrolled in this class for the session: ${students?.join(
-          ", "
+          ", ",
         )}`,
-        400
+        400,
       );
     }
 
     const compulsorySubjects = await Class.findById({ _id: class_id }).session(
-      session
+      session,
     );
 
     if (!compulsorySubjects?.compulsory_subjects?.length) {
@@ -253,7 +253,7 @@ const enrolManyStudentsToClass = async (
     }
 
     const flattenedSubjects = compulsorySubjects?.compulsory_subjects.map(
-      (subject) => new mongoose.Types.ObjectId(subject)
+      (subject) => new mongoose.Types.ObjectId(subject),
     );
 
     const studentsToEnrol = student_ids?.map((student_id) => ({
@@ -331,12 +331,12 @@ const enrolManyStudentsToClass = async (
 };
 
 const fetchSingleEnrollment = async (
-  id: string
+  id: string,
 ): Promise<ClassEnrolmentDocument> => {
   try {
     const enrollment = await ClassEnrolment.findById({ _id: id }).populate(
       "students.student students.subjects_offered academic_session_id class",
-      "-password"
+      "-password",
     );
 
     if (!enrollment) {
@@ -356,7 +356,7 @@ const fetchSingleEnrollment = async (
 const fetchAllEnrollments = async (
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ) => {
   try {
     let query = ClassEnrolment.find().populate("class");
@@ -414,7 +414,7 @@ const fetchEnrollmentsBySession = async (
   session_id: string,
   page: number | undefined,
   limit: number | undefined,
-  searchParams: string
+  searchParams: string,
 ) => {
   try {
     let query = ClassEnrolment.find({
@@ -486,7 +486,7 @@ const fetchAllActiveClassEnrollments = async (): Promise<
 };
 
 const fetchAllStudentsInAClass = async (
-  payload: GetClassStudentsType
+  payload: GetClassStudentsType,
 ): Promise<{ classDoc: ClassEnrolmentDocument; class_name: string }> => {
   try {
     const { session_id, class_id, userRole, userId } = payload;
@@ -503,7 +503,7 @@ const fetchAllStudentsInAClass = async (
       if (classExist.class_teacher !== userId) {
         throw new AppError(
           `You are not the class teacher of ${classExist.name} and as such you are not allowed to view this resource.`,
-          403
+          403,
         );
       }
     }
@@ -524,7 +524,7 @@ const fetchAllStudentsInAClass = async (
     if (!enrolledStudents) {
       throw new AppError(
         `Can not find any enrollment into ${classExist.name} in the ${sessionExist.academic_session} academic session.`,
-        404
+        404,
       );
     }
 
@@ -544,7 +544,7 @@ const fetchAllStudentsInAClass = async (
 };
 
 const fetchAllStudentsInAClassInActiveSession = async (
-  payload: GetClassStudentsType
+  payload: GetClassStudentsType,
 ): Promise<{ classDoc: ClassEnrolmentDocument; class_name: string }> => {
   try {
     const { session_id, class_id, userRole, userId } = payload;
@@ -561,7 +561,7 @@ const fetchAllStudentsInAClassInActiveSession = async (
       if (classExist.class_teacher !== userId) {
         throw new AppError(
           `You are not the class teacher of ${classExist.name} and as such you are not allowed to view this resource.`,
-          403
+          403,
         );
       }
     }
@@ -577,7 +577,7 @@ const fetchAllStudentsInAClassInActiveSession = async (
     if (sessionExist.is_active !== true) {
       throw new AppError(
         `Session with ID: ${session_id} is no more active and you can only use this resource when the session is active.`,
-        403
+        403,
       );
     }
 
@@ -589,7 +589,7 @@ const fetchAllStudentsInAClassInActiveSession = async (
     if (!enrolledStudents) {
       throw new AppError(
         `Can not find any enrollment into ${classExist.name} in the ${sessionExist.academic_session} academic session.`,
-        404
+        404,
       );
     }
 

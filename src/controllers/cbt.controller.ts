@@ -73,7 +73,7 @@ const endAllActiveTermCbtAssessmentDocumentsInATerm = catchErrors(
     };
     const result = await allActiveTermCbtAssessmentDocumentsInATermEnding(
       session,
-      term
+      term,
     );
 
     if (!result) {
@@ -85,7 +85,7 @@ const endAllActiveTermCbtAssessmentDocumentsInATerm = catchErrors(
       status: 200,
       success: true,
     });
-  }
+  },
 );
 
 const getAllCbtAssessmentDocument = catchErrors(async (req, res) => {
@@ -122,7 +122,7 @@ const createTermCbtAssessmentDocument = catchErrors(async (req, res) => {
   }
 
   const validateInput = joiValidateAssessmentDocumentArray(
-    assessment_document_array
+    assessment_document_array,
   );
 
   if (validateInput.error) {
@@ -142,7 +142,7 @@ const createTermCbtAssessmentDocument = catchErrors(async (req, res) => {
   if (!result) {
     throw new AppError(
       "Unable to create cbt assessment documents for the term.",
-      400
+      400,
     );
   }
 
@@ -243,7 +243,7 @@ const getTermCbtAssessmentDocument = catchErrors(async (req, res) => {
   if (!result) {
     throw new AppError(
       "Unable to get CBT assessment document for the term.",
-      400
+      400,
     );
   }
 
@@ -265,13 +265,13 @@ const getTermClassCbtAssessmentTimetables = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -286,7 +286,7 @@ const getTermClassCbtAssessmentTimetables = catchErrors(async (req, res) => {
   if (!result) {
     throw new AppError(
       "Unable to get Cbt assessment timetable for this class.",
-      400
+      400,
     );
   }
 
@@ -312,13 +312,13 @@ const getAllClassCbtAssessmentTimetables = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -326,13 +326,13 @@ const getAllClassCbtAssessmentTimetables = catchErrors(async (req, res) => {
     class_id,
     page,
     limit,
-    searchQuery
+    searchQuery,
   );
 
   if (!result) {
     throw new AppError(
       "Unable to get Cbt assessment timetable for this class.",
-      400
+      400,
     );
   }
 
@@ -366,13 +366,13 @@ const createTermClassCbtAssessmentTimetable = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -428,13 +428,13 @@ const updateTermClassCbtAssessmentTimetableToChangeSubjectDate = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value
+      ([key, value]) => !value,
     );
 
     if (missingField) {
       throw new AppError(
         `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-        400
+        400,
       );
     }
 
@@ -463,7 +463,7 @@ const updateTermClassCbtAssessmentTimetableToChangeSubjectDate = catchErrors(
       success: true,
       timetable: result,
     });
-  }
+  },
 );
 
 const endTakingASubjectInATimetableForATerm = catchErrors(async (req, res) => {
@@ -484,13 +484,13 @@ const endTakingASubjectInATimetableForATerm = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -536,13 +536,13 @@ const setSubjectCbtObjQuestionsForAClass = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -569,7 +569,7 @@ const setSubjectCbtObjQuestionsForAClass = catchErrors(async (req, res) => {
   if (!result) {
     throw new AppError(
       "Unable to store Cbt assessment questions for this subject.",
-      400
+      400,
     );
   }
 
@@ -588,7 +588,7 @@ const classTeacherAuthorizeStudentsToWriteSubjectCbt = catchErrors(
     if (!Array.isArray(students_id_array) || students_id_array.length === 0) {
       throw new AppError(
         "Please provide the students that are to be allowed to take the CBT for this subject.",
-        400
+        400,
       );
     }
 
@@ -607,13 +607,13 @@ const classTeacherAuthorizeStudentsToWriteSubjectCbt = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value
+      ([key, value]) => !value,
     );
 
     if (missingField) {
       throw new AppError(
         `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-        400
+        400,
       );
     }
 
@@ -631,7 +631,7 @@ const classTeacherAuthorizeStudentsToWriteSubjectCbt = catchErrors(
     if (!result) {
       throw new AppError(
         "Unable to authorize students to take this CBT subject.",
-        400
+        400,
       );
     }
 
@@ -641,7 +641,7 @@ const classTeacherAuthorizeStudentsToWriteSubjectCbt = catchErrors(
       success: true,
       authorized_students_ids: result,
     });
-  }
+  },
 );
 
 const startSubjectCbtObjCbtAssessmentForAClass = catchErrors(
@@ -662,13 +662,13 @@ const startSubjectCbtObjCbtAssessmentForAClass = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value
+      ([key, value]) => !value,
     );
 
     if (missingField) {
       throw new AppError(
         `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-        400
+        400,
       );
     }
 
@@ -692,7 +692,7 @@ const startSubjectCbtObjCbtAssessmentForAClass = catchErrors(
       success: true,
       questions: result,
     });
-  }
+  },
 );
 
 const updateSubjectCbtObjCbtAssessmentRemainingTimeForAClass = catchErrors(
@@ -713,13 +713,13 @@ const updateSubjectCbtObjCbtAssessmentRemainingTimeForAClass = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value
+      ([key, value]) => !value,
     );
 
     if (missingField) {
       throw new AppError(
         `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-        400
+        400,
       );
     }
 
@@ -742,7 +742,7 @@ const updateSubjectCbtObjCbtAssessmentRemainingTimeForAClass = catchErrors(
       success: true,
       // questions: result && result,
     });
-  }
+  },
 );
 
 const updateSubjectCbtObjCbtAssessmentAnswersForAClass = catchErrors(
@@ -767,13 +767,13 @@ const updateSubjectCbtObjCbtAssessmentAnswersForAClass = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value
+      ([key, value]) => !value,
     );
 
     if (missingField) {
       throw new AppError(
         `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-        400
+        400,
       );
     }
 
@@ -796,7 +796,7 @@ const updateSubjectCbtObjCbtAssessmentAnswersForAClass = catchErrors(
       success: true,
       questions: result && result,
     });
-  }
+  },
 );
 
 const submitSubjectCbtObjCbtAssessmentForAClass = catchErrors(
@@ -822,13 +822,13 @@ const submitSubjectCbtObjCbtAssessmentForAClass = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value
+      ([key, value]) => !value,
     );
 
     if (missingField) {
       throw new AppError(
         `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-        400
+        400,
       );
     }
 
@@ -884,7 +884,7 @@ const submitSubjectCbtObjCbtAssessmentForAClass = catchErrors(
     // } catch (err) {
     //   throw new AppError('Error processing CBT assessment.', 400);
     // }
-  }
+  },
 );
 
 const setSubjectCbtTheroyQuestionsForAClass = catchErrors(async (req, res) => {
@@ -906,13 +906,13 @@ const setSubjectCbtTheroyQuestionsForAClass = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 });

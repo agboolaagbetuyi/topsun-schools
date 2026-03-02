@@ -29,7 +29,7 @@ const subjectSchema = new mongoose.Schema<SubjectDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Subject = mongoose.model<SubjectDocument>("Subject", subjectSchema);

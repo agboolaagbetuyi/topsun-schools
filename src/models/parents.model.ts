@@ -23,7 +23,7 @@ const parentSchema = new mongoose.Schema<UserDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 parentSchema.index({ emai: 1 });

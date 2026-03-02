@@ -53,10 +53,10 @@ const subjectResultSchema = new Schema<SubjectResultDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const SubjectResult = model<SubjectResultDocument>(
   "SubjectResult",
-  subjectResultSchema
+  subjectResultSchema,
 );

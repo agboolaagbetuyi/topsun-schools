@@ -348,7 +348,7 @@ const getAllSchoolFeesPerTerm = catchErrors(async (req, res) => {
   if (!term || !academic_session_id) {
     throw new AppError(
       "Please provide term and academic session ID to proceed.",
-      400
+      400,
     );
   }
 
@@ -439,7 +439,7 @@ const getASchoolFeeByLevelAndTerm = catchErrors(async (req, res) => {
   if (!term || !academic_session_id) {
     throw new AppError(
       "Please provide term and academic session ID to proceed.",
-      400
+      400,
     );
   }
 
@@ -489,13 +489,13 @@ const createOptionalFees = catchErrors(async (req, res) => {
     amount,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -558,13 +558,13 @@ const createMandatoryFees = catchErrors(async (req, res) => {
     amount,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -627,13 +627,13 @@ const addMandatoryFeeDuringTerm = catchErrors(async (req, res) => {
     term,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -698,13 +698,13 @@ const addOptionalFeeDuringTerm = catchErrors(async (req, res) => {
     term,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value
+    ([key, value]) => !value,
   );
 
   if (missingField) {
     throw new AppError(
       `Please provide ${missingField[0].replace("_", " ")} to proceed.`,
-      400
+      400,
     );
   }
 
@@ -870,7 +870,7 @@ const getAllMandatoryFees = catchErrors(async (req, res) => {
     limit,
     searchQuery,
     session,
-    term
+    term,
   );
 
   if (!result) {
@@ -923,7 +923,7 @@ const getAllOptionalFees = catchErrors(async (req, res) => {
     limit,
     searchQuery,
     session,
-    term
+    term,
   );
 
   if (!result) {

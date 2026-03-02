@@ -84,11 +84,11 @@ const resultSchema = new mongoose.Schema<ResultDocument>(
     },
     position: { type: Number },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Result: Model<ResultDocument> = mongoose.model<ResultDocument>(
   "Result",
-  resultSchema
+  resultSchema,
 );
 export default Result;

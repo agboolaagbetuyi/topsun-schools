@@ -17,13 +17,13 @@ router.get("/get-all-admins", permission(["super_admin"]), getAllAdmins);
 router.get(
   "/get-admin/:admin_id",
   permission(["super_admin"]),
-  getAdminByAdminId
+  getAdminByAdminId,
 );
 
 router.get(
   "/get-my-school-summary",
   permission(["super_admin", "admin"]),
-  getMySchoolSummary
+  getMySchoolSummary,
 );
 
 export default router;

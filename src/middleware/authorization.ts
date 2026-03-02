@@ -9,7 +9,7 @@ import Teacher from "../models/teachers.model";
 const permission = (
   requiredRoles: Array<
     "admin" | "student" | "teacher" | "parent" | "super_admin"
-  >
+  >,
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -46,7 +46,7 @@ const permission = (
 
       if (!hasRole) {
         return next(
-          new AppError("You are not authorized to view this resource.", 403)
+          new AppError("You are not authorized to view this resource.", 403),
         );
       }
       next();

@@ -9,12 +9,12 @@ const termSettingsSchema = new Schema<TermSettingsDocument>(
     date_of_resumption: { type: Date },
     date_of_vacation: { type: Date },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const TermSettings = mongoose.model<TermSettingsDocument>(
   "TermSetting",
-  termSettingsSchema
+  termSettingsSchema,
 );
 export default TermSettings;
 

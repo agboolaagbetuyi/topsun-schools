@@ -99,11 +99,11 @@ const cbtResultSchema = new mongoose.Schema<CbtResultDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const CbtResult = mongoose.model<CbtResultDocument>(
   "CbtResult",
-  cbtResultSchema
+  cbtResultSchema,
 );
 export default CbtResult;

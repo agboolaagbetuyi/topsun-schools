@@ -35,11 +35,11 @@ const submissionSchema = new mongoose.Schema<SubmissionDocument>(
     graded: { type: Boolean, default: false },
     remark: { type: String },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const AssignmentSubmission = mongoose.model<SubmissionDocument>(
   "AssignmentSubmission",
-  submissionSchema
+  submissionSchema,
 );
 export default AssignmentSubmission;

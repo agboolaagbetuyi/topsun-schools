@@ -65,7 +65,7 @@ const createNewTerm = catchErrors(async (req, res) => {
   if (!start_date || !end_date || !name) {
     throw new AppError(
       "Start date, session name and end date must be provided.",
-      400
+      400,
     );
   }
 
@@ -463,7 +463,7 @@ const addingTermVacationAndNewTermResumptionDates = catchErrors(
     if (!result) {
       throw new AppError(
         "Unable to add vacation and new term resumption dates.",
-        400
+        400,
       );
     }
 
@@ -472,7 +472,7 @@ const addingTermVacationAndNewTermResumptionDates = catchErrors(
       success: true,
       status: 200,
     });
-  }
+  },
 );
 
 export {

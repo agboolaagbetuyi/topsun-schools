@@ -122,7 +122,7 @@ const emailWorker = new Worker<EmailJobData>(
       return sendEmail;
     }
   },
-  { connection }
+  { connection },
 );
 
 const studentResultQueue = new Queue("studentResultQueue", { connection });
@@ -146,12 +146,12 @@ const resultWorker = new Worker<
         break;
       case "update-student-cbt":
         await processStudentCbtExamResultUpdateManually(
-          job.data as CbtAssessmentJobData
+          job.data as CbtAssessmentJobData,
         );
         break;
       case "subject-position":
         await processStudentSubjectPositionUpdate(
-          job.data as SubjectPositionJobData
+          job.data as SubjectPositionJobData,
         );
         break;
       case "update-cum-score":
@@ -159,12 +159,12 @@ const resultWorker = new Worker<
         break;
       case "cbt-assessment-submission":
         await processCbtAssessmentSubmission(
-          job.data as CbtAssessmentEndedType
+          job.data as CbtAssessmentEndedType,
         );
         break;
       case "cbt-result-submission":
         await processCbtAssessmentResultSubmission(
-          job.data as CbtAssessmentResultType
+          job.data as CbtAssessmentResultType,
         );
         break;
 
@@ -172,7 +172,7 @@ const resultWorker = new Worker<
         throw new Error(`Unknown job type: ${job.name}`);
     }
   },
-  { connection, concurrency: 100, maxStalledCount: 2, lockDuration: 30000 }
+  { connection, concurrency: 100, maxStalledCount: 2, lockDuration: 30000 },
 );
 
 emailWorker.on("completed", (job) => {
@@ -191,7 +191,7 @@ resultWorker.on("active", (job) => {
   console.log(
     `Processing Job ID ${job.id} | Attempt ${job.attemptsMade + 1} of ${
       job.opts.attempts ?? 1
-    }`
+    }`,
   );
 });
 resultWorker.on("completed", (job) => {
@@ -211,18 +211,18 @@ resultWorker.on(
           | CbtAssessmentResultType
         >
       | undefined,
-    err: Error
+    err: Error,
   ) => {
     if (job) {
       console.error(
         `Job ${job.id} failed on attempt ${job.attemptsMade + 1} with error: ${
           err.message
-        }`
+        }`,
       );
     } else {
       console.error(`failed to process job due to error: ${err.message}`);
     }
-  }
+  },
 );
 
 const serverAdapter = new ExpressAdapter();
@@ -236,4 +236,4 @@ createBullBoard({
 
 serverAdapter.setBasePath("/bull-board");
 
-export { emailQueue, studentResultQueue, emailWorker, serverAdapter };
+export { emailQueue, emailWorker, serverAdapter, studentResultQueue };

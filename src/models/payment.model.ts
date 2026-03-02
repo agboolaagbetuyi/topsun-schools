@@ -141,7 +141,7 @@ const paymentSchema = new mongoose.Schema<PaymentDocument>(
     payment_summary: [staffActionSchema],
     declined_payment_summary: [staffActionSchema],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Payment = mongoose.model<PaymentDocument>("Payment", paymentSchema);

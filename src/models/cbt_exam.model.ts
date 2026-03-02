@@ -21,7 +21,7 @@ const cbtExamSchema = new mongoose.Schema<CbtAssessmentDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const CbtExam = mongoose.model<CbtAssessmentDocument>("CbtExam", cbtExamSchema);

@@ -369,7 +369,7 @@ const fetchingAllSubjects = async () => {
 };
 
 const fetchAllSubjectsThatStudentOffersInATerm = async (
-  payload: EnrolledStudentSubjects
+  payload: EnrolledStudentSubjects,
 ) => {
   try {
     const { session_id, userId, class_id } = payload;
@@ -402,18 +402,18 @@ const fetchAllSubjectsThatStudentOffersInATerm = async (
     if (!classEnrolment) {
       throw new AppError(
         `This student is not enrolled into any class in ${sessionExist.academic_session} session.`,
-        404
+        404,
       );
     }
 
     const actualStudentEnrollmentDetails = classEnrolment.students.find(
-      (a) => a.student.toString() === userId.toString()
+      (a) => a.student.toString() === userId.toString(),
     );
 
     if (!actualStudentEnrollmentDetails) {
       throw new AppError(
         `This student is not enrolled into any class in ${sessionExist.academic_session} session.`,
-        404
+        404,
       );
     }
 
@@ -499,7 +499,7 @@ const fetchingAllOptionalSubjects = async () => {
 };
 
 const fetchAllClassSubjectsByClassId = async (
-  payload: ClassSubjectFetchPayload
+  payload: ClassSubjectFetchPayload,
 ) => {
   try {
     const { class_id } = payload;

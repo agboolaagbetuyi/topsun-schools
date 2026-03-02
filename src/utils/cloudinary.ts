@@ -3,9 +3,9 @@ import {
   UploadApiOptions,
   UploadApiResponse,
 } from "cloudinary";
+import dotenv from "dotenv";
 import fs from "fs";
 import { CloudinaryType, FilePath, FolderName } from "../constants/types";
-import dotenv from "dotenv";
 dotenv.config();
 
 cloudinary.config({
@@ -16,7 +16,7 @@ cloudinary.config({
 
 const cloudinaryUploads = async (
   file: FilePath,
-  folder: FolderName
+  folder: FolderName,
 ): Promise<CloudinaryType> => {
   return new Promise((resolve, reject) => {
     const options: UploadApiOptions = {
@@ -30,7 +30,7 @@ const cloudinaryUploads = async (
       (error: any, result: UploadApiResponse | undefined) => {
         if (error) {
           return reject(
-            new Error(`Cloudinary upload error: ${error.message || error}`)
+            new Error(`Cloudinary upload error: ${error.message || error}`),
           );
         } else if (result) {
           resolve({
@@ -39,10 +39,10 @@ const cloudinaryUploads = async (
           });
         } else {
           reject(
-            new Error("Unknown error occurred during the upload process.")
+            new Error("Unknown error occurred during the upload process."),
           );
         }
-      }
+      },
     );
   });
 };
@@ -53,7 +53,7 @@ const uploader = async (path: FilePath): Promise<CloudinaryType> => {
 
 const singleFileUpload = async (
   file: { path: FilePath },
-  res: any
+  res: any,
 ): Promise<CloudinaryType> => {
   const { path } = file;
   try {
@@ -67,7 +67,7 @@ const singleFileUpload = async (
 
 const multipleFileUpload = async (
   files: Array<{ path: FilePath }>,
-  res: any
+  res: any,
 ): Promise<CloudinaryType[]> => {
   let urls: CloudinaryType[] = [];
 
@@ -124,4 +124,4 @@ const cloudinaryDestroy = async (public_id: string | string[]) => {
     console.error(error.message);
   }
 };
-export { handleFileUpload, cloudinaryDestroy };
+export { cloudinaryDestroy, handleFileUpload };

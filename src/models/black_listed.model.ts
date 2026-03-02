@@ -9,7 +9,7 @@ blackListedTokenSchema.index({ expires_at: 1 }, { expireAfterSeconds: 0 });
 
 const BlackListedToken = mongoose.model(
   "BlackListedToken",
-  blackListedTokenSchema
+  blackListedTokenSchema,
 );
 
 export default BlackListedToken;

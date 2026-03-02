@@ -8,11 +8,11 @@ const contactUsSchema = new mongoose.Schema<ContactUsDocument>(
     email: { type: String, required: true },
     message: { type: String, required: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const ContactUs = mongoose.model<ContactUsDocument>(
   "ContactUs",
-  contactUsSchema
+  contactUsSchema,
 );
 export default ContactUs;

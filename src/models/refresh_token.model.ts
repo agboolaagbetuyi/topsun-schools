@@ -13,7 +13,7 @@ const refreshTokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const RefreshToken = mongoose.model("RefreshToken", refreshTokenSchema);

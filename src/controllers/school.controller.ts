@@ -20,7 +20,7 @@ const createClassLevels = catchErrors(async (req, res) => {
   if (!class_level_array || class_level_array.length === 0) {
     throw new AppError(
       "Please provide all the class levels for this school.",
-      400
+      400,
     );
   }
 
@@ -59,7 +59,7 @@ const createResultSetting = catchErrors(async (req, res) => {
   if (name_percent_array.length === 0) {
     throw new AppError(
       "Please provide column names and corresponding percentages to proceed.",
-      400
+      400,
     );
   }
 
@@ -70,7 +70,7 @@ const createResultSetting = catchErrors(async (req, res) => {
   if (exam_components.component.length === 0) {
     throw new AppError(
       "Please provide component names and corresponding percentages to proceed.",
-      400
+      400,
     );
   }
 
@@ -88,7 +88,7 @@ const createResultSetting = catchErrors(async (req, res) => {
     name_percent_array,
     level,
     grading_array,
-    exam_components
+    exam_components,
   );
 
   if (!result) {

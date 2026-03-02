@@ -336,7 +336,7 @@ import { cloudinaryDestroy } from "../utils/cloudinary";
 
 // use to add optional fee to payment document when the fee is needed to be added during the term
 const optionalFeeAdditionToPaymentDocuments = async (
-  payload: PaymentPayloadOptionalFeeType
+  payload: PaymentPayloadOptionalFeeType,
 ) => {
   const {
     applicable_classes,
@@ -375,7 +375,7 @@ const optionalFeeAdditionToPaymentDocuments = async (
 };
 
 const mandatoryFeeAdditionToPaymentDocuments = async (
-  payload: PaymentPayloadMandatoryFeeType
+  payload: PaymentPayloadMandatoryFeeType,
 ) => {
   const { academic_session_id, termName, session, fee_name, amount } = payload;
   const classEnrolment = await ClassEnrolment.find({
@@ -403,7 +403,7 @@ const mandatoryFeeAdditionToPaymentDocuments = async (
 
 // extract this function since i will be using it in several places
 const addFeeToStudentPaymentDoc = async (
-  payload: AddFeeToStudentPaymentDocType
+  payload: AddFeeToStudentPaymentDocType,
 ) => {
   const { session_id, termName, studentId, session, fee_name, amount } =
     payload;
@@ -417,18 +417,18 @@ const addFeeToStudentPaymentDoc = async (
     if (!paymentDocExist) {
       throw new AppError(
         "No payment document found for the student for the current term.",
-        404
+        404,
       );
     }
 
     const feeNameExist = paymentDocExist.fees_breakdown.find(
-      (fee) => fee.fee_name === fee_name
+      (fee) => fee.fee_name === fee_name,
     );
 
     if (feeNameExist) {
       throw new AppError(
         `Fee with the name ${fee_name} has been added before and can not be re-added.`,
-        403
+        403,
       );
     }
 
@@ -480,7 +480,7 @@ const processFeePayment = async (studentPaymentObj: string) => {
 
 const calculateAndUpdateStudentPaymentDocuments = async (
   payload: StudentFeePaymentTypeWithBursarRole,
-  payment_type: "cash" | "bank"
+  payment_type: "cash" | "bank",
 ) => {
   try {
     // Find the student document
@@ -529,14 +529,14 @@ const calculateAndUpdateStudentPaymentDocuments = async (
     }
 
     const paymentObjToPull = currentTermPayment.waiting_for_confirmation.find(
-      (p) => p?._id?.toString() === payload?.payment_id?.toString()
+      (p) => p?._id?.toString() === payload?.payment_id?.toString(),
     );
 
     if (overduePayments.length === 0) {
       if (currentTermPayment.is_payment_complete) {
         throw new AppError(
           "Payment for this term has already been completed.",
-          400
+          400,
         );
       }
 
@@ -547,7 +547,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
       if (remainingAmountToPay > currentTermPayment.remaining_amount) {
         throw new AppError(
           "Amount planning to pay is more than what is expected for this term.",
-          400
+          400,
         );
       }
 
@@ -571,7 +571,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
       if (payment_type === "bank") {
         if (paymentObjToPull?.payment_evidence_image.url) {
           await cloudinaryDestroy(
-            paymentObjToPull.payment_evidence_image.public_url
+            paymentObjToPull.payment_evidence_image.public_url,
           );
         }
         currentTermPayment.waiting_for_confirmation.pull(paymentObjToPull);
@@ -622,7 +622,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
 
             if (paymentObjToPull?.payment_evidence_image.url) {
               await cloudinaryDestroy(
-                paymentObjToPull.payment_evidence_image.public_url
+                paymentObjToPull.payment_evidence_image.public_url,
               );
             }
 
@@ -649,7 +649,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
 
             if (paymentObjToPull?.payment_evidence_image.url) {
               await cloudinaryDestroy(
-                paymentObjToPull.payment_evidence_image.public_url
+                paymentObjToPull.payment_evidence_image.public_url,
               );
             }
 
@@ -668,7 +668,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
 
             if (paymentObjToPull?.payment_evidence_image.url) {
               await cloudinaryDestroy(
-                paymentObjToPull.payment_evidence_image.public_url
+                paymentObjToPull.payment_evidence_image.public_url,
               );
             }
             currentTermPayment.waiting_for_confirmation.pull(paymentObjToPull);
@@ -684,7 +684,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
       if (currentTermPayment.is_payment_complete) {
         throw new AppError(
           "Payment for this term has already been completed.",
-          400
+          400,
         );
       }
 
@@ -695,7 +695,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
       if (remainingAmountToPay > currentTermPayment.remaining_amount) {
         throw new AppError(
           "Amount planning to pay is more than what is expected for this term.",
-          400
+          400,
         );
       }
 
@@ -722,7 +722,7 @@ const calculateAndUpdateStudentPaymentDocuments = async (
       if (payment_type === "bank") {
         if (paymentObjToPull?.payment_evidence_image.url) {
           await cloudinaryDestroy(
-            paymentObjToPull.payment_evidence_image.public_url
+            paymentObjToPull.payment_evidence_image.public_url,
           );
         }
         currentTermPayment.waiting_for_confirmation.pull(paymentObjToPull);

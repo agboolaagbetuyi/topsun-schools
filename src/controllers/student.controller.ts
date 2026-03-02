@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { StudentLinkingType } from "../constants/types";
 import {
   fetchAllStudents,
@@ -92,18 +91,14 @@ const updateStudentDetails = catchErrors(async (req, res) => {
 
   const { success, value } = validateInput;
 
-  const parent_id =
-    userRole === "parent" ? req.user?.userId.toString() : undefined;
-
-  if (userRole === "parent" && !parent_id) {
-    throw new AppError("Parent ID not found.", 400);
+  if (!userRole) {
+    throw new AppError("User role is required. Please login to proceed.", 400);
   }
 
   const userObj = {
     home_address: value.home_address,
     student_id,
     userRole,
-    parent_id,
   };
 
   const result = await studentUpdateDetails(req, userObj, res);
@@ -295,7 +290,7 @@ const studentsSubscribeToNewSession = catchErrors(async (req, res) => {
   if (!result) {
     throw new AppError(
       "Unable to send subscription notification to students and parents.",
-      400
+      400,
     );
   }
 
@@ -343,7 +338,7 @@ const adminUpdateStudentSessionSubscription = catchErrors(async (req, res) => {
   if (student_ids_array.length === 0) {
     throw new AppError(
       "Please provide the IDs of the students that which to subscribe to a new session in the school.",
-      400
+      400,
     );
   }
 
@@ -363,7 +358,7 @@ const adminUpdateStudentSessionSubscription = catchErrors(async (req, res) => {
   if (!result) {
     throw new AppError(
       "Unable to update student for session subscription.",
-      400
+      400,
     );
   }
 
@@ -413,7 +408,7 @@ const studentOrParentUpdateStudentSessionSubscription = catchErrors(
     ) {
       throw new AppError(
         "Please provide a valid student ID, new session subscription status and academic session ID to proceed.",
-        400
+        400,
       );
     }
 
@@ -429,14 +424,13 @@ const studentOrParentUpdateStudentSessionSubscription = catchErrors(
       new_session_subscription_status,
     };
 
-    const result = await studentSessionSubscriptionUpdateByStudentOrParent(
-      payload
-    );
+    const result =
+      await studentSessionSubscriptionUpdateByStudentOrParent(payload);
 
     if (!result) {
       throw new AppError(
         "Unable to update student for session subscription.",
-        400
+        400,
       );
     }
 
@@ -467,7 +461,7 @@ const studentOrParentUpdateStudentSessionSubscription = catchErrors(
       success: true,
       student: result,
     });
-  }
+  },
 );
 
 const getStudentsThatSubscribedToNewSession = catchErrors(async (req, res) => {
@@ -484,7 +478,7 @@ const getStudentsThatSubscribedToNewSession = catchErrors(async (req, res) => {
   if (!result) {
     throw new AppError(
       "Unable to fetch students that has subscribed to a new session for this class.",
-      404
+      404,
     );
   }
 
@@ -532,7 +526,7 @@ const getNewStudentsThatHasNoClassEnrolmentBefore = catchErrors(
     const result = await fetchNewStudentsThatHasNoClassEnrolmentBefore(
       page,
       limit,
-      searchQuery
+      searchQuery,
     );
 
     if (!result) {
@@ -566,7 +560,7 @@ const getNewStudentsThatHasNoClassEnrolmentBefore = catchErrors(
       success: true,
       students: result,
     });
-  }
+  },
 );
 
 const getStudentsThatAreYetToSubscribedToNewSession = catchErrors(
@@ -582,13 +576,13 @@ const getStudentsThatAreYetToSubscribedToNewSession = catchErrors(
     const result = await fetchStudentsThatAreYetToSubscribedToNewSession(
       page,
       limit,
-      searchQuery
+      searchQuery,
     );
 
     if (!result) {
       throw new AppError(
         "Unable to fetch students that are yet to subscribe to a new session.",
-        400
+        400,
       );
     }
 
@@ -619,19 +613,19 @@ const getStudentsThatAreYetToSubscribedToNewSession = catchErrors(
       success: true,
       students_yet_to_subscribe_to_new_session: result,
     });
-  }
+  },
 );
 
 export {
-  getAStudentById,
-  updateStudentDetails,
+  adminUpdateStudentSessionSubscription,
   getAllStudents,
   getAllStudentsOnAClassLevel,
-  linkStudentWithParent,
-  studentsSubscribeToNewSession,
-  adminUpdateStudentSessionSubscription,
-  studentOrParentUpdateStudentSessionSubscription,
-  getStudentsThatSubscribedToNewSession,
+  getAStudentById,
   getNewStudentsThatHasNoClassEnrolmentBefore,
   getStudentsThatAreYetToSubscribedToNewSession,
+  getStudentsThatSubscribedToNewSession,
+  linkStudentWithParent,
+  studentOrParentUpdateStudentSessionSubscription,
+  studentsSubscribeToNewSession,
+  updateStudentDetails,
 };

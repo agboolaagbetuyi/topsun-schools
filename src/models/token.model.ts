@@ -14,7 +14,7 @@ const adminTokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const superAdminTokenSchema = new mongoose.Schema(
@@ -31,7 +31,7 @@ const superAdminTokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const nonTeachingTokenSchema = new mongoose.Schema(
@@ -48,7 +48,7 @@ const nonTeachingTokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const oldStudentTokenSchema = new mongoose.Schema(
@@ -65,7 +65,7 @@ const oldStudentTokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const parentTokenSchema = new mongoose.Schema(
@@ -82,7 +82,7 @@ const parentTokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const studentTokenSchema = new mongoose.Schema(
@@ -99,7 +99,7 @@ const studentTokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const teacherTokenSchema = new mongoose.Schema(
@@ -116,21 +116,21 @@ const teacherTokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const AdminToken = mongoose.model("AdminToken", adminTokenSchema);
 const SuperAdminToken = mongoose.model(
   "SuperAdminToken",
-  superAdminTokenSchema
+  superAdminTokenSchema,
 );
 const NonTeachingToken = mongoose.model(
   "NonTeachingToken",
-  nonTeachingTokenSchema
+  nonTeachingTokenSchema,
 );
 const OldStudentToken = mongoose.model(
   "OldStudentToken",
-  oldStudentTokenSchema
+  oldStudentTokenSchema,
 );
 const ParentToken = mongoose.model("ParentToken", parentTokenSchema);
 const StudentToken = mongoose.model("StudentToken", studentTokenSchema);

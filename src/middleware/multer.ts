@@ -22,7 +22,7 @@ const maxLimit = 1024 * 1024 * 1024 * 2;
 const fileFilter = (
   req: Request,
   file: Express.Multer.File,
-  cb: FileFilterCallback
+  cb: FileFilterCallback,
 ) => {
   if (
     file.mimetype === "image/jpeg" ||
