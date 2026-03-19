@@ -50,6 +50,8 @@ type SchoolUserType = UserObj & {
   school_id: mongoose.Types.ObjectId;
 };
 
+type Position = "head_teacher" | "hod" | "counsellor";
+
 type UserDocument = Document &
   UserObj & {
     _id: mongoose.Types.ObjectId;
@@ -58,6 +60,7 @@ type UserDocument = Document &
     role: string;
     is_verified?: boolean;
     redundant?: boolean;
+    positions: Position[];
     wallet_account_obj?: StudentAccountType;
     is_chosen_major?: boolean;
     new_session_subscription?: boolean;
@@ -89,6 +92,11 @@ type UserDocument = Document &
       url: string;
       public_url: string;
     };
+    signature?: {
+      url: string;
+      public_url: string;
+    };
+    is_signature_added?: boolean;
     children?: mongoose.Types.ObjectId[];
     class_managing?: mongoose.Types.ObjectId;
     session: string;
@@ -1385,6 +1393,14 @@ type ContactUsType = {
   message: string;
 };
 
+type FeatureKey =
+  | "feeManagement"
+  | "paymentManagement"
+  | "cbtManagement"
+  | "assignmentManagement"
+  | "attendanceManagement"
+  | "lessonNoteManagement";
+
 type FeatureKeyType =
   | "result_processing"
   | "objective_exam"
@@ -2163,6 +2179,13 @@ type DeclineStudentPayloadType = {
   bursar_id: mongoose.Types.ObjectId;
 };
 
+type SubjectAdditionToEnrolledStudentsType = {
+  subject_id: string;
+  session_id: string;
+  enrolment_id: string;
+  studentIds: string[];
+};
+
 export {
   AccessModeType,
   AccountCreationReturnType,
@@ -2251,6 +2274,7 @@ export {
   ExamComponentType,
   ExamScoreType,
   ExcludeParentAndStudent,
+  FeatureKey,
   FeatureKeyType,
   FeePayloadType,
   FetchAttendanceType,
@@ -2361,6 +2385,7 @@ export {
   StudentValidationType,
   StudentWalletObjType,
   StudentWithPaymentType,
+  SubjectAdditionToEnrolledStudentsType,
   SubjectAdditionType,
   SubjectAssignmentSubmissionsType,
   SubjectCreationType,

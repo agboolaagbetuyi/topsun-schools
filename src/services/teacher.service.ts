@@ -1247,6 +1247,7 @@ import { SubjectResult } from "../models/subject_result.model";
 import TeacherAssignment from "../models/teacher_assignment.model";
 import Teacher from "../models/teachers.model";
 import { AppError } from "../utils/app.error";
+import { cloudinaryDestroy, uploadBase64Signature } from "../utils/cloudinary";
 import { capitalizeFirstLetter, genderFunction } from "../utils/functions";
 
 const classTeacherAssignedEndpoint = async (
@@ -1261,7 +1262,7 @@ const classTeacherAssignedEndpoint = async (
       _id: teacher_id,
     }).session(session);
 
-    if (!findTeacher) {
+    if (!findTeacher || findTeacher.redundant === true) {
       throw new AppError("Teacher not found.", 404);
     }
 
@@ -1345,7 +1346,7 @@ const assigningTeacherToSubject = async (
       _id: teacher_id,
     }).session(session);
 
-    if (!teacherInfo) {
+    if (!teacherInfo || teacherInfo.redundant === true) {
       throw new AppError("Teacher not found.", 404);
     }
 
@@ -1520,7 +1521,7 @@ const getTeacherDetailsById = async (
       )
       .lean();
 
-    if (!findTeacher) {
+    if (!findTeacher || findTeacher.redundant === true) {
       throw new AppError("Teacher not found.", 404);
     }
 
@@ -1549,6 +1550,7 @@ const fetchTeachersBySubjectId = async (
   try {
     let query = Teacher.find({
       subjects_capable_of_teaching: new mongoose.Types.ObjectId(subject_id),
+      redundant: false,
     });
 
     if (searchParams) {
@@ -1626,7 +1628,7 @@ const fetchAllTeachers = async (
   totalPages: number;
 }> => {
   try {
-    let query = Teacher.find({}).populate(
+    let query = Teacher.find({ redundant: false }).populate(
       "teaching_assignment.class_id teaching_assignment.subject subjects_capable_of_teaching",
     );
 
@@ -1719,7 +1721,7 @@ const onboardTeacher = async (
       _id: payload.teacher_id,
     }).session(session);
 
-    if (!teacher) {
+    if (!teacher || teacher.redundant === true) {
       throw new AppError("Teacher not found.", 404);
     }
 
@@ -1831,7 +1833,7 @@ const classTeacherChange = async (payload: ClassTeacherChangeType) => {
       .populate("class_managing")
       .session(session);
 
-    if (!teacherInfo) {
+    if (!teacherInfo || teacherInfo.redundant === true) {
       throw new AppError(
         `Teacher with ID: ${new_class_teacher_id} can not be found.`,
         404,
@@ -1901,7 +1903,7 @@ const changingTeacherToSubject = async (
       _id: new_teacher_id,
     }).session(session);
 
-    if (!teacherInfo) {
+    if (!teacherInfo || teacherInfo.redundant === true) {
       throw new AppError("Teacher not found.", 404);
     }
 
@@ -2111,7 +2113,7 @@ const fetchStudentsInClassOfferingTeacherSubject = async (
       const findTeacher = await Teacher.findById({
         _id: userId,
       });
-      if (!findTeacher) {
+      if (!findTeacher || findTeacher.redundant === true) {
         throw new AppError("Teacher not found.", 404);
       }
 
@@ -2272,7 +2274,7 @@ const fetchAllClassesTeacherTeachesByTeacherId = async (
       }[];
     }>("teaching_assignment.class_id teaching_assignment.subject");
 
-    if (!teacher) {
+    if (!teacher || teacher.redundant === true) {
       throw new AppError(`Teacher with ID: ${teacher_id} does not exist.`, 404);
     }
 
@@ -2366,7 +2368,7 @@ const fetchStudentsOfferingTeacherSubjectUsingClassId = async (
         _id: userId,
       });
 
-      if (!teacher) {
+      if (!teacher || teacher.redundant === true) {
         throw new AppError(`Teacher with ID: ${userId} does not exist.`, 404);
       }
 
@@ -2456,7 +2458,7 @@ const fetchAllStudentsInClassByClassId = async (
         _id: userId,
       });
 
-      if (!teacher) {
+      if (!teacher || teacher.redundant === true) {
         throw new AppError(`Teacher with ID: ${userId} does not exist.`, 404);
       }
 
@@ -2521,7 +2523,7 @@ const fetchStudentsInClassThatTeacherManages = async (
         _id: userId,
       });
 
-      if (!teacher) {
+      if (!teacher || teacher.redundant === true) {
         throw new AppError(`Teacher with ID: ${userId} does not exist.`, 404);
       }
 
@@ -2604,7 +2606,7 @@ const fetchClassTeacherManagesByTeacherId = async (
       _id: teacher,
     });
 
-    if (!teacherExist) {
+    if (!teacherExist || teacherExist.redundant === true) {
       throw new AppError("Teacher not found.", 404);
     }
 
@@ -2642,15 +2644,124 @@ const fetchClassTeacherManagesByTeacherId = async (
 const teacherDeletion = async (teacher_id: string) => {
   try {
     const teacherId = new mongoose.Types.ObjectId(teacher_id);
-    const teacher = await Teacher.findById(teacherId);
+    const teacher = await Teacher.findOneAndUpdate(
+      { _id: teacherId, redundant: false },
+      {
+        $set: {
+          redundant: true,
+          positions: [],
+        },
+      },
+      { new: true },
+    );
 
     if (!teacher) {
       throw new AppError("teacher not found.", 404);
     }
 
-    teacher.redundant = true;
-    await teacher.save();
     return teacher;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw new AppError(error.message, error.statusCode);
+    } else {
+      throw new Error("Something happened");
+    }
+  }
+};
+
+const teacherSignatureAddition = async (
+  signature: string,
+  userId: Types.ObjectId,
+) => {
+  try {
+    if (!signature.startsWith("data:image")) {
+      throw new AppError("Invalid inage format.", 400);
+    }
+
+    const teacher = await Teacher.findById(userId);
+
+    if (!teacher || teacher.redundant === true) {
+      throw new AppError("Teacher does not exist.", 404);
+    }
+
+    if (teacher.signature?.public_url) {
+      await cloudinaryDestroy(teacher.signature.public_url);
+    }
+
+    const uploadImage = await uploadBase64Signature(signature);
+
+    if (!uploadImage?.url && !uploadImage?.public_url) {
+      throw new AppError("Error uploading signature of the teacher.", 400);
+    }
+
+    teacher.signature = {
+      url: uploadImage?.url,
+      public_url: uploadImage?.public_url,
+    };
+
+    teacher.is_signature_added = true;
+
+    await teacher.save();
+    return teacher.signature;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw new AppError(error.message, error.statusCode);
+    } else {
+      throw new Error("Something happened");
+    }
+  }
+};
+
+const headTeacherAssignment = async (teacher_id: string) => {
+  try {
+    const teacherId = new mongoose.Types.ObjectId(teacher_id);
+
+    const teacher = await Teacher.findById(teacherId);
+
+    if (!teacher || teacher.redundant === true) {
+      throw new AppError("Teacher not found.", 404);
+    }
+
+    await Teacher.updateMany(
+      { "positions.title": "head_teacher" },
+      { $pull: { positions: { title: "head_teacher" } } },
+    );
+
+    const assignHeadTeacher = await Teacher.findByIdAndUpdate(
+      teacherId,
+      {
+        $addToSet: {
+          positions: { title: "head_teacher" },
+        },
+      },
+      { new: true },
+    );
+    console.log("assignHeadTeacher:", assignHeadTeacher);
+
+    if (!assignHeadTeacher) {
+      throw new AppError("Error assigning head teacher.", 400);
+    }
+
+    return { message: "Head teacher assigned successfully." };
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw new AppError(error.message, error.statusCode);
+    } else {
+      throw new Error("Something happened");
+    }
+  }
+};
+
+const fetchHeadTeacher = async () => {
+  try {
+    const headTeacher = await Teacher.findOne({
+      "positions.title": "head_teacher",
+    }).select("-password");
+
+    if (!headTeacher || headTeacher.redundant === true) {
+      throw new AppError("Head teacher not found.", 404);
+    }
+    return headTeacher;
   } catch (error) {
     if (error instanceof AppError) {
       throw new AppError(error.message, error.statusCode);
@@ -2669,11 +2780,14 @@ export {
   fetchAllStudentsInClassByClassId,
   fetchAllTeachers,
   fetchClassTeacherManagesByTeacherId,
+  fetchHeadTeacher,
   fetchStudentsInClassOfferingTeacherSubject,
   fetchStudentsInClassThatTeacherManages,
   fetchStudentsOfferingTeacherSubjectUsingClassId,
   fetchTeachersBySubjectId,
   getTeacherDetailsById,
+  headTeacherAssignment,
   onboardTeacher,
   teacherDeletion,
+  teacherSignatureAddition,
 };

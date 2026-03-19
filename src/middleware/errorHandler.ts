@@ -5,7 +5,7 @@ export const errorHandler: ErrorRequestHandler = (
   error,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   if (res.headersSent) {
     return next(error);

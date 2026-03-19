@@ -265,7 +265,7 @@ const getTermClassCbtAssessmentTimetables = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -312,7 +312,7 @@ const getAllClassCbtAssessmentTimetables = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -366,7 +366,7 @@ const createTermClassCbtAssessmentTimetable = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -428,7 +428,7 @@ const updateTermClassCbtAssessmentTimetableToChangeSubjectDate = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value,
+      ([key, value]) => value === undefined || value === null || value === "",
     );
 
     if (missingField) {
@@ -484,7 +484,7 @@ const endTakingASubjectInATimetableForATerm = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -536,7 +536,7 @@ const setSubjectCbtObjQuestionsForAClass = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -607,7 +607,7 @@ const classTeacherAuthorizeStudentsToWriteSubjectCbt = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value,
+      ([key, value]) => value === undefined || value === null || value === "",
     );
 
     if (missingField) {
@@ -662,7 +662,7 @@ const startSubjectCbtObjCbtAssessmentForAClass = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value,
+      ([key, value]) => value === undefined || value === null || value === "",
     );
 
     if (missingField) {
@@ -713,7 +713,7 @@ const updateSubjectCbtObjCbtAssessmentRemainingTimeForAClass = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value,
+      ([key, value]) => value === undefined || value === null || value === "",
     );
 
     if (missingField) {
@@ -767,7 +767,7 @@ const updateSubjectCbtObjCbtAssessmentAnswersForAClass = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value,
+      ([key, value]) => value === undefined || value === null || value === "",
     );
 
     if (missingField) {
@@ -822,7 +822,7 @@ const submitSubjectCbtObjCbtAssessmentForAClass = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value,
+      ([key, value]) => value === undefined || value === null || value === "",
     );
 
     if (missingField) {
@@ -906,7 +906,7 @@ const setSubjectCbtTheroyQuestionsForAClass = catchErrors(async (req, res) => {
   };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {

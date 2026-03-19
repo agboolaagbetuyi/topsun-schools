@@ -703,7 +703,7 @@ const recordStudentScorePerTerm = catchErrors(async (req, res) => {
     class_id,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -797,7 +797,7 @@ const manualCbtRecordingPerStudentPerTerm = catchErrors(async (req, res) => {
     class_id,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -922,7 +922,7 @@ const recordAllStudentsScoresPerTerm = catchErrors(async (req, res) => {
     class_id,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -1044,7 +1044,7 @@ const updateStudentsSubjectScoreInAClass = catchErrors(async (req, res) => {
     class_id,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -1179,7 +1179,7 @@ const recordAllStudentsExamScoresPerTerm = catchErrors(async (req, res) => {
     class_id,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -1381,7 +1381,7 @@ const getStudentTermResult = catchErrors(async (req, res) => {
   const requiredFields = { student_id, academic_session_id, term };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -1449,7 +1449,7 @@ const getStudentSessionResults = catchErrors(async (req, res) => {
   const requiredFields = { student_id, academic_session_id };
 
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {
@@ -1703,6 +1703,7 @@ const getStudentSpecificResult = catchErrors(async (req, res) => {
 
   const result = await fetchStudentSpecificResult(payload);
 
+  console.log("result:", result);
   // const duration = Date.now() - start;
 
   // const savelogPayload = {
@@ -1766,7 +1767,7 @@ const recordStudentEffectiveAreasForActiveTerm = catchErrors(
     };
 
     const missingField = Object.entries(requiredFields).find(
-      ([key, value]) => !value,
+      ([key, value]) => value === undefined || value === null || value === "",
     );
 
     if (missingField) {
@@ -1913,7 +1914,7 @@ const recordAllStudentsLastTermCumPerTerm = catchErrors(async (req, res) => {
     class_id,
   };
   const missingField = Object.entries(requiredFields).find(
-    ([key, value]) => !value,
+    ([key, value]) => value === undefined || value === null || value === "",
   );
 
   if (missingField) {

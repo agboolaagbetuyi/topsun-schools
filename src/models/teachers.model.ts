@@ -29,6 +29,18 @@ const teacherSchema = new mongoose.Schema<UserDocument>(
         ref: "Subject",
       },
     ],
+    positions: {
+      type: [
+        {
+          title: {
+            type: String,
+            enum: ["head_teacher", "hod", "counsellor"],
+          },
+          department: { type: String },
+        },
+      ],
+      default: [],
+    },
     teaching_assignment: [
       {
         subject: {
@@ -41,6 +53,11 @@ const teacherSchema = new mongoose.Schema<UserDocument>(
         },
       },
     ],
+    signature: {
+      url: { type: String },
+      public_url: { type: String },
+    },
+    is_signature_added: { type: Boolean, default: false },
   },
   {
     timestamps: true,

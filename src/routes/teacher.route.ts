@@ -1,5 +1,7 @@
 import express from "express";
 import {
+  addTeacherSignature,
+  assignHeadTeacher,
   assignTeacherToClass,
   assignTeacherToSubject,
   changeClassTeacher,
@@ -10,6 +12,7 @@ import {
   getAllTeachers,
   getATeacherById,
   getClassTeacherManagesByTeacherId,
+  getHeadTeacher,
   getStudentsInClassOfferingTeacherSubject,
   getStudentsInClassThatTeacherManages,
   getStudentsOfferingTeacherSubjectUsingClassId,
@@ -26,6 +29,17 @@ router.put(
   "/assign-class-teacher",
   permission(["admin", "super_admin"]),
   assignTeacherToClass,
+);
+
+router.post(
+  "/assign-head-teacher/:teacher_id",
+  permission(["super_admin", "admin"]),
+  assignHeadTeacher,
+);
+router.put(
+  "/add-teacher-signature",
+  permission(["teacher"]),
+  addTeacherSignature,
 );
 
 router.put(
@@ -68,6 +82,12 @@ router.get(
   "/get-all-teachers-by-subject/:subject_id",
   permission(["admin", "super_admin"]),
   getTeachersBySubjectId,
+);
+
+router.get(
+  "/get-head-teacher",
+  permission(["admin", "super_admin"]),
+  getHeadTeacher,
 );
 
 router.get(
